@@ -1,0 +1,47 @@
+<apex:page controller="bduBilanController">
+    <apex:pageBlock title="Générer un document au format de votre choix" mode="inlineEdit">
+        <apex:form id="bilan-form">
+
+            <apex:outputLabel value="Document : " />
+            <apex:selectList id="document-select" value="{!selectedDocument}" size="1" title="Documents">
+                <apex:selectOptions value="{!availableDocuments}"></apex:selectOptions>
+            </apex:selectList>
+            
+            <apex:selectList id="year-select" value="{!selectedYear}" size="1" title="Years">
+                <apex:selectOptions value="{!availableYears}"></apex:selectOptions>
+            </apex:selectList>
+            
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU1__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU1__c.Label} : " />
+            <apex:selectList rendered="{!$Setup.showOptions__c.showBU1__c}" value="{!selectedBU1}" size="1" >
+                <apex:selectOptions value="{!listBU1}"></apex:selectOptions>
+            </apex:selectList>
+            
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU2__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU2__c.Label} : " />
+            <apex:selectList rendered="{!$Setup.showOptions__c.showBU2__c}" value="{!selectedBU2}" size="1" >
+                <apex:selectOptions value="{!listBU2}"></apex:selectOptions>
+            </apex:selectList>
+            
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU3__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU3__c.Label} : " />
+            <apex:selectList rendered="{!$Setup.showOptions__c.showBU3__c}" value="{!selectedBU3}" size="1" >
+                <apex:selectOptions value="{!listBU3}"></apex:selectOptions>
+            </apex:selectList>
+            
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU4__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU4__c.Label} : " />
+            <apex:selectList rendered="{!$Setup.showOptions__c.showBU4__c}" value="{!selectedBU4}" size="1" >
+                <apex:selectOptions value="{!listBU4}"></apex:selectOptions>
+            </apex:selectList>
+            
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU5__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU5__c.Label} : " />
+            <apex:selectList rendered="{!$Setup.showOptions__c.showBU5__c}" value="{!selectedBU5}" size="1" >
+                <apex:selectOptions value="{!listBU5}"></apex:selectOptions>
+            </apex:selectList>
+
+            <apex:outputLabel value="Format du fichier " />
+            <apex:selectList value="{!selectedFormat}" size="1" >
+                <apex:selectOptions value="{!formats}"></apex:selectOptions>
+            </apex:selectList>
+            
+            <apex:commandButton action="{!generate}" value="Générer" title="Générer" onComplete="window.open('{!$CurrentPage}');" />
+        </apex:form>
+    </apex:pageBlock>
+</apex:page>

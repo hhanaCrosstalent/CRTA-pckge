@@ -1,0 +1,695 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false"  controller="VisualisationFraisController"  docType="html-5.0">  
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+
+      <!-- Infos -->
+      <div class="small-12 small-centered column">
+            <h3 class="title ">
+                  <apex:outputText value="{!$Label.crta__expenses_title}">
+                        <apex:param value="{!expense.Nom__c}"/>
+                        <apex:param value="{!expense.Date_de_debut__c}"/>
+                        <apex:param value="{!expense.Date_de_fin__c}"/>
+                        <apex:param value="{!expense.Statut__c}"/>
+                  </apex:outputText>
+            </h3>
+      </div>
+      <apex:form >
+      <!-- Frais-->
+      <div id="expense-block" class="small-12 small-centered column tab-block expense-block" data-fold="false">
+            <h4 class="title secondary-font header">
+                  <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('expense-block');">
+                        <i class="fa fa-credit-card"></i>
+                        <span>{!$ObjectType.Frais__c.LabelPlural}</span>
+                  </a>
+            </h4>
+            <div class="card">
+                  <div data-foldable="true">
+                        <div class="row header-table secondary-color">
+                              <div class="small-3 medium-2 column">
+                                   <span>{!$ObjectType.Frais__c.fields.Date__c.Label}</span>
+                              </div>
+                              <div class="hide-for-small medium-2 column">
+                                    <span>{!$ObjectType.Frais__c.fields.Centre_de_frais__c.Label}</span>
+                              </div>
+                              <div class="small-3 medium-2 column">
+                                    <span>{!$ObjectType.Frais__c.fields.Type__c.Label}</span>
+                              </div>
+                              <div class="small-3 medium-2 column">
+                                    <span>{!$ObjectType.Frais__c.fields.Total__c.Label} ({!total}{!$Label.expenses_currency})</span>
+                              </div>
+                              <apex:outputPanel layout="block" rendered="{!IF(expense.Valeur_statut__c >= 50, true, false)}" styleClass="hide-for-small medium-2 column">
+                                    <span>{!$ObjectType.Frais__c.fields.Montant_rembourse__c.Label}</span>
+                              </apex:outputPanel>
+                              <div class="small-3 medium-2 column">
+                                    <span>{!$ObjectType.Frais__c.fields.Justificatif_present__c.Label}</span>
+                              </div>
+                              <apex:outputPanel layout="block" rendered="{!IF(expense.Valeur_statut__c < 20, true, false)}" styleClass="hide-for-small medium-2 column">
+                                    <span>{!$Label.crta__actions}</span>
+                              </apex:outputPanel>
+                        </div>
+                        <div id="expense-table" class="result-table">
+                              <apex:repeat value="{!expenseLines}" var="expenseLine">
+                                    <div id="line-{!expenseLine.Id}" class="row highlight-primary">
+                                          <div class="small-3 medium-2 column">
+                                                &nbsp;
+                                                <span class="ct-output"><apex:outputField value="{!expenseLine.Date__c}" /></span>
+                                          </div>
+                                          <div class="hide-for-small medium-2 column">
+                                                &nbsp;
+                                                <span class="ct-output"><apex:outputField value="{!expenseLine.Centre_de_frais__c}"/></span>
+                                          </div>
+                                          <div class="small-3 medium-2 column">
+                                                &nbsp;
+                                                <span class="ct-output">
+                                                  <apex:outputField rendered="{!expenseLine.Autre_depense__c == null || expenseLine.Autre_depense__c == ''}" value="{!expenseLine.Type__c}" />
+                                                  <apex:outputField rendered="{!expenseLine.Autre_depense__c != null}" value="{!expenseLine.Autre_depense__c}" />
+                                                </span>
+                                          </div>
+                                          <div class="small-3 medium-2 column">
+                                                &nbsp;
+                                                <span class="ct-output"><apex:outputField value="{!expenseLine.Total__c}" /></span>
+                                          </div>
+                                          <apex:outputPanel layout="block" rendered="{!IF(expense.Valeur_statut__c >= 30, true, false)}" styleClass="hide-for-small medium-2 column">
+                                                &nbsp;
+                                                <span class="ct-output"><apex:outputField value="{!expenseLine.Montant_rembourse__c}" /></span>
+                                          </apex:outputPanel>
+                                          <div class="hide-for-small medium-2 column">
+                                                &nbsp;
+                                                <span class="ct-output">
+                                                  <i class="fa fa-square-o {!IF(expenseLine.Attachments.size == 0, 'show', 'hide')}"></i><apex:outputLink rendered="{!expenseLine.Attachments.size > 0}" value="{!URLFOR($Action.Attachment.Download, expenseLine.Attachments[0].Id)}" styleClass="blue-font">{!expenseLine.Attachments[0].Name}</apex:outputLink>
+                                                </span>
+                                          </div>
+                                          <apex:outputPanel layout="block" rendered="{!IF(expense.Valeur_statut__c < 20, true, false)}" styleClass="hide-for-small medium-2 column">
+                                                <a href="#" class="blue-font edit-action" title="Editer" data-reveal-id="{!IF(expenseLine.Type__c == 'Autre dépense', 'other-', 'general-')}{!expenseLine.Id}"><i class="fa fa-pencil"></i></a>
+                                                <a href="#" class="gray-font clone-action" title="Clone" onclick="event.preventDefault(); cloneExpense('{!expenseLine.Id}')"><i class="fa fa-clone"></i></a>
+                                                <a href="#" class="delete-action red-font" title="Supprimer" onclick="event.preventDefault(); var toDel = confirm('{!$Label.Expense_delete_expense}'); if(toDel) {deleteExpense('{!expenseLine.Id}')}"><i class="fa fa-minus-circle"></i></a>
+                                          </apex:outputPanel>
+                                    </div>
+                                    <!-- Modal autre -->
+                                    <div id="other-{!expenseLine.Id}" class="row reveal-modal expenseLine-modal" data-reveal="true">
+                                          <h3 class="small-12 title">{!$ObjectType.Frais__c.Label}</h3>
+
+                                          <div class="small-12">
+                                                <div class="row">
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Date__c.Label}<apex:inputField value="{!expenseLine.Date__c}" styleClass="date-select datepicker" required="required"/></label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Centre_de_frais__c.Label}<apex:inputField value="{!expenseLine.Centre_de_frais__c}" styleClass="centre-select" required="required"/></label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Autre_depense__c.Label}<input type="text" name="autre" value="{!expenseLine.Autre_depense__c}" class="autre-select" required="required"/></label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Montant__c.Label}<input type="number" min="0" step="0.01" name="montant" value="{!expenseLine.Montant__c}" class="amount-select" required="required"/></label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Justificatif_present__c.Label}
+                                                                  <select name="justificatif" class="justificatif-select">
+                                                                        <option value="true">{!$Label.yes}</option>
+                                                                        <option value="false">{!$Label.no}</option>
+                                                                  </select>
+                                                            </label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column end">
+                                                            <label>{!$Label.Expense_justificatif} <input type="file" name="file" value="" class="file" /></label>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); updateExpenseOther('{!expenseLine.Id}')">{!$Label.update}</a>
+                                          <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+                                    </div>
+
+                                    <!-- Modal general -->
+                                    <div id="general-{!expenseLine.Id}" class="row reveal-modal expenseLine-modal" data-reveal="true">
+                                          <h3 class="small-12 title">{!$ObjectType.Frais__c.Label}</h3>
+
+                                          <div class="small-12">
+                                                <div class="row">
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Date__c.Label}<apex:inputField value="{!expenseLine.Date__c}" styleClass="date-select datepicker" required="required"/></label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Centre_de_frais__c.Label}<apex:inputField value="{!expenseLine.Centre_de_frais__c}" styleClass="centre-select" required="required"/></label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Type__c.Label}<apex:inputField value="{!expenseLine.Type__c}" styleClass="type-select" /></label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Montant__c.Label}<input type="number" min="0" step="0.01" name="montant" value="{!expenseLine.Montant__c}" class="amount-select" required="required"/></label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column">
+                                                            <label>{!$ObjectType.Frais__c.fields.Justificatif_present__c.Label}
+                                                                  <select name="justificatif" class="justificatif-select">
+                                                                        <option value="true">{!$Label.yes}</option>
+                                                                        <option value="false">{!$Label.no}</option>
+                                                                  </select>
+                                                            </label>
+                                                      </div>
+                                                      <div class="small-12 medium-4 column end">
+                                                            <label>{!$Label.Expense_Justificatif} <input type="file" name="file" value="" class="file" /></label>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); updateExpenseGeneral('{!expenseLine.Id}')">{!$Label.update}</a>
+                                          <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+                                    </div>
+                              </apex:repeat>
+                        </div>
+                  </div>
+            </div>
+      </div>
+
+      <!-- Modal autre -->
+      <div id="expenseLine" class="row reveal-modal expenseLine-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$ObjectType.Frais__c.Label}</h3>
+
+            <div class="small-12">
+                  <div class="row">
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Date__c.Label}<input type="date" name="start" value="" class="date-select datepicker" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Centre_de_frais__c.Label}<input type="text" name="centre" value="" class="centre-select" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Type__c.Label}<input type="text" name="autre" value="" class="autre-select" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Montant__c.Label}<input type="number" min="0" step="0.01" name="montant" value="" class="amount-select" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Justificatif_present__c.Label}
+                                    <select name="justificatif" class="justificatif-select">
+                                          <option value="true">{!$Label.yes}</option>
+                                          <option value="false" selected="selected">{!$Label.no}</option>
+                                    </select>
+                              </label>
+                        </div>
+                        <div class="small-12 medium-4 column end">
+                              <label>{!$Label.Expense_justificatif} <input type="file" name="file" value="" class="file" /></label>
+                        </div>
+                  </div>
+            </div>
+
+            <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createExpenseOther('expenseLine')">{!$Label.create}</a>
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <!-- Modal food -->
+      <div id="expenseFood" class="row reveal-modal expenseLine-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$ObjectType.Frais__c.Label}</h3>
+
+            <div class="small-12">
+                  <div class="row">
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Date__c.Label}<input type="date" name="start" value="" class="date-select datepicker" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Centre_de_frais__c.Label}<input type="text" name="centre" value="" class="centre-select" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Type__c.Label}
+                                    <apex:selectList value="{!selectedExpenseType}" size="1" styleClass="type-select">
+                                          <apex:selectOptions value="{!foodExpenseTypes}"></apex:selectOptions>
+                                    </apex:selectList>
+                              </label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Montant__c.Label}<input type="number" min="0" step="0.01" name="montant" value="" class="amount-select" required="required"/>
+                                    <small class="error hide"><apex:outputText value="{!$Label.crta__expense_validation_amount_food}"><apex:param value="{!$Setup.expenses__c.maxAmountFood__c}"/></apex:outputText></small>
+                              </label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Justificatif_present__c.Label}
+                                    <select name="justificatif" class="justificatif-select">
+                                          <option value="true">{!$Label.yes}</option>
+                                          <option value="false" selected="selected">{!$Label.no}</option>
+                                    </select>
+                              </label>
+                        </div>
+                        <div class="small-12 medium-4 column end">
+                              <label>{!$Label.Expense_Justificatif} <input type="file" name="file" value="" class="file" /></label>
+                        </div>
+                  </div>
+            </div>
+
+            <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createExpenseGeneral('expenseFood')">{!$Label.create}</a>
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <!-- Modal transport -->
+      <div id="expenseTransport" class="row reveal-modal expenseLine-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$ObjectType.Frais__c.Label}</h3>
+
+            <div class="small-12">
+                  <div class="row">
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Date__c.Label}<input type="date" name="start" value="" class="date-select datepicker" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Centre_de_frais__c.Label}<input type="text" name="centre" value="" class="centre-select" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Type__c.Label}
+                                    <apex:selectList value="{!selectedExpenseType}" size="1" styleClass="type-select">
+                                          <apex:selectOptions value="{!transportExpenseTypes}"></apex:selectOptions>
+                                    </apex:selectList>
+                              </label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Montant__c.Label}<input type="number" min="0" step="0.01" name="montant" value="" class="amount-select" required="required"/></label>
+                              <small class="error hide"><apex:outputText value="{!$Label.crta__expense_validation_amount_transport}"><apex:param value="{!$Setup.expenses__c.maxAmountTransport__c}"/></apex:outputText></small>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Justificatif_present__c.Label}
+                                    <select name="justificatif" class="justificatif-select">
+                                          <option value="true">{!$Label.yes}</option>
+                                          <option value="false" selected="selected">{!$Label.no}</option>
+                                    </select>
+                              </label>
+                        </div>
+                        <div class="small-12 medium-4 column end">
+                              <label>{!$Label.Expense_Justificatif} <input type="file" name="file" value="" class="file" /></label>
+                        </div>
+                  </div>
+            </div>
+
+            <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createExpenseGeneral('expenseTransport')">{!$Label.create}</a>
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <!-- Modal Hotel -->
+      <div id="expenseHotel" class="row reveal-modal expenseLine-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$ObjectType.Frais__c.Label}</h3>
+
+            <div class="small-12">
+                  <div class="row">
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Date__c.Label}<input type="date" name="start" value="" class="date-select datepicker" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Centre_de_frais__c.Label}<input type="text" name="centre" value="" class="centre-select" required="required"/></label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Type__c.Label}
+                                    <apex:selectList value="{!selectedExpenseType}" size="1" styleClass="type-select">
+                                          <apex:selectOptions value="{!hotelExpenseTypes}"></apex:selectOptions>
+                                    </apex:selectList>
+                              </label>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Montant__c.Label}<input type="number" min="0" step="0.01" name="montant" value="" class="amount-select" required="required"/></label>
+                              <small class="error hide"><apex:outputText value="{!$Label.crta__expense_validation_amount_hotel}"><apex:param value="{!$Setup.expenses__c.maxAmountHotel__c}"/></apex:outputText></small>
+                        </div>
+                        <div class="small-12 medium-4 column">
+                              <label>{!$ObjectType.Frais__c.fields.Justificatif_present__c.Label}
+                                    <select name="justificatif" class="justificatif-select">
+                                          <option value="true">{!$Label.yes}</option>
+                                          <option value="false" selected="selected">{!$Label.no}</option>
+                                    </select>
+                              </label>
+                        </div>
+                        <div class="small-12 medium-4 column end">
+                              <label>{!$Label.Expense_Justificatif} <input type="file" name="file" value="" class="file" /></label>
+                        </div>
+                  </div>
+            </div>
+
+            <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createExpenseGeneral('expenseHotel')">{!$Label.create}</a>
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <apex:outputPanel layout="block" rendered="{!expense.Valeur_statut__c > 10}" styleClass="small-12 medium-8 large-6 column">
+            <label>{!$ObjectType.Note_de_frais__c.fields.Commentaire__c.Label}:
+                  <apex:outputField rendered="{!!isManager || expense.Valeur_statut__c != 20}"
+                        value="{!expense.Commentaire__c}" />
+                  <apex:inputField rendered="{!isManager && expense.Valeur_statut__c == 20}" value="{!expense.Commentaire__c}"
+                  />
+            </label>
+      </apex:outputPanel>
+      <ul class="button-group action-buttons small-12 medium-4 large-6 column {!IF(expense.Valeur_statut__c == 20 && isManager, 'show','hide')}">
+            <li>
+                  <apex:commandLink action="{!acceptExpense}" styleClass="action button flat green" value="{!$Label.crta__expense_accept}"
+                  />
+            </li>
+            <li>
+                  <apex:commandLink action="{!returnExpense}" styleClass="action button flat gray" value="{!$Label.crta__expense_return}"
+                  />
+            </li>
+            <li>
+                  <apex:commandLink action="{!rejectExpense}" styleClass="action button flat red" value="{!$Label.crta__expense_reject}"
+                  />
+            </li>
+      </ul>
+      
+      <apex:outputPanel layout="block" rendered="{!expense.Valeur_statut__c < 20}" styleClass="add-buttons column">
+            <a class="green add button flat " onclick="event.preventDefault(); spreadButtons();" title="">
+                  <i class="fa fa-plus"></i>
+            </a>
+            <a class="green add button flat " data-reveal-id="expenseFood" title="{!$Label.Expense_food}">
+                  <i class="fa fa-cutlery"></i>
+            </a>
+            <a class="green add button flat " data-reveal-id="expenseTransport" title="{!$Label.Expense_transport}">
+                  <i class="fa fa-train"></i>
+            </a>
+            <a class="green add button flat " data-reveal-id="expenseHotel" title="{!$Label.Expense_hotel}">
+                  <i class="fa fa-hotel"></i>
+            </a>
+            <a class="green add button flat " data-reveal-id="expenseLine" title="{!$Label.Expense_other}">
+                  <i class="fa fa-cog"></i>
+            </a>
+            <apex:commandLink title="{!$Label.crta__expense_validate}" action="{!validateExpense}" onclick="return confirm('{!$Label.crta__expense_validate_expense}')"
+                  styleClass="green valid button flat">{!$Label.crta__expense_validate}</apex:commandLink>
+      </apex:outputPanel>
+      </apex:form>
+
+            
+
+      <script type="text/javascript">
+            jQuery(document).on('change', '#expenseHotel .amount-select', function(event) {
+                  if(jQuery(this).val() > {!IF($Setup.crta__expenses__c.crta__maxAmountHotel__c != null, $Setup.crta__expenses__c.crta__maxAmountHotel__c, 10000)}) {
+                    jQuery(this).siblings('.error').removeClass('hide');
+                  } else if(!jQuery(this).hasClass('hide')) {
+                    jQuery(this).siblings('.error').addClass('hide');
+                  }
+            });
+
+            jQuery(document).on('change', '#expenseFood .amount-select', function(event) {
+                  if(jQuery(this).val() > {!IF($Setup.crta__expenses__c.crta__maxAmountFood__c != null, $Setup.crta__expenses__c.crta__maxAmountFood__c, 10000)}) {
+                    jQuery(this).siblings('.error').removeClass('hide');
+                  } else if(!jQuery(this).hasClass('hide')) {
+                    jQuery(this).siblings('.error').addClass('hide');
+                  }
+            });
+
+            jQuery(document).on('change', '#expenseTransport .amount-select', function(event) {
+                  if(jQuery(this).val() > {!IF($Setup.crta__expenses__c.crta__maxAmountTransport__c != null, $Setup.crta__expenses__c.crta__maxAmountTransport__c, 10000)}) {
+                    jQuery(this).siblings('.error').removeClass('hide');
+                  } else if(!jQuery(this).hasClass('hide')) {
+                    jQuery(this).siblings('.error').addClass('hide');
+                  }
+            });
+
+            var files = [];
+            jQuery(".expenseLine-modal input[type=file]").change(function(event) {
+                  files = [];
+                  jQuery.each(event.target.files, function(index, file) {
+                        var object = {};
+                        var reader = new FileReader();
+                        reader.onload = function(readerEvent) {
+                              var image = new Image();
+                              var canvas = document.createElement('canvas');
+                              image.onload = function (imageEvent) {
+                                    // Resize the image
+                                    max_size = 750,
+                                    width = image.width,
+                                    height = image.height;
+                                    if (width > height) {
+                                          if (width > max_size) {
+                                              height *= max_size / width;
+                                              width = max_size;
+                                          }
+                                    } else {
+                                          if (height > max_size) {
+                                              width *= max_size / height;
+                                              height = max_size;
+                                          }
+                                    }
+                                    canvas.width = width;
+                                    canvas.height = height;
+                                    canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+                                    object.filename = file.name;
+                                    object.data = canvas.toDataURL('image/jpeg');
+                                    files.push(object);
+                              }
+                              image.src = readerEvent.target.result;
+                        };  
+                        reader.readAsDataURL(file);
+                  });
+            });
+
+            function spreadButtons () {
+                  jQuery('.add.button').toggleClass('spread');
+            }
+
+            function createExpenseOther(id) {
+                  jQuery('#'+id+' .flat.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  var date;
+                  if (!Modernizr.inputtypes.date) {
+                        date = moment(jQuery('#'+id+' .date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                  } else {
+                        date = moment(jQuery('#'+id+' .date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+                  }
+                  var centre = jQuery('#'+id+' .centre-select')[0];
+                  var other = jQuery('#'+id+' .autre-select')[0];
+                  var amount = jQuery('#'+id+' .amount-select')[0];
+                  var justificatif = jQuery('#'+id+' .justificatif-select')[0];
+                  var file = (files[0]) ? files[0].data : '';
+                  var filename = (files[0]) ? files[0].filename : '';
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'ExpenseLineManager', 'createExpenseLine', {
+                        category: 'other',
+                        other: other.value,
+                        lineDate: date,
+                        centre: centre.value,
+                        type: 'Autre dépense',
+                        amount: amount.value.replace(',', '.'),
+                        isJustified: justificatif.value,
+                        contactId: '{!expense.Salarie__c}',
+                        noteId: '{!expense.Id}',
+                        receiptFile: file,
+                        receiptFilename: filename
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    window.location.reload();
+                              } else {
+                                    console.log(result);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                                    jQuery('#'+id).foundation('reveal', 'close');
+                                    jQuery('#'+id+' .flat.button').html('{!$Label.create}');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+err.faultstring+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .flat.button').html('{!$Label.create}');
+                        }
+                  });
+            }
+
+            function createExpenseGeneral(id) {
+                  jQuery('#'+id+' .flat.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  var date;
+                  if (!Modernizr.inputtypes.date) {
+                        date = moment(jQuery('#'+id+' .date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                  } else {
+                        date = moment(jQuery('#'+id+' .date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+                  }
+                  var centre = jQuery('#'+id+' .centre-select')[0];
+                  var type = jQuery('#'+id+' .type-select')[0];
+                  var amount = jQuery('#'+id+' .amount-select')[0];
+                  var justificatif = jQuery('#'+id+' .justificatif-select')[0];
+                  var file = (files[0]) ? files[0].data : '';
+                  var filename = (files[0]) ? files[0].filename : '';
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'ExpenseLineManager', 'createExpenseLine', {
+                        category: 'general',
+                        other: '',
+                        lineDate: date,
+                        centre: centre.value,
+                        type: type.value,
+                        amount: amount.value.replace(',', '.'),
+                        isJustified: justificatif.value,
+                        contactId: '{!expense.Salarie__c}',
+                        noteId: '{!expense.Id}',
+                        receiptFile: file,
+                        receiptFilename: filename
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    window.location.reload();
+                              } else {
+                                    console.log(result);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                                    jQuery('#'+id).foundation('reveal', 'close');
+                                    jQuery('#'+id+' .flat.button').html('{!$Label.create}');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+err.faultstring+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .flat.button').html('{!$Label.create}');
+                        }
+                  });
+            }
+
+            function updateExpenseGeneral(id) {
+                  jQuery('#general-'+id+' .flat.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  var date;
+                  if (!Modernizr.inputtypes.date) {
+                        date = moment(jQuery('#general-'+id+' .date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                  } else {
+                        date = moment(jQuery('#general-'+id+' .date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+                  }
+                  var centre = jQuery('#general-'+id+' .centre-select')[0];
+                  var type = jQuery('#general-'+id+' .type-select')[0];
+                  var amount = jQuery('#general-'+id+' .amount-select')[0];
+                  var justificatif = jQuery('#general-'+id+' .justificatif-select')[0];
+                  var file = (files[0]) ? files[0].data : '';
+                  var filename = (files[0]) ? files[0].filename : '';
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'ExpenseLineManager', 'editExpenseLine', {
+                        category: 'general',
+                        other: '',
+                        lineDate: date,
+                        centre: centre.value,
+                        type: type.value,
+                        amount: amount.value.replace(',', '.'),
+                        isJustified: justificatif.value,
+                        expenseLineId: id,
+                        receiptFile: file,
+                        receiptFilename: filename
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    window.location.reload();
+                              } else {
+                                    console.log(result);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                                    jQuery('#general-'+id).foundation('reveal', 'close');
+                                    jQuery('#general-'+id+' .flat.button').html('{!$Label.create}');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+err.faultstring+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('#general-'+id).foundation('reveal', 'close');
+                              jQuery('#general-'+id+' .flat.button').html('{!$Label.create}');
+                        }
+                  });
+            }
+
+            function updateExpenseOther(id) {
+                  jQuery('#other-'+id+' .flat.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  var date;
+                  if (!Modernizr.inputtypes.date) {
+                        date = moment(jQuery('#other-'+id+' .date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                  } else {
+                        date = moment(jQuery('#other-'+id+' .date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+                  }
+                  var centre = jQuery('#other-'+id+' .centre-select')[0];
+                  var other = jQuery('#other-'+id+' .autre-select')[0];
+                  var amount = jQuery('#other-'+id+' .amount-select')[0];
+                  var justificatif = jQuery('#other-'+id+' .justificatif-select')[0];
+                  var file = (files[0]) ? files[0].data : '';
+                  var filename = (files[0]) ? files[0].filename : '';
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'ExpenseLineManager', 'editExpenseLine', {
+                        category: 'other',
+                        other: other.value,
+                        lineDate: date,
+                        centre: centre.value,
+                        type: 'Autre dépense',
+                        amount: amount.value.replace(',', '.'),
+                        isJustified: justificatif.value,
+                        expenseLineId: id,
+                        receiptFile: file,
+                        receiptFilename: filename
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    window.location.reload();
+                              } else {
+                                    console.log(result);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                                    jQuery('#other-'+id).foundation('reveal', 'close');
+                                    jQuery('#other-'+id+' .flat.button').html('{!$Label.create}');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+err.faultstring+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('#other-'+id).foundation('reveal', 'close');
+                              jQuery('#other-'+id+' .flat.button').html('{!$Label.create}');
+                        }
+                  });
+            }
+
+            function deleteExpense(id) {
+                  var line = jQuery('#line-'+id);
+                  line.find('a.red-font i').addClass('fa-spin fa-spinner');
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'ExpenseLineManager', 'deleteExpenseLine', {
+                        expenseLineId: id
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    line.fadeOut();
+                              } else {
+                                    console.log(result);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                                    line.find('a.red-font i').removeClass('fa-spin fa-spinner');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+err.faultstring+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              line.find('a.red-font i').removeClass('fa-spin fa-spinner');
+                        }
+                  });
+            }
+
+            function cloneExpense(id) {
+                  var line = jQuery('#line-'+id);
+                  line.find('a i.fa-clone').removeClass('fa-clone').addClass('fa-spin fa-spinner');
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'ExpenseLineManager', 'cloneExpenseLine', {
+                        expenseLineId: id
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    line.find('a i.fa-spin.fa-spinner').removeClass('fa-spin fa-spinner').addClass('fa-clone');
+                                    var clone = line.clone();
+                                    clone.find('.edit-action').hide();
+                                    clone.find('.delete-action').hide();
+                                    clone.appendTo('#expense-table');
+                              } else {
+                                    console.log(result);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                                    line.find('a i.fa-spin.fa-spinner').removeClass('fa-spin fa-spinner').addClass('fa-clone');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+err.faultstring+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              line.find('a i.fa-spin.fa-spinner').removeClass('fa-spin fa-spinner').addClass('fa-clone');
+                        }
+                  });
+            }
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

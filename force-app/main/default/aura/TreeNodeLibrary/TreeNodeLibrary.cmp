@@ -1,0 +1,63 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 25/01/2019 (CreatedDate)
+-->
+<aura:component>
+    <aura:attribute name="node" type="Object" access="public"/>
+    <aura:attribute name="isExpanded" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="iconName" type="String" default="utility:open_folder" access="private"/>
+    <aura:attribute name="parent" type="Aura.Component" access="public" required="true" />
+    <aura:attribute name="isPrivate" type="String" access="private"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:registerEvent name="sampleComponentEvent" type="c:compEvent"/>
+
+    <li aria-expanded="{!v.node.expanded}" aria-label="{!v.node.label}" aria-level="{!v.node.level}" role="treeitem" data-id="{!v.node.name}" data-isFile="{!!v.node.isFolder}">
+        <div class="{!(v.node.isFolder?'tree-folder':'tree-file') + ' slds-tree__item slds-p-right_x-small'}" onclick="{!c.toggle}" title="{!v.node.label}">
+            <aura:if isTrue="{!v.node.isFolder}">
+                <aura:if isTrue="{!v.node.customIcon != undefined}">
+                    <lightning:icon src="{!v.node.customIcon}" alternativeText="{!v.node.expanded?$Label.c.Close:$Label.c.Open}" title="{!v.node.expanded?$Label.c.Close:$Label.c.Open}" size="small" class="slds-m-right_xx-small"/>
+                    <aura:set attribute="else">
+                        <lightning:icon iconName="{!v.iconName}" alternativeText="{!v.node.expanded?$Label.c.Close:$Label.c.Open}" title="{!v.node.expanded?$Label.c.Close:$Label.c.Open}" size="x-small" class="slds-m-right_small"/>
+                    </aura:set>
+                </aura:if>
+                <aura:set attribute="else">
+                   <lightning:icon iconName="utility:page" alternativeText="{!$Label.c.File}" title="{!v.node.label}" size="x-small" class="slds-m-right_small"/>
+                </aura:set>
+            </aura:if>
+            <span>
+                {!v.node.label}
+                <lightning:badge label="{!v.node.items.length}" class="slds-m-left_x-small"/>
+            </span>
+            <aura:if isTrue="{!!v.node.isFolder}">
+                &nbsp;-&nbsp;{!v.node.metatext}
+                <div data-documentid="{!v.node.name}" data-id="{!v.node.name}" class="slds-m-horizontal_x-small myActionsButtons">
+                    <lightning:buttonIcon iconName="utility:preview" variant="bare" alternativeText="{!$Label.c.Preview}" onclick="{!c.displayFiles}" class="slds-m-horizontal_x-small" size="medium"/>
+                    <lightning:buttonIcon iconName="utility:download" variant="bare" alternativeText="{!$Label.c.Download}" onclick="{!c.downloadFiles}" class="slds-m-horizontal_x-small" size="medium"/>
+                    <aura:if isTrue="{!v.isPrivate}">
+                        <lightning:buttonIcon iconName="utility:delete" variant="bare" alternativeText="{!$Label.c.Delete}" onclick="{!c.deleteFile}" class="slds-m-horizontal_x-small" size="medium" 
+                          disabled="{!!v.node.deletable}"
+
+
+
+
+
+  />
+                    </aura:if>
+                </div>
+            </aura:if>
+        </div>
+        <aura:if isTrue="{!v.node.tags.length > 0}">
+            <div class="myBadgeContainer">
+                <aura:iteration items="{!v.node.tags}" var="tag">
+                    <div class="slds-badge">{!tag}</div>
+                </aura:iteration>
+            </div>
+          </aura:if>
+        <aura:iteration items="{!v.node.items}" var="node">
+            <ul role="group">{!v.node.items}
+                <c:TreeNodeLibrary node="{!node}" parent="{!v.parent}"/>
+            </ul>
+        </aura:iteration>
+    </li>
+</aura:component>

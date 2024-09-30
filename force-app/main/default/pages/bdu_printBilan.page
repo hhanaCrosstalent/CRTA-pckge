@@ -1,0 +1,179 @@
+<apex:page sidebar="false" showHeader="false" cache="false" standardStylesheets="false" controller="bdu_printBilanController" docType="HTML-5.0" renderAs="{!render}" applyBodyTag="false" applyHtmlTag="false">
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head>
+        <title>{!$CurrentPage.parameters.document} - {!$CurrentPage.parameters.year}</title>
+        <style>
+            @page{
+                size: 21cm 29.7cm;  /* A4 */
+                margin: 1.5cm; /* Margins: 1.5cm */
+                mso-page-orientation: portrait; 
+                @top-left {
+                    content: '{!$CurrentPage.parameters.document} - {!$CurrentPage.parameters.year}';
+                    font-weight: bold;
+                    font-size: 18pt;
+                    color: #333;
+                }
+                @top-right {
+                    content: url("rapport_fichiers/{!topRight}.png");
+                    margin-top: 20px;
+                }
+                @bottom-left {
+                    content: url("rapport_fichiers/{!bottomLeft}.png");
+                }
+                @bottom-center {
+                    content: counter(page);
+                }
+                @bottom-right {
+                    content: url("rapport_fichiers/{!bottomRight}.png");
+                }
+            }
+            @page :first {
+                margin:0;
+                page: cover;
+                @top-left {
+                  content: normal;
+                  margin: 0;
+                }
+                @top-right {
+                  content: normal;
+                  margin: 0;
+                }
+                @bottom-right {
+                  content: normal;
+                  margin: 0;
+                }
+                @bottom-center {
+                  content: normal;
+                  margin: 0;
+                }
+                @bottom-left {
+                  content: normal;
+                  margin: 0;
+                }
+            }
+            body { font-size: 12pt; font-family: Arial; counter-reset: chapternum indicnum lichapternum;}
+            h1 { bookmark-level: 1; font-size: 18pt; font-family: Arial; }
+            h2 { bookmark-level: 2; font-size: 16pt; font-family: Arial; margin-bottom: 10px; counter-reset: indicnum;}
+            h2.chapter:before {
+                counter-increment: chapternum;
+                content: counter(chapternum) ". ";
+            }
+            h3 { bookmark-level: 3; font-size: 14pt; font-family: Arial; margin:0 0 15px 5px; display:inline-block;}
+            .indicateur h3:before {
+              counter-increment: indicnum;
+              content: counter(chapternum) "."counter(indicnum) " ";
+            }
+
+            h5 { bookmark-level: 5; }
+            h6 { bookmark-level: 6; }
+            img { page-break-inside: avoid; }
+            img { max-width: 100% !important; }
+            ul { -webkit-padding-start:20px; list-style-type: none;}
+            ul ul li { margin-left: -25px;}
+            li.chapter::before { 
+                counter-increment: lichapternum;
+                content: counter(lichapternum) ". ";
+            }
+            ul.toc a { text-decoration: none; }
+            ul.toc a::after { content: leader('.') target-counter(attr(href), page); }
+            .indicateur { page-break-inside:avoid;}
+            .sfdc_richtext > p { display: inline;}
+            .sfdc_richtext table { float left; page-break-inside:avoid;}
+            .sfdc_richtext table p { margin: 0;}
+            div.page-titre { page: cover; }
+            br.page-break { display:block; page-break-after: always; }
+            .hide { display: none; }
+        </style>
+        <apex:stylesheet value="{!customCSS}" />
+    </head>
+    <body>
+        <apex:image value="{!BottomLeftResource}" styleClass="hide" rendered="{!IF(selectedFormat != 'word', true, false)}" />
+        <apex:image value="{!BottomRightResource}" styleClass="hide" rendered="{!IF(selectedFormat != 'word', true, false)}" />
+        <apex:image value="{!BottomLeftResource}" styleClass="hide" rendered="{!IF(selectedFormat != 'word', true, false)}" />
+        
+        <apex:outputPanel layout="block" styleClass="page page-titre">
+                <apex:include pageName="{!printOptions.printFrontPage__c}" />
+                <br clear="all" class="page-break" style="mso-special-character:line-break;"/>
+        </apex:outputPanel>
+
+        <apex:outputPanel layout="block" rendered="{!IF(selectedFormat == 'word', true, false)}" styleClass="page page-sommaire">
+            <apex:outputtext rendered="{!BU1!=''}" >
+                <h1>{!$ObjectType.BDU_Valeur__c.fields.CT_BU1__c.Label}  : {!BU1}</h1><p/>
+            </apex:outputtext>    
+            <apex:outputtext rendered="{!BU2!=''}" >
+                <h1>{!$ObjectType.BDU_Valeur__c.fields.CT_BU2__c.Label}  : {!BU2}</h1><p/>
+            </apex:outputtext>    
+
+            <h1>Sommaire.</h1>
+            <p class="MsoToc1"> 
+                <!--[if supportFields]> 
+                <span style="mso-element:field-begin"></span> 
+                TOC \o "1-3" \u 
+                <span style="mso-element:field-separator"></span> 
+                <![endif]--> 
+                <span style="mso-no-proof:yes">Table des matières - Veuillez faire un clic droit et choisissez "Mettre à jour les champs".</span> 
+                <!--[if supportFields]> 
+                <span style="mso-element:field-end"></span> 
+                <![endif]--> 
+            </p>            
+            <br clear="all" class="page-break" style="mso-special-character:line-break;"/>
+        </apex:outputPanel>
+
+        <apex:outputPanel layout="block" rendered="{!IF(selectedFormat != 'word', true, false)}" styleClass="page page-sommaire">
+            <apex:outputtext rendered="{!BU1!=''}" >
+                <h1>{!$ObjectType.BDU_Valeur__c.fields.CT_BU1__c.Label}  : {!BU1}</h1><p/>
+            </apex:outputtext>    
+            <apex:outputtext rendered="{!BU2!=''}" >
+                <h1>{!$ObjectType.BDU_Valeur__c.fields.CT_BU2__c.Label}  : {!BU2}</h1><p/>
+            </apex:outputtext>    
+
+            <h1>Sommaire</h1>
+            <ul class="toc">
+                <a href="#intro" style="margin-left:25px; display:block" class="{!IF(!$Setup.override__c.printShowIntro__c, 'show', 'hide')}">Introduction</a>
+                <apex:repeat value="{!domaines}" var="domaine">
+                    <apex:variable var="valeurs" value="{!domaineToValeurs[domaine.Name]}"/>
+                    <li class="{!IF(valeurs.size > 0, 'show', 'hide')} chapter">
+                        <a href="#{!domaine.Id}">{!domaine.Name}</a>
+                    </li>
+                </apex:repeat>
+                <a href="#source" style="margin-left:25px; display:block" class="{!IF(!$Setup.override__c.printShowEnd__c, 'show', 'hide')}">Sources</a>
+            </ul>
+            <br clear="all" class="page-break" style="mso-special-character:line-break;"/>
+        </apex:outputPanel>
+        
+        <apex:outputPanel layout="block" styleClass="page page-intro" rendered="{!$Setup.override__c.printShowIntro__c}">
+            <apex:include pageName="{!printOptions.printIntroPage__c}" />
+        </apex:outputPanel>
+
+        <div id="content" class="page page-indicateur">
+              <div>
+                 <apex:repeat value="{!domaines}" var="domaine">
+                     <apex:variable value="{!domaineToValeurs[domaine.name]}" var="valeurs" />
+                     <div class="{!IF(valeurs.size > 0, 'show', 'hide')} domaine">
+                        <h2 id="{!domaine.Id}" class="chapter">{!domaine.Name}</h2>
+                        <apex:outputField rendered="{!IF(domaine.CT_Description__c != null && domaine.CT_Description__c != '', true ,false)}" value="{!domaine.CT_Description__c}"/>
+                        <div>
+                          <apex:repeat value="{!valeurs}" var="valeur">
+                            <div class="indicateur">
+                              <h3>{!IF(AND(valeur.CT_confidentialityDate__c != null, valeur.CT_confidentialityDate__c >= TODAY(), valeur.CT_isConfidential__c), "Confidentiel jusqu'au "+TEXT(DAY(valeur.CT_confidentialityDate__c))+'/'+TEXT(MONTH(valeur.CT_confidentialityDate__c))+'/'+TEXT(YEAR(valeur.CT_confidentialityDate__c))+' - ', '')} {!IF($Setup.showOptions__c.Afficher_le_code__c, valeur.CT_BDU_Indicateur__r.CT_Code__c+' - ', '')}<apex:outputText value="{!valeur.CT_BDU_Indicateur__r.CT_Libelle__c}"/></h3>
+
+                              <apex:outputField rendered="{!IF(valeur != null, true, false)}" value="{!valeur.CT_Valeur__c}"/>
+
+                              <apex:outputField rendered="{!IF(valeur.CT_Commentaire__c != null, true, false)}" value="{!valeur.CT_Commentaire__c}" />
+                            </div>
+                          </apex:repeat>
+                        </div>
+                    </div>
+                </apex:repeat>
+              </div>
+            <br clear="all" class="page-break" style="mso-special-character:line-break;"/>
+        </div>
+        
+        <apex:outputPanel layout="block" styleClass="page page-source" rendered="{!$Setup.override__c.printShowEnd__c}">
+            <apex:include pageName="{!printOptions.printEndPage__c}" />
+        </apex:outputPanel>
+
+     </body>     
+        
+  </html>
+</apex:page>

@@ -1,0 +1,75 @@
+.num-agg {
+	text-align: right;
+    padding-right: 5%;
+    font-weight: 700;
+    font-size: medium;
+        color: var(--background);
+}
+.header-agg {
+    /* text-align: center; */
+    /* margin-bottom: 2%; */
+    font-weight: 500;
+    font-size: medium;
+    color: #4d5172;
+    border-right: 2px solid var(--background);
+    padding-right: 1%;
+        color: var(--background) !important;
+}
+.txt-style {
+font-weight: 700;
+    font-size: medium;
+        padding-left: 1%;
+}
+
+
+.cmp-style {
+    /*margin-top:5%;*/
+        padding: 3% 1% 0% 1%;
+}
+
+.right--1 {
+    margin-right: 1%;
+}
+
+.fieldset-style {
+        border: 1px solid var(--background);/*#80808042;*/
+    border-radius: 5px;
+    margin: 0% 1% 0% 1%;
+        padding: 0% 0% 1% 0%;
+}
+.legend-header {
+    font-weight: 500;
+    padding: 0px 11px 0px 11px;
+    color: #6e7285;
+    font-size: 16px;
+}
+
+.link-btn-icon button {
+     
+ --slds-g-color-border-base-4: var(--background);
+    --lwc-borderWidthThin: 2px;
+    --slds-g-color-neutral-base-50: var(--background);
+}
+ .selected-btn-filter {
+    --slds-c-button-outline-brand-color-border: var(--background);
+    --slds-c-button-text-color: var(--background);
+        --sds-c-button-brand-color-background: var(--background);
+
+ }
+
+ .btn-filter {
+    --sds-c-button-brand-color-background: var(--background);
+    --sds-c-button-text-color: var(--background);
+    
+ }
+ .header-cmp {
+        font-size: 24px;
+    font-weight: 500;
+    color: var(--background);
+ }
+ .none-txt {
+        display: inline;
+    font-weight: 700;
+    font-size: 16px;
+    margin-left: 6px;
+ }

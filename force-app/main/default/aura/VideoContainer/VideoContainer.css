@@ -1,0 +1,63 @@
+.THIS .myVideo {
+    text-align: center;
+}
+
+.THIS .slds-icon_container {
+    height: 20px;
+}
+
+.THIS .slds-card__header {
+    margin: 0;
+    padding: 0;
+}
+
+.THIS .slds-card__body {
+    margin: 0;
+}
+
+.THIS .ct-text-color {
+    color : var(--text-color);
+}
+        
+        
+ .THIS       .clickable {
+            cursor: pointer;
+    }
+
+  .THIS   .header-style{
+    border-bottom: 1px solid #eadddd;
+    padding-bottom: 1%;
+    }
+
+ .THIS    .chevron {
+        margin-right: 5%;
+    font-size: 18px;
+    color: #a39a9a;
+    }
+        
+        .THIS .title-card {
+            color: #0047bb;
+                font-weight: 700;
+            
+            margin-bottom: 8%;
+    width: 85%;
+    }
+        
+.THIS .content-style {
+    padding-left: 19px;
+    padding-right: 19px;
+    min-height: 341px !important;
+        }
+ 
+.THIS .icon-video {
+                margin-top: -1%;
+        }
+
+.THIS .v-container {
+    width: 100%;
+    text-align: center;
+       /* min-height: 302px;*/
+}
+.THIS .no-data-container {
+min-height: 309px;
+}

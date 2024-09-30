@@ -1,0 +1,115 @@
+<apex:component >
+    <apex:attribute name="indicateur" description="Current indicateur." type="BDU_Indicateur__c" required="true"/>
+    <apex:attribute name="valeur" description="Current indicateur's value." type="BDU_Valeur__c" required="true"/>
+    <apex:attribute name="displayIndic" description="If we display this indicateur." type="Boolean" required="true"/>
+    <apex:attribute name="displayAttachment" description="If we display this indicateur's attachment." type="Boolean" required="true"/>
+    <apex:attribute name="attachment" description="This indicateur's attachment." type="Attachment" required="false"/>
+
+    <apex:outputPanel layout="block" styleClass="indicateur {!IF(AND(valeur.CT_confidentialityDate__c != null, valeur.CT_confidentialityDate__c >= TODAY(), valeur.CT_isConfidential__c), 'confidentiel', '')} joyride-indicateur" rendered="{!IF(indicateur.CT_Affiche__c, true, false)}">
+      <div class="w100 title high-color">
+          <h3 class="joyride-indic-title">{!IF(AND(valeur.CT_confidentialityDate__c != null, valeur.CT_confidentialityDate__c >= TODAY(), valeur.CT_isConfidential__c), "Confidentiel jusqu'au "+TEXT(DAY(valeur.CT_confidentialityDate__c))+'/'+TEXT(MONTH(valeur.CT_confidentialityDate__c))+'/'+TEXT(YEAR(valeur.CT_confidentialityDate__c))+' - ', '')} {!IF($Setup.showOptions__c.Afficher_le_code__c, indicateur.CT_Code__c+' - ', '')}<apex:outputText value="{!indicateur.CT_Libelle__c}"/></h3>
+
+          <apex:outputPanel rendered="{!$Setup.showOptions__c.showHistory__c}" styleClass="right history hide-for-print small joyride-indic-history">
+              <a href="#" title="{!$Label.BDU_History_month}" class="{!$Setup.crta__showOptions__c.crta__showMonthHistory__c}" onclick="event.preventDefault(); getHistory('mois', '{!indicateur.id}')">{!$Label.BDU_History_month}</a>
+              <a href="#" title="{!$Label.BDU_History_Bimester}" class="{!$Setup.crta__showOptions__c.crta__showBimestrialHistory__c}" onclick="event.preventDefault(); getHistory('bimestres', '{!indicateur.id}')">{!$Label.BDU_History_Bimester}</a>
+              <a href="#" title="{!$Label.BDU_History_Trimester}" class="{!$Setup.crta__showOptions__c.crta__showTrimestrialHistory__c}" onclick="event.preventDefault(); getHistory('trimestres', '{!indicateur.id}')">{!$Label.BDU_History_Trimester}</a>
+              <a href="#" title="{!$Label.BDU_History_Semester}" class="{!$Setup.crta__showOptions__c.crta__showSemestrialHistory__c}" onclick="event.preventDefault(); getHistory('semestres', '{!indicateur.id}')">{!$Label.BDU_History_Semester}</a>
+              <a href="#" title="{!$Label.BDU_History_Year}" onclick="event.preventDefault(); getHistory('annees', '{!indicateur.id}')">{!$Label.BDU_History_Year}</a>
+          </apex:outputPanel>
+      </div>
+
+      <div class="w100">
+          <div class="w75 value left joyride-indic-value">
+              <!--Load the chart data-->
+              <script type="text/javascript">
+                  //google.setOnLoadCallback(drawChart);
+                  google.setOnLoadCallback(drawChart{!valeur.Id});
+
+                  function drawChart{!valeur.Id}() {
+                      var data = google.visualization.arrayToDataTable([{!valeur.CT_Val__c}]);
+
+                      // Set chart options
+                      var options = {
+                          height: 350,
+                          title: '',
+                          is3D: true
+                      };
+                      <apex:outputPanel layout="none" rendered="{!indicateur.Type_de_graphique__c != null}">
+                        // Instantiate and draw our chart, passing in some options.
+                        var chart = new google.visualization.{!indicateur.Type_de_graphique__c}(document.getElementById('{!valeur.Id}'));
+                        chart.draw(data, options);
+                      </apex:outputPanel>
+                  }
+              </script>
+              <!--Div that will hold the pie chart-->
+              <apex:outputPanel rendered="{!IF(valeur.CT_Date_de_publication__c != null && valeur.CT_Date_de_publication__c <= TODAY() && (valeur.CT_Date_de_fin_de_publication__c == null || valeur.CT_Date_de_fin_de_publication__c  >TODAY()) && indicateur.CT_Afficher_le_graphique__c && displayIndic, true, false)}" layout="block"><div id="{!valeur.Id}"></div></apex:outputPanel>
+
+              <apex:outputField rendered="{!IF(valeur.CT_Date_de_publication__c != null && valeur.CT_Date_de_publication__c <= TODAY() && (valeur.CT_Date_de_fin_de_publication__c == null || valeur.CT_Date_de_fin_de_publication__c  >TODAY()) && indicateur.CT_Afficher_le_tableau__c && displayIndic, true, false)}" value="{!valeur.CT_Valeur__c}"/>
+
+              <apex:outputPanel rendered="{!IF(valeur.CT_Date_de_publication__c == null || valeur.CT_Date_de_publication__c > TODAY()  || !displayIndic || valeur.CT_Valeur__c == null, true, false)}" layout="block"><div>{!$Setup.override__c.emptyValueText__c}</div></apex:outputPanel>
+          </div>
+
+          <apex:outputPanel layout="block" styleClass="descriptif w25 right joyride-indic-description" rendered="{!IF(OR(indicateur.CT_Description__c != null, indicateur.CT_Decret__c != null), true, false)}">
+              <apex:image url="{!URLFOR($Resource.icone_description)}" styleClass="left" width="20" />
+              <h3>{!$ObjectType.BDU_Indicateur__c.fields.CT_Description__c.Label} : </h3>
+              <p class="description"> <apex:outputText value="{!indicateur.CT_Description__c}" /></p>
+
+              <apex:outputPanel layout="block" styleClass="decret" rendered="{!$Setup.showOptions__c.showLaw__c}">
+                      <h3>{!$ObjectType.BDU_Indicateur__c.fields.CT_Decret__c.Label} : </h3>
+                      <apex:outputText value="{!indicateur.CT_Decret__c}" />
+              </apex:outputPanel>
+              
+              <apex:outputPanel layout="block" styleClass="decret" rendered="{!$Setup.showOptions__c.showBuReminder__c && (valeur.CT_BU__c!= null && valeur.CT_BU__c != 'Aucun')}">
+                      <h3>{!$ObjectType.BDU_Valeur__c.fields.CT_BU__c.Label} : </h3>
+                      <apex:outputText value="{!valeur.CT_BU__c}" />
+              </apex:outputPanel>
+              
+              <apex:outputPanel layout="block" styleClass="time" rendered="{!IF(($Setup.showOptions__c.showPeriod__c && valeur.CT_Annee__c != null), true, false)}">
+                  <h3>Période : </h3>
+                  <apex:outputText rendered="{!IF(valeur.CT_Annee__c != null, true, false)}" value="{!valeur.CT_Annee__c}" />
+                  <apex:outputText rendered="{!IF((valeur.CT_Annee__c != null && valeur.CT_Trimestre__c != null), true, false)}" value="{!' / T'+valeur.CT_Trimestre__c}" />
+                  <apex:outputText rendered="CT_Mois__c != null, true, false)}" value="{!' / M'+valeur.CT_Mois__c}" />
+              </apex:outputPanel>
+              
+          </apex:outputPanel>
+      </div>
+
+      <div class="clear"></div>
+
+      <div class="w100 m-t-20 under joyride-indic-comment" >
+          <apex:outputPanel layout="block" styleClass="commentaire w75 left" rendered="{!IF(AND(displayIndic = true, valeur.CT_Commentaire__c != null), true, false)}" >
+                  <h3>
+                          <apex:image url="{!URLFOR($Resource.icone_commentaire)}" styleClass="left" width="20" />
+                          {!$ObjectType.BDU_Valeur__c.fields.CT_Commentaire__c.Label} :
+                  </h3>
+                  <apex:outputField value="{!valeur.CT_Commentaire__c}" />
+          </apex:outputPanel>  
+
+           <apex:outputPanel layout="block" styleClass="date w25 right">
+                          <h3>
+                              <apex:image url="{!URLFOR($Resource.icone_date)}" styleClass="left" width="20" />
+                              {!$ObjectType.BDU_Valeur__c.fields.CT_Date_de_publication__c.Label} : 
+                           </h3>
+                          <apex:outputText rendered="{!displayIndic}" value="{0, date, dd/MM/yyyy}">
+                                  <apex:param value="{!valeur.CT_Date_de_publication__c}"/>
+                          </apex:outputText>
+                  
+                  <apex:outputPanel styleClass="attachements" layout="block" rendered="{!displayAttachment}">
+                          <apex:outputLink target="_blank" value="{!URLFOR($Action.Attachment.Download, attachment)}">
+                                  <apex:image url="{!URLFOR($Resource.Icone_file)}" width="23"/>
+                                  <h3>Fichier source</h3>
+                          </apex:outputLink>
+                  </apex:outputpanel>
+          </apex:outputPanel>           
+      </div>
+
+      <div class="clear"></div>
+    </apex:outputPanel>
+
+    <div id="history-{!indicateur.id}" class="row modal history-modal" style="display:none;">
+      <apex:outputLink styleClass="modal-print hide-for-print" rendered="{!$Setup.showOptions__c.showPrint__c}" value="#" onclick="event.preventDefault(); printModal('history-{!indicateur.id}')">
+              <i class="fa fa-print"></i> Imprimer
+      </apex:outputLink>
+      <div class="content"></div>
+    </div>
+</apex:component>

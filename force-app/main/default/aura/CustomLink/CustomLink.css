@@ -1,0 +1,45 @@
+.THIS.MyLink {
+    border-radius:.25rem;
+   /* height: 48px;*/
+    /*border: 1px solid #D6D6D6;*/
+}
+
+.THIS .MyLinkInner {
+    line-height: 48px;
+}
+.THIS .MyActionButton {
+    display: inline-block;
+}
+
+.THIS .MySeparator {
+    height: 48px;
+    width: 1px;
+}
+.THIS .iconRotate {
+    transform: rotate(-45deg);
+}
+
+.THIS .ct-text-color {
+    color : var(--text-color);
+}
+
+.THIS .ct-icon-color {
+    color : var(--icon-color);
+}
+
+.THIS.ct-backgroundColor {
+    background-color : var(--bckg-color); 
+}
+                        
+.THIS .MyLinkInner:hover {
+      box-shadow:   0 0 0 3px #f6f1f2;
+      }
+ .THIS .MyLink:hover {
+          color: #0176d3;                  
+                        }
+                        .THIS .ct-text-color:hover {
+                        color: #0176d3;                  
+                        }
+                        .THIS .MyLinkInner:hover {
+                        color: #0176d3;                  
+                        }

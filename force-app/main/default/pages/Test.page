@@ -1,0 +1,143 @@
+<apex:page controller="TestController">
+    <apex:includeScript value="/soap/ajax/37.0/connection.js" />
+    <apex:includeScript value="/soap/ajax/37.0/apex.js" />
+    <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/vendor/jquery.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.moments, 'moments.js')}"/>
+
+<a href="#">{!$Setup.sirh__c.Page_Formation__c}</a>
+<hr/>
+
+<h2>Aggregate Result</h2>
+<span>
+<apex:repeat value="{!someAr}" var="v">
+    This is one: {!v['expr0']}: {!v['t']}<br/>
+</apex:repeat>
+</span>
+
+<hr/>
+
+<apex:repeat value="{!some}" var="v">
+    This is one: {!v.Date__c}<br/>
+</apex:repeat>
+<hr/>
+
+<apex:repeat value="{!someQuery}" var="v">
+    This is another: {!v.Date__c}<br/>
+</apex:repeat>
+
+<!--  Page: -->
+    <apex:form >
+            Click Me!
+            <apex:actionSupport event="onclick" 
+                                action="{!showMessage}" 
+                                rerender="hoho" onbeforedomupdate="bingo();" oncomplete="bingo();"/>
+    </apex:form>
+
+<apex:outputpanel id="hoho">
+<script type="text/javascript">
+    
+// here I create a Javascript time "now" in universal time aka UTC
+// this is like the value you get from your Apex code
+var tod = moment();
+
+// output as it is, UTC
+alert(tod.utc().format("MM/DD HH:mm"));
+
+// Output in local time zone
+alert(tod.format("MM/DD HH:mm"));
+
+
+
+    
+    function bingo() {
+        alert("{!myMessage}");
+    }
+        // Remoting
+        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.TestController.getY}', function(result, event) {
+            if(event.status) {
+                jQuery.each(result, function(index, val) {
+                    //console.log('getY: '+val.crta__Date__c);
+                });
+            }
+        }, {escape: true});
+        // Remoting
+        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.TestController.getYQuery}', function(result, event) {
+            if(event.status) {
+                jQuery.each(result, function(index, val) {
+                    console.log('getYQuery: '+val.crta__Date__c);
+                });
+            }
+        }, {escape: true});
+        // webService
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+            var result = sforce.apex.execute('crta.TestController', 'getX', {}, {
+                  onSuccess: function (result) {
+                        jQuery.each(result, function(index, val) {
+                              //console.log('getX: '+val.crta__Date__c);
+                        });
+                  }, 
+                  onFailure: function (error) {
+                        console.log(error);
+                  }
+            });
+            // webService
+            sforce.connection.sessionId = '{!$Api.Session_ID}';
+            var result = sforce.apex.execute('crta.TestController', 'getXQuery', {}, {
+                  onSuccess: function (result) {
+                        jQuery.each(result, function(index, val) {
+                              //console.log('getXQuery: '+val.crta__Date__c);
+                        });
+                  }, 
+                  onFailure: function (error) {
+                        //console.log(error);
+                  }
+            }); 
+            
+            
+            
+            
+            
+            
+            // Remoting
+        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.TestController.getYAr}', function(result, event) {
+            if(event.status) {
+                jQuery.each(result, function(index, val) {
+                    //console.log('ar getY number/type: '+val.Date__c);
+                });
+            }
+        }, {escape: true});
+        // Remoting
+        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.TestController.getYQueryAr}', function(result, event) {
+            if(event.status) {
+                jQuery.each(result, function(index, val) {
+                    //console.log('ar getYQuery number/type: '+val.Date__c);
+                });
+            }
+        }, {escape: true});
+        // webService
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+            var result = sforce.apex.execute('crta.TestController', 'getXAr', {}, {
+                  onSuccess: function (result) {
+                        jQuery.each(result, function(index, val) {
+                              //console.log('ar getX number/type: '+val.Date__c);
+                        });
+                  }, 
+                  onFailure: function (error) {
+                        //console.log(error);
+                  }
+            });
+            // webService
+            sforce.connection.sessionId = '{!$Api.Session_ID}';
+            var result = sforce.apex.execute('crta.TestController', 'getXQueryAr', {}, {
+                  onSuccess: function (result) {
+                        jQuery.each(result, function(index, val) {
+                              //console.log('ar getXQuery number/type: '+val.Date__c);
+                        });
+                  }, 
+                  onFailure: function (error) {
+                        //console.log(error);
+                  }
+            }); 
+</script>
+</apex:outputpanel>
+</apex:page>

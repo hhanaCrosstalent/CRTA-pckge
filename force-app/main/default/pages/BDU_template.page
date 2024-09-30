@@ -1,0 +1,153 @@
+<apex:page showHeader="true" sidebar="false" title="BDU" controller="bdu_templateController">
+    <div class="hide-for-print" style=" position:absolute; left:20%; top:-70px;">
+            <apex:image url="{!customLogo}" />
+    </div>
+
+    <!--<apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" />-->
+    <apex:includeScript value="{!URLFOR($Resource.JQuery_min_3_5_1)}" />
+    <script type="text/javascript" src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1","packages":["corechart"]}]}'></script>
+    <apex:includeScript value="{!URLFOR($Resource.jquery_modal, 'jquery.modal.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.introjs, 'intro.min.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.jquery_modal, 'jquery.modal.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.introjs, 'introjs.min.css')}"/>
+    <apex:stylesheet value="{!$Resource.bduCSS}" />
+    <apex:stylesheet value="{!customCSS}" />
+    <apex:includeScript value="/soap/ajax/39.0/connection.js" />
+    <apex:includeScript value="/soap/ajax/39.0/apex.js" />
+    <script type="text/javascript">
+
+        var NSD = ''; // namespace dot
+        var NSU = ''; // namespace underscore
+        var someMethod = '{!$RemoteAction.bdu_templateController.checkNamespace}';
+        if(someMethod.length > 6 && someMethod.substring(0, 5) == 'crta.') {
+            NSD = 'crta.';
+            NSU = 'crta__';
+        }
+
+        var queryDict = {}
+        location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]})
+
+        j$ = jQuery.noConflict();
+        j$(document).ready(function() {
+          {!IF(($User.CT_hasConfidential__c || hasConfidentialCookie) && !hasJoyride && $Setup.override__c.useIntro__c, 'startIntro();', '')}
+
+          j$('.accordion .menu-item').find('.sub-menu').css('display', 'none');
+          j$('.accordion .menu-item').find('.'+queryDict['ch']).css('display', 'block');
+          j$('.accordion .menu-item .a_'+queryDict['ch']).find('span').html(' &#x25BC;');
+          // j$('.annual .menu-item').find('.sub-menu').css('display', 'none');
+          //j$('.bibli .menu-item').find('.sub-menu').css('display', 'none');
+          j$('.accordion .menu-item').children('a').on('click', function(event) {
+              event.preventDefault();
+              j$(this).next('.sub-menu').slideToggle();
+              //Switching arrows
+              if (j$(this).find('span').html() == '▶') {
+                j$(this).find('span').html('&#x25BC;');
+              } else {
+                j$(this).find('span').html('&#x25B6;');
+              }
+          });
+        });
+
+        function printModal(modalId) {
+          var DocumentContainer = document.getElementById(modalId);
+          var WindowObject = window.open("", "PrintWindow",
+          "width=750,height=650,top=50,left=50,toolbars=no,scrollbars=yes,status=no,resizable=yes");
+          WindowObject.document.writeln('<!DOCTYPE html>');
+          WindowObject.document.writeln('<html><head><title></title>');
+          var str = "<style type='text/css' media='all'>";
+          str = str + "body { padding: 0;} body .close-reveal-modal { top: -8px;} body .modal-print { position: absolute; top: 5px; left: 0.6875em; color: white;} body .valeur { padding: 5px;} body .valeur table { margin: auto;} body .valeur+div div div { margin: auto;} body .no-result { position: relative; left: 43%; padding: 20px 0; } .hide-for-print {display: none;}";
+          str = str + "</style>";
+          str = str + "<link href='{!URLFOR($Resource.foundation, 'css/foundation.min.css')}' rel='stylesheet' type='text/css'>";
+          str = str + "<link href='{!URLFOR($Resource.bduCSS)}' rel='stylesheet' type='text/css'>";
+          str = str + "<link href='{!customCSS}' rel='stylesheet' type='text/css'>";
+          str = str + "<apex:stylesheet value="{!URLFOR($Resource.bduCSS)}" /><apex:stylesheet value="{!customCSS}" />";
+          WindowObject.document.writeln(str);
+          WindowObject.document.writeln('</head><body>');
+          WindowObject.document.writeln(DocumentContainer.innerHTML);
+          WindowObject.document.writeln('</body></html>');
+          WindowObject.document.close();
+          WindowObject.focus();
+          //WindowObject.print();
+          //WindowObject.close();
+        }
+    </script>
+    <style type="text/css">
+        /* Overwrites salesforce css */
+        #contentWrapper { margin-top: 0;}
+        .zen .zen-headerTop#appHeaderTop{ background: none;}
+        .zen .zen-tabMenu{ display: none;}
+        .Custom50Tab .brdPalette { border-top:0px;}
+        .homeTab .brdPalette { border-top:0px;}
+        .bodyDiv { border-top: 0; min-height: 900px; box-shadow: none; -webkit-box-shadow: none;}
+        .zen-navViaSearch{margin-left: 200px; visibility: hidden; }
+        td.searchCell { position: relative;  left: 20%; visibility: hidden; }
+        body.sfdcBody { background: none; }
+        #userNav-menuItems a { display: none; }
+        #userNav-menuItems a:last-child { display: block; }
+    </style>
+
+    <apex:outputPanel layout="block" styleClass="menu lateral left w20 back-color hide-for-print joyride-sidebar" rendered="{!$User.CT_hasConfidential__c || hasConfidentialCookie}">
+        <div id="menu_entete">
+        <apex:outputText value="{!$Setup.override__c.CT_headerText__c}" />
+        </div>
+        <ol class="accordion font-color">
+            <apex:repeat value="{!chapitres}" var="chapitre">
+                <li class="menu-item font-color">
+                    <a class="font-color hover-color a_{!LEFT(chapitre.id, 15)} Cocon" href="#" >{!chapitre.name} <span>&#x25B6;</span></a>
+                    <ol class="sub-menu {!LEFT(chapitre.id, 15)} font-color">
+                        <apex:repeat value="{!chapitreToDomaines[chapitre]}" var="domaine">
+                            <li class="{!IF($CurrentPage.parameters.id=domaine.CT_slug__c,'select_ind','')}"><apex:outputLink styleClass="font-color hover-color" value="{!URLFOR($Page.bdu_page, null, [id=domaine.CT_slug__c, ch=LEFT(chapitre.id, 15)])}">{!domaine.name}</apex:outputLink></li>
+                        </apex:repeat>
+                    </ol>
+                </li>
+            </apex:repeat>
+        </ol>
+    </apex:outputPanel>
+
+    <apex:form >
+      <apex:outputPanel layout="block" id="content" styleClass="w80 right" rendered="{!$User.CT_hasConfidential__c || hasConfidentialCookie}">
+            <div class="bdn_1 hide-for-print back-color joyride-topbar">
+                <div class="menubdu Cocon" style="backgound:none">
+                    <div class="{!IF(CONTAINS($CurrentPage.name, 'BDu_home'),'back-selected','')}">
+                           <apex:outputLink styleClass="font-color hover-color" value="{!URLFOR($Page.BDu_home)}" title="BDU Home Tab">Accueil</apex:outputLink>
+                    </div>
+                    <apex:outputPanel layout="block" styleClass="{!IF(CONTAINS($CurrentPage.name, 'bdu_calendar'), 'back-selected', '')}" rendered="{!$Setup.showOptions__c.showCalendar__c}" >
+                           <apex:outputLink styleClass="font-color hover-color" value="{!URLFOR($Page.bdu_calendar)}" title="{!IF($Setup.menuName__c.searchName__c != null, $Setup.menuName__c.calendarName__c, 'Agenda')} Tab">{!IF($Setup.menuName__c.calendarName__c != null, $Setup.menuName__c.calendarName__c, 'Agenda')}</apex:outputLink>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="block"  styleClass="{!IF(CONTAINS($CurrentPage.name, 'bdu_bibliotheque'), 'back-selected', '')}" rendered="{!$Setup.showOptions__c.showBibli__c}">
+                           <apex:outputLink styleClass="font-color hover-color" value="{!URLFOR($Page.bdu_bibliotheque)}" title="{!IF($Setup.menuName__c.bibliName__c != null, $Setup.menuName__c.bibliName__c, 'Bibliothèque')} Tab">{!IF($Setup.menuName__c.bibliName__c != null, $Setup.menuName__c.bibliName__c, 'Bibliothèque')}</apex:outputLink>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="block"  styleClass="{!IF(CONTAINS($CurrentPage.name, 'bdu_rapport'), 'back-selected', '')}" rendered="{!$Setup.showOptions__c.showReport__c}">
+                           <apex:outputLink styleClass="font-color hover-color" value="{!URLFOR($Page.bdu_rapport)}" title="{!IF($Setup.menuName__c.reportName__c != null, $Setup.menuName__c.reportName__c, 'Rapports')} Tab">{!IF($Setup.menuName__c.reportName__c != null, $Setup.menuName__c.reportName__c, 'Rapports')}</apex:outputLink>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="block" styleClass="{!IF(CONTAINS($CurrentPage.name, 'bdu_search'), 'back-selected', '')}" rendered="{!$Setup.showOptions__c.showSearch__c}" >
+                           <apex:outputLink styleClass="font-color hover-color" value="{!URLFOR($Page.bdu_search)}" title="{!IF($Setup.menuName__c.searchName__c != null, $Setup.menuName__c.searchName__c, 'Recherche')} Tab">{!IF($Setup.menuName__c.searchName__c != null, $Setup.menuName__c.searchName__c, 'Recherche')}</apex:outputLink>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="block" styleClass="right">
+                      <apex:commandLink title="Reprendre la visite" action="{!resetJoyride}" styleClass="font-color hover-color">
+                          <span>⟳</span>
+                      </apex:commandLink>
+                    </apex:outputPanel>
+                </div>
+            </div>
+            
+            
+            
+        </apex:outputPanel>
+        <apex:outputPanel layout="block" styleClass="w80 right splash" rendered="{!!$User.CT_hasConfidential__c && !hasConfidentialCookie}">
+            <apex:include pageName="{!splashScreenPage}" />
+            <apex:selectRadio value="{!selectedChoice}">
+                <apex:selectOption itemValue="true" itemLabel="J'accepte" />
+                <apex:selectOption itemValue="false" itemLabel="Je refuse" />
+            </apex:selectRadio>
+            <apex:commandButton action="{!acceptSplash}" value="Valider" />
+        </apex:outputPanel>
+    </apex:form>
+    <apex:outputPanel layout="block" styleClass="w80 right" rendered="{!$User.CT_hasConfidential__c || hasConfidentialCookie}">
+        <div class="bdn_2 hide-for-print back-color"></div>
+        <div class="bdn_3 hide-for-print"></div>
+        <div id="body">
+            <apex:insert name="body"/>
+        </div>
+    </apex:outputPanel>
+</apex:page>

@@ -1,0 +1,40 @@
+.THIS {
+    position: relative;
+    color: #080707;
+}
+
+.THIS.flex {
+    display: flex;
+}
+
+.THIS #container {
+    display: flex;
+    float: left;
+}
+
+.THIS .homeDiv {
+    position: relative;
+        /*height: -webkit-fill-available;
+margin-top: -7px;
+    height: 471px;*/
+    height: 412px;   
+        margin-top: -1px; 
+    
+}
+
+.THIS .ct-text-color {
+        position: absolute;
+            color : var(--text-color);
+}
+
+@media (max-width: 1160px) {
+
+    .THIS {
+        display: block !important;
+    }
+
+    .THIS #container {
+        float: initial;
+        width: 100%;
+    }
+}

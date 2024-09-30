@@ -1,0 +1,57 @@
+<aura:component
+  implements="flexipage:availableForAllPageTypes"
+  access="global"
+  controller="PortalMenuController"
+>
+  <aura:attribute name="selectedId" type="String" access="public" />
+  <aura:attribute name="menuSize" type="String" access="public" default="w-7" />
+  <aura:attribute
+    name="background"
+    type="String"
+    access="global"
+    default="#0047bb"
+  />
+   <aura:attribute
+    name="backgroundCmp"
+    type="String"
+    access="global"
+    default="white"
+  />
+  <aura:attribute name="color" type="String" access="global" default="white" />
+  <aura:attribute name="isHome" type="Boolean" access="public" default="true" />
+  <aura:attribute name="appLabel" type="String" access="public" />
+  <aura:attribute name="pageLim" type="Integer" access="global" default="2" />
+
+  <article class="slds-card my-card">
+    <div class="slds-card__body" style=" margin: 0%;">
+      <!-- icon-name="custom:custom41" title="Expected Compensation"-->
+      <div class="slds-grid">
+        <div class="{! 'slds-col slds-size_1-of-5 menu-style ' + v.menuSize}">
+          <c:portalmenu
+            onmoduleselect="{!c.handleModuleSelect}"
+            onsizechange="{!c.changeSize}"
+            color="{!v.color}"
+            background="{!v.background}"
+            backgroundCmp="{!v.backgroundCmp}"
+          ></c:portalmenu>
+        </div>
+        <div class="slds-col" style="{! 'background : '+v.backgroundCmp + ' ; '}">
+          <aura:if isTrue="{!v.selectedId}">
+            <aura:if isTrue="{!v.isHome==false}">
+              <c:mycareer
+                appId="{!v.selectedId}"
+                appLabel="{!v.appLabel}"
+                pageLim="{!v.pageLim}"
+              ></c:mycareer>
+
+              <aura:set attribute="else">
+                <c:portalhomev2 appId="{!v.selectedId}"></c:portalhomev2>
+              </aura:set>
+            </aura:if>
+          </aura:if>
+        </div>
+      </div>
+    </div>
+    <!--<lwc:component lwc:is={componentConstructor} app-id={selectedId}></lwc:component> -->
+  </article>
+</aura:component>

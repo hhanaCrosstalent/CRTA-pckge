@@ -1,0 +1,35 @@
+/* .THIS.square {
+    height: 13rem;
+    width: 38rem;
+    background-color: white;
+    padding: 5rem;
+} */
+.THIS .innersquare {
+    position: absolute;
+    left: 10rem;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    background: #85C1E9;/*white;*/
+    border: 2px dashed #85C1E9;/*#ccc;*/
+    font-size: 20px;
+}
+.THIS .innerlabel {
+    display: inline-block;
+    position: relative;
+    height: 50px;
+    width: 250px;
+}
+.THIS .squarebutton {
+    position: absolute;
+    left: 10rem;
+    opacity: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+}

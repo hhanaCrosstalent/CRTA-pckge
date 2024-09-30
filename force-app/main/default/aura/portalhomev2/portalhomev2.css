@@ -1,0 +1,10 @@
+.THIS .right1{
+    margin-right: 1%;
+    margin-left: 4px;
+    padding:0%;
+}
+
+.THIS .slds-tabs_default__content {
+    --slds-c-tabs-panel-spacing-block-start: 0px !important;
+        --slds-c-tabs-panel-spacing-block-end: 0px !important;
+}

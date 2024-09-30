@@ -1,0 +1,506 @@
+<!-- BirthdayList.html -->
+<template>
+
+<article class="slds-card"  style="background: var(--backgroundCmp);">
+  <div class="slds-card__header slds-grid">
+    <header class="slds-media slds-media_center slds-has-flexi-truncate clickable header-style" onclick={handleclick}>
+      <div class="chevron">
+        <template lwc:if={displayBody}><i class="fa fa-chevron-down"></i></template>
+        <template lwc:else><i class="fa fa-chevron-right"></i></template>
+      </div>
+      <div class="slds-media__figure slds-hide">
+          <img src={celebration} alt="Contact Image" class="celebration-image" />
+      </div>
+      <div class="slds-media__body">
+        <div class="slds-card__header-title">
+
+         <div class="slds-card__header-link slds-truncate" title={celebrationLabel}>
+            <span class="title-card ct-text-color">{celebrationLabel}</span>
+          </div>
+        </div>
+      </div>
+      <div class="slds-no-flex">
+                <img src={celebration} alt="Contact Image" class="celebration-image" />
+        <!--<button class="slds-button slds-button_neutral">New</button> -->
+      </div>
+    </header>
+  </div>
+  <template lwc:if={displayBody}>
+  <div class="slds-card__body slds-card__body_inner scollable-cnt" style={heightStyle}>
+
+   <div style="    float: right;">
+    <template if:false={noContacts}>
+     <lightning-button-icon icon-name="utility:settings"  alternative-text="Settings" title={permiters} onclick={openModalFilters}></lightning-button-icon>
+   </template>
+    </div>
+     
+    
+                        <template if:false={noContacts}>
+                <template for:each={contacts} for:item="contact" for:index="index">
+                    
+                 <div key={contact.Id} style=" display: inline-flex;    padding-top: 3px;     padding-bottom: 3px; width: 95%;" 
+                 class="">
+      
+                    
+                        <template lwc:if={contact.urlPhoto}>
+            
+  <div class="circle-container" key={contact.Id}>
+                      <img src={contact.urlPhoto} alt="Contact Image" class="circle-image" />
+                  </div>
+    
+                  </template>
+
+               <template lwc:else>
+                                <lightning-avatar class="initials"
+        variant="circle"          initials={contact.initial}
+        alternative-text={contact.name}
+    ></lightning-avatar>
+
+                  
+</template>
+
+    
+                                    
+              <div key={contact.Id} class="name-content">                      
+              <p key={contact.Id} class="name-style">{contact.name}</p>
+
+               <template lwc:if={contact.birdhdate}> <div class="under-name">
+               <lightning-formatted-date-time value={contact.birdhdate}
+                                                   month="long" day="2-digit" 
+                                                    class="date-style" > </lightning-formatted-date-time><p class="date-style">{bestWishes} </p> </div>
+                                                    </template> 
+                       <template lwc:else> <div class="under-name">
+                              <lightning-formatted-date-time value={contact.anniversary}
+                                                     month="long" day="2-digit" 
+                                                    class="date-style" > </lightning-formatted-date-time></lightning-formatted-date-time><p class="date-style">{contact.anciennete} </p> </div>                            
+                                                    </template>
+              </div>
+
+<div class="circle-container icon-right" key={contact.Id}>
+                   <template lwc:if={contact.birdhdate}>
+
+                                    <span class="fa fa-birthday-cake" style="font-size: 20px;"></span>
+                                    </template>
+                                    <template lwc:else>
+<span class="fa fa-calendar" style="font-size: 20px;"></span>
+                                    </template>
+</div>
+
+                    </div>
+
+                    <br key={contact.Id}/>
+                     
+                    <template if:true={contact.isNotLast}>
+                    <div key={contact.Id} class="slds-border_bottom line-hr"></div>
+                    </template>
+
+                </template>
+
+
+            </template>
+            <template if:true={noContacts}>
+
+                <div class="no-data-container" >
+           <!-- <div class="no-data-icon">
+                <img src={nodata} alt="No data found" class="celebration-image" style="width:40px;"/>
+            </div>
+            <div class="no-data-text">{noContactsMsg}</div>-->
+            <c-nodataavailable></c-nodataavailable>
+        </div>
+            </template>
+
+ <div class={popupClass}>
+        <div class="popup-content">
+            <span class="close" onclick={closePopup}>&times;</span>
+            <p>This is your pop-up content!</p>
+        </div>
+    </div>
+
+
+        <lightning-button variant="brand" label={btnLabel} title={btnLabel} onclick={openModal} class="slds-m-left_x-small slds-hide"></lightning-button>
+   
+
+            
+       
+
+
+  </div>
+  </template>
+ <template lwc:if={displayBody}>
+  <div class="footer-card">
+    <template if:false={noContacts}>
+    <a class="slds-card__footer-action" onclick={openModal} >{btnLabel}
+    </a>
+    </template>
+  </div>
+  </template>
+
+
+  
+</article>
+ <div  role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class={modalClass}>
+    <div class="slds-modal__container ">
+        <header class="slds-modal__header">
+        <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">{modalHeader}</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+             <template for:each={contactsAll} for:item="contact">
+                    
+                 <div key={contact.Id} style=" display: inline-flex;    padding-top: 3px;     padding-bottom: 3px; width: 100%; padding-left: 5%;" >
+                    
+                        <template lwc:if={contact.urlPhoto}>
+            
+  <div class="circle-container" key={contact.Id}>
+                      <img src={contact.urlPhoto} alt="Contact Image" class="circle-image" />
+                  </div>
+    
+                  </template>
+
+               <template lwc:else>
+                                <lightning-avatar class="initials"
+        variant="circle"          initials={contact.initial}
+        alternative-text={contact.name}
+    ></lightning-avatar>
+
+                  
+</template>
+
+    
+                                    
+              <div key={contact.Id} class="name-content" style="width: 71%;">                      
+              <p key={contact.Id} class="name-style">{contact.name}</p>
+
+       <template lwc:if={contact.birdhdate}> <div class="under-name">
+               <lightning-formatted-date-time value={contact.birdhdate}
+                                                   month="long" day="2-digit" 
+                                                    class="date-style" > </lightning-formatted-date-time><p class="date-style">{bestWishes} </p> </div>
+                                                    </template> 
+                       <template lwc:else> <div class="under-name">
+                              <lightning-formatted-date-time value={contact.anniversary}
+                                                     month="long" day="2-digit" 
+                                                    class="date-style" > </lightning-formatted-date-time></lightning-formatted-date-time><p class="date-style">{contact.anciennete} </p> </div>                            
+                                                    </template>
+              </div>
+
+<div class="circle-container icon-right" key={contact.Id}>
+                   <template lwc:if={contact.birdhdate}>
+
+                                    <span class="fa fa-birthday-cake" style="font-size: 20px;"></span>
+                                    </template>
+                                    <template lwc:else>
+<span class="fa fa-calendar" style="font-size: 20px;"></span>
+                                    </template>
+</div>
+
+                    </div>
+
+                    <br key={contact.Id}/>
+
+
+                        <template if:true={contact.isNotLast}>
+                    <div key={contact.Id} class="slds-border_bottom line-hr" style="margin-left:10%;"></div>
+                    </template>
+
+                </template>
+            </div>
+           <footer class="slds-modal__footer">
+        <button class="slds-button slds-button_neutral" onclick={closeModal}>Fermer</button>
+        </footer>
+    </div>
+    </div>
+
+
+<!---FIlters-->
+<div  role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class={modalClassFilters}>
+    <div class="slds-modal__container ">
+        <header class="slds-modal__header">
+        <h2 class="slds-modal__title slds-hyphenate">{definePermiter}</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium" >
+
+         <lightning-checkbox-group name="Checkbox Group"
+                              label={permiters}
+                              options={options}
+                              value={userView}
+                              onchange={handleChange}></lightning-checkbox-group>
+
+ 
+        </div>
+        <footer class="slds-modal__footer">
+        <button class="slds-button slds-button_neutral" onclick={closeModalFilters}>Fermer</button>
+        </footer>
+    </div>
+</div>
+
+<!---->
+
+<!-- Filer pop-up from MD -->
+
+ <div  role="dialog" tabindex="-1" aria-labelledby="modal-heading-03" aria-modal="true" aria-describedby="modal-content-id-3" class={modalClassFilters2}>
+    <div class="slds-modal__co ntainer ">
+        <header class="slds-modal__header">
+        <h2 class="slds-modal__title slds-hyphenate">{modalHeader}</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium" >
+            <template for:each={dynamicFilters} for:item="filter">
+                 
+          <template if:true={filter.isLookup}>
+            <div
+              class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5 slds-p-right_medium" key={filter.filterLabel}
+            >
+
+            <!--  <lightning-container 
+            component-name="c:LookupField" 
+            onmessage={handleAuraMessage}
+        ></lightning-container>-->
+
+                <!---                                                   <c:LookupField
+                                                                        aura:id="refField" 
+                                                                        objectLabel="{!field.fieldLabel}"
+                                                                        refField="{!field.apiName}"
+                                                                        childObjectApiName="Contact"
+                                                                        nameField="{!field.apiName}"
+                                                                        filteredField="{!field.apiName}"
+                                                                        filteredFieldLabel="{!field.apiName}"
+                                                                        selectedObjectId="{!field.idValue}"
+                                                                        required="{!field.required}"
+                                                                        isDisabled="{!fieldGroup.fieldPermission == 'Read only' || v.isReadOnly || v.managerAccess}"
+                                                                        fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+
+              <c:LookUpFieldLustral
+                aura:id="{!filter.filterLabel}"
+                objectLabel="{!filter.filterLabel}"
+                refField="{!filter.fieldApiName}"
+                childObjectApiName="{!filter.objectApiName}"
+                nameField="{!filter.fieldApiName}"
+                filteredField="{!filter.fieldApiName}"
+                filteredFieldLabel="{!filter.fieldApiName}"
+                selectedObjectId="{!filter.idValue}"
+                selectedObjectName=""
+                name="{!filter.fieldApiName}"
+                selectedLookUpFilter="{!v.selectedLookUpFilter}"
+                type="LookUp"
+              /> -->
+            </div>
+          </template>
+          <template if:true={filter.isPickList}>
+            <div
+              class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5 slds-p-right_medium" key={filter.filterLabel}
+            >
+
+             <lightning-combobox
+                name={filter.fieldApiName}
+                label={filter.filterLabel}
+                class='slds-m-right_small'
+                value={selectedPage}
+                options={picklistValuesList}
+                onchange={handlePageChange}
+                variant='label-hidden'></lightning-combobox>
+
+
+              <!--<lightning:select
+                aura:id="filterId"
+                onchange="{!c.getResources}"
+                label="{!filter.filterLabel}"
+                name="{!filter.fieldApiName}"
+                title="pickList"
+              >
+                <aura:iteration items="{!v.picklistValuesList}" var="list">
+                  <aura:if isTrue={list.filterLabel == filter.filterLabel}>
+                    <aura:iteration items="{list.picklistValues}" var="option">
+                      <option value="{!option.value}" text="{!option.label}" />
+                    </aura:iteration>
+                  </aura:if>
+                </aura:iteration>
+              </lightning:select>-->
+            </div>
+          </template>
+          <template if:true={filter.isText}>
+           <!-- <lightning-input
+              type="text"
+              aura:id="filterId"
+              label={filter.filterLabel}
+              name={filter.fieldApiName}
+              class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5 slds-p-right_medium"
+              onchange={getResources}
+              value=""
+            />-->
+          </template>
+          
+                 
+            </template>
+            </div>
+           <footer class="slds-modal__footer">
+        <button class="slds-button slds-button_neutral" onclick={closeModal}>Fermer</button>
+        </footer>
+    </div>
+    </div>
+
+<!-- end filter pop-up -->
+
+    <lightning-card class="slds-hide">
+ <!-- Custom header content title="Contact Birthdays" icon-name="standard:contact" class="card" -->
+        <div slot="title">
+            <h2 class="slds-text-heading_medium">My Card</h2>
+            <!-- Add filters or other elements here -->
+            <lightning-input type="search" label="Search" onchange={handleSearchChange}></lightning-input>
+            <lightning-button label="Filter" onclick={handleFilterClick}></lightning-button>
+        </div>
+        
+        <!-- Content inside the lightning-card body -->
+        <div class="slds-m-around_medium">
+                        <template if:true={contacts}>
+                <template for:each={contacts} for:item="contact" for:index="index">
+                    
+                 <div key={contact.Id} style=" display: inline-flex;    padding-top: 3px;     padding-bottom: 3px; width: 95%;" 
+                 class="">
+                    
+                        <template lwc:if={contact.urlPhoto}>
+            
+  <div class="circle-container" key={contact.Id}>
+                      <img src={contact.urlPhoto} alt="Contact Image" class="circle-image" />
+                  </div>
+    
+                  </template>
+
+               <template lwc:else>
+                                <lightning-avatar class="initials"
+        variant="circle"          initials={contact.initial}
+        alternative-text={contact.name}
+    ></lightning-avatar>
+
+                  
+</template>
+
+    
+                                    
+              <div key={contact.Id} class="name-content">                      
+              <p key={contact.Id} class="name-style">{contact.name}</p>
+
+               <template lwc:if={contact.birdhdate}> <div class="under-name">
+               <lightning-formatted-date-time value={contact.birdhdate}
+                                                   month="long" day="2-digit" 
+                                                    class="date-style" > </lightning-formatted-date-time><p class="date-style">{bestWishes} </p> </div>
+                                                    </template> 
+                       <template lwc:else> <div class="under-name">
+                              <lightning-formatted-date-time value={contact.anniversary}
+                                                     month="long" day="2-digit" 
+                                                    class="date-style" > </lightning-formatted-date-time></lightning-formatted-date-time><p class="date-style">{contact.anciennete} </p> </div>                            
+                                                    </template>
+              </div>
+
+<div class="circle-container icon-right" key={contact.Id}>
+                   <template lwc:if={contact.birdhdate}>
+
+                                    <span class="fa fa-birthday-cake" style="font-size: 20px;"></span>
+                                    </template>
+                                    <template lwc:else>
+<span class="fa fa-calendar" style="font-size: 20px;"></span>
+                                    </template>
+</div>
+
+                    </div>
+
+                    <br key={contact.Id}/>
+
+
+                    
+
+                </template>
+
+
+                  the link <a class="link"   onclick={openModal}>Voir plus ...</a>
+                                
+            </template>
+            <template if:false={contacts}>
+                <div class="no-data-container" >
+            <!--<div class="no-data-icon">
+                <img src={nodata} alt="No data found" class="celebration-image" style="width:40px;"/>
+            </div>
+            <div class="no-data-text">{noContactsMsg}</div>-->
+            <c-nodataavailable></c-nodataavailable>
+        </div>
+            </template>
+
+ <div class={popupClass}>
+        <div class="popup-content">
+            <span class="close" onclick={closePopup}>&times;</span>
+            <p>This is your pop-up content!</p>
+        </div>
+    </div>
+
+
+        <lightning-button variant="brand" label={btnLabel} title={btnLabel} onclick={openModal} class="slds-m-left_x-small slds-hide"></lightning-button>
+    <div  role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class={modalClass}>
+    <div class="slds-modal__container ">
+        <header class="slds-modal__header">
+        <h2  class="slds-modal__title slds-hyphenate">{modalHeader}</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium" >
+             <template for:each={contactsAll} for:item="contact">
+                    
+                 <div key={contact.Id} style=" display: inline-flex;    padding-top: 3px;     padding-bottom: 3px; width: 100%;" class="slds-border_bottom">
+                    
+                        <template lwc:if={contact.urlPhoto}>
+            
+  <div class="circle-container" key={contact.Id}>
+                      <img src={contact.urlPhoto} alt="Contact Image" class="circle-image" />
+                  </div>
+    
+                  </template>
+
+               <template lwc:else>
+                                <lightning-avatar class="initials"
+        variant="circle"          initials={contact.initial}
+        alternative-text={contact.name}
+    ></lightning-avatar>
+
+                  
+</template>
+
+    
+                                    
+              <div key={contact.Id} class="name-content">                      
+              <p key={contact.Id} class="name-style">{contact.name}</p>
+
+       <template lwc:if={contact.birdhdate}> <div class="under-name">
+               <lightning-formatted-date-time value={contact.birdhdate}
+                                                   month="long" day="2-digit" 
+                                                    class="date-style" > </lightning-formatted-date-time><p class="date-style">{bestWishes} </p> </div>
+                                                    </template> 
+                       <template lwc:else> <div class="under-name">
+                              <lightning-formatted-date-time value={contact.anniversary}
+                                                     month="long" day="2-digit" 
+                                                    class="date-style" > </lightning-formatted-date-time></lightning-formatted-date-time><p class="date-style">{contact.anciennete} </p> </div>                            
+                                                    </template>
+              </div>
+
+<div class="circle-container icon-right" key={contact.Id}>
+                   <template lwc:if={contact.birdhdate}>
+
+                                    <span class="fa fa-birthday-cake" style="font-size: 20px;"></span>
+                                    </template>
+                                    <template lwc:else>
+<span class="fa fa-calendar" style="font-size: 20px;"></span>
+                                    </template>
+</div>
+
+                    </div>
+
+                    <br key={contact.Id}/>
+
+
+                    
+
+                </template>
+            </div>
+           <footer class="slds-modal__footer">
+        <button class="slds-button slds-button_neutral" onclick={closeModal}>Fermer</button>
+        </footer>
+    </div>
+    </div>
+
+            
+        </div>
+    </lightning-card>
+</template>

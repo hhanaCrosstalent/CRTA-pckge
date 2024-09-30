@@ -1,0 +1,14 @@
+<apex:page sidebar="false" showHeader="false" controller="bdu_printController" renderAs="pdf">
+      <img src="{!$Resource[$Setup.crta__override__c.crta__filigrane__c]}" width="100%" height="100%" style="position: fixed;background-repeat:repeat;left: 0cm; top:0cm; z-index:-1"/>
+      <apex:stylesheet value="{!$Resource.bduCSS}" />
+      <apex:stylesheet value="{!$Resource[$Setup.override__c.css__c]}" />
+      <h3><apex:outputText value="{!$Setup.override__c.CT_printText__c}"/></h3>
+      <h3>Année sélectionnée : {!selectedYear}</h3>
+      <h3>Imprimé par {!user} le <apex:outputText value="{0, date, dd'/'MM'/'yyyy à HH:mm}"><apex:param value="{!NOW()}"></apex:param></apex:outputtext></h3>
+
+      <apex:repeat value="{!indicateurs}" var="indicateur">
+            <apex:variable value="{!IF(displayValue[indicateur.id], indicateursToValeurs[indicateur.id], null)}" var="valeur" />
+
+            <c:bduIndicateur indicateur="{!indicateur}" valeur="{!valeur}" displayIndic="{!displayValue[indicateur.id]}" displayAttachment="false" />
+      </apex:repeat>
+</apex:page>

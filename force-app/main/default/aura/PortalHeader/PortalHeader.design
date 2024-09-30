@@ -1,0 +1,10 @@
+<design:component>
+   <design:attribute name="height" label="{!$Label.crta.Banner_Height}"/>
+   <design:attribute name="textColor" label="Text color"/>
+   <design:attribute name="position" label="{!$Label.crta.Banner_Position}" datasource="Center,Left,Right" default="Center"/>
+   <design:attribute name="isMobile" label="{!$Label.crta.Mobile_Version}"/>
+   <design:attribute name="staticResource" label="Name of the static resource of an image" 
+                      description="The required name of the static resource of an image,
+                                   which will constitute the src attribute of an HTML img tag.
+                                   "/>
+</design:component>

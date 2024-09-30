@@ -1,0 +1,66 @@
+<template>
+<div class="btn-style">
+
+ <lightning-button  label={btnLabel} title={btnLabel} onclick={openModal}>
+        <lightning-icon icon-name="utility:add" size="small" alternative-text="Add"></lightning-icon>
+    </lightning-button>
+    </div>
+        
+
+
+
+     <div  role="dialog" tabindex="-1" aria-labelledby="modal-heading-03" aria-modal="true" aria-describedby="modal-content-id-3"
+      class={modalClass}>
+    <div class="slds-modal__container ">
+        <header class="slds-modal__header">
+        <h2 class="slds-modal__title slds-hyphenate">{modalHeader}</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium" >
+            
+             <div class="slds-modal__container  slds-align_absolute-center">
+            <div class="slds-grid slds-gutters">
+           
+   <div class="slds-size_1-of-1" >
+
+<template for:each={fieldList} for:item="f" for:index="index">
+
+    <template if:true={f.isLookup}>
+         <c-lookup-fields     field-label={f.filterLabel} label={f.filterLabel} child-object-api={f.objectApiName}  key={f.filterLabel}
+         ref-field-name={f.fieldApiName}
+                    place-holder="Place older" onchange={handleLookupChange}
+                    > </c-lookup-fields> 
+    </template>
+
+
+    <template if:true={f.isPickList}>
+                                        
+          <lightning-select  key={f.filterLabel}
+            name={f.filterLabel}
+            label={f.filterLabel}
+            options={f.picklistValues}
+            onchange={handleInputChange}
+            value={f.idValue}
+            required ></lightning-select> <!--            //-->
+        </template>
+
+
+    <template if:true={f.isSimpleType}>
+            <lightning-input type={f.type} label={f.filterLabel}  key={f.filterLabel} name={f.filterLabel} onchange={handleInputChange}></lightning-input>
+    </template>
+
+
+     <div style="margin-bottom: 9%;"  key={f.filterLabel}></div>
+    </template>
+
+    </div>
+    </div>
+    </div>
+
+            </div>
+           <footer class="slds-modal__footer">
+        <button class="slds-button slds-button_brand" onclick={recordCreation}>Ajouter</button>
+        <button class="slds-button slds-button_neutral" onclick={closeModal}>Fermer</button>
+        </footer>
+    </div>
+    </div>
+</template>

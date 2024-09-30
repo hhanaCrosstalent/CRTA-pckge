@@ -1,0 +1,127 @@
+<template>
+
+
+
+    <article class="slds-card ">
+
+      <template lwc:if={displayRows}>
+  <div class="slds-card__body slds-card__body_inner content-style">
+
+   
+    <lightning-button class="menu-btn"  
+
+        icon-name="utility:rows"
+        icon-size="x-small"
+        icon-position="left" 
+        onclick={setDisplayRows}
+    ></lightning-button>
+<template for:each={apps} for:item="app" for:index="index">
+  
+  <template if:true={app.selected}>
+    <lightning-button class="menu-btn selected-btn" key={app.label}  name={app.label}
+
+        label={app.label}
+        icon-name={app.icon} 
+        icon-size="x-small"
+        icon-position="left" 
+        onclick={handleClickedBtn}
+    ></lightning-button>
+  </template>
+    <template if:false={app.selected}> 
+      <lightning-button class="menu-btn " key={app.label}  name={app.label}
+
+        label={app.label}
+        icon-name={app.icon} 
+        icon-size="x-small"
+        icon-position="left" 
+        onclick={handleClickedBtn}
+    ></lightning-button>
+    </template>
+
+     
+                </template>
+
+            
+</div>
+
+</template>
+      <template lwc:else>
+
+  <div class="slds-card__body slds-card__body_inner content-style1">
+
+   
+    <lightning-button class="menu-btn menu-btn1" 
+
+        icon-name="utility:rows"
+        icon-size="x-small"
+        icon-position="left" 
+        onclick={setDisplayRows}
+    ></lightning-button>
+<template for:each={apps} for:item="app" for:index="index">
+  
+  <template if:true={app.selected}>
+    <lightning-button class="menu-btn menu-btn1 selected-btn" key={app.label}  name={app.label}
+
+        icon-name={app.icon} 
+        icon-size="x-small"
+        icon-position="left" 
+        onclick={handleClickedBtn}
+    ></lightning-button>
+  </template>
+    <template if:false={app.selected}> 
+      <lightning-button class="menu-btn menu-btn1 " key={app.label}  name={app.label}
+
+        icon-name={app.icon} 
+        icon-size="x-small"
+        icon-position="left" 
+        onclick={handleClickedBtn}
+    ></lightning-button>
+    </template>
+
+     
+                </template>
+
+            
+</div>
+</template>
+    </article>
+
+
+
+  <div class="slds-grid slds-hide">
+  <div class="slds-col slds-size_1-of-5 menu-content">
+
+
+    <article class="slds-card transparent">
+  <div class="slds-card__body slds-card__body_inner">
+<template for:each={apps} for:item="app" for:index="index">
+     <lightning-button class="menu-btn " key={app.label}  name={app.label}
+
+        label={app.label}
+        icon-name={app.icon} 
+        icon-size="small"
+        icon-position="left" 
+        onclick={handleClickedBtn}
+    ></lightning-button>
+                </template>
+
+            
+    </div>
+
+    </article>
+    <lightning-card class="my-card slds-hide "  > <!-- icon-name="custom:custom41" title="Expected Compensation"-->
+        
+                    </lightning-card>
+ </div>
+    <div class="slds-col">
+          <lightning-card class="my-card padding-2"  > <!-- icon-name="custom:custom41" title="Expected Compensation"-->
+         <!--  <c-mycareer app-id={selectedId}></c-mycareer>-->
+
+
+ <lwc:component lwc:is={componentConstructor} app-id={selectedId} ></lwc:component>
+
+  </lightning-card>
+    </div>
+    </div>
+
+</template>

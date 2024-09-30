@@ -1,0 +1,696 @@
+<apex:component controller="sirhMenuController" allowDML="true">
+  <apex:attribute name="contact" description="Current contact." type="Contact" required="true"/>
+  <apex:attribute name="subCount" description="Current contact number of subordinates" type="Integer" required="false"/>
+  <apex:attribute name="logo" description="URI of the logo" type="String" required="false"/>
+  <apex:attribute name="photo" description="URI of the user's picture" type="String" required="false"/>
+  <apex:attribute name="alertCount" description="Number of alerts for the contact" type="Integer" required="false"/>
+  <apex:attribute name="displayDateLeave" description="Whether to display datetime leave modal" type="Boolean" required="false"/>
+  <apex:attribute name="isManager" description="Whether to the logged user is a manager" type="Boolean" required="false"/>
+  
+  <!-- Top bar -->
+  <apex:outputPanel layout="block">
+    <nav class="top-bar" data-topbar="true" role="navigation">
+      <ul class="title-area">
+        <li class="name hide-for-small">
+          <h1><a href="{!$Setup.sirh__c.logoURL__c}"><apex:image value="{!logo}" /></a></h1>
+        </li>
+        <li><a href="#" title="Menu" class="left-off-canvas-toggle show-for-small"><i class="fa fa-bars"></i> <span><apex:outputText value="{!pageLabel}" /></span></a></li>
+      </ul>
+
+      <section class="top-bar-section hide-for-small">
+        <!-- Right Nav Section -->
+        <ul class="right">
+          <!-- Avatar -->
+          <li id="joyride-topbar-avatar" class="avatar {!IF($Setup.crta__sirh__c.crta__useAvatars__c, 'show', 'hide')}"><a href="#" data-reveal-id="upload"><img alt="{!$Label.SI_Alttext_avatar}" title="{!$Label.SI_Alttext_avatar}" src="{!IF(photo == '/servlet/servlet.FileDownload?file=', URLFOR($Resource.avatar_blank), photo)}" /></a></li>
+          <!-- Notifications -->
+          <li id="joyride-topbar-alert" data-count="{!notifications.size}" class="has-dropdown no-icon {!IF(notifications.size > 0, 'has-alerts', 'no-alert')}" title="{!$ObjectType.Notification__c.LabelPlural}">
+            <a href="#" ><span class="fa-stack fa-lg"><i class="fa fa-circle-thin fa-stack-2x"></i><i class="fa fa-bell fa-stack-1x"></i></span></a>
+            <ul class="notifications-dropdown dropdown card no-border secondary-border">
+              <div id="notifications-menu" class="notifications">
+                <h4>{!$ObjectType.SIRH_Notification__c.LabelPlural}</h4>
+                <ul class="no-bullet js-notifications">
+                  <apex:repeat value="{!notifications}" var="notification">
+                    <li class="notification" data-id="{!notification.Id}"> <i class="fa {!IF(notification.type__c == 'Création', 'fa-plus-circle Création-font', '')}{!IF(notification.type__c == 'Suppression', 'fa-times-circle Suppression-font', '')}{!IF(notification.type__c == 'Information', 'fa-info-circle Information-font', '')}{!IF(notification.type__c == 'Rappel', 'fa-bell Rappel-font', '')}{!IF(notification.type__c == 'Divers', 'fa-dot-circle-o Divers-font', '')}{!IF(notification.type__c == 'Interaction', 'fa-question-circle Interaction-font', '')}"></i><span>{!notification.Texte__c}</span> <i class="fa fa-square-o {!IF(notification.Lu__c == false, 'show', 'hide')}"></i></li>
+                  </apex:repeat>
+                </ul>
+                <apex:image value="{!$Resource.grey_bell}" rendered="{!notifications.size = 0}" />
+              </div>
+            </ul>
+          </li>
+          <!-- Menu -->
+          <li id="joyride-topbar-menu" class="has-dropdown">
+            <a href="#">{!IF($Setup.crta__sirh__c.crta__useNameInMenu__c, Contact.Name, $Label.Actions)}</a>
+            <ul class="dropdown">
+              <li class="{!IF($Setup.crta__sirh__c.crta__showTimes__c, 'show', 'hide')}">
+                <apex:outputLink value="#" rendered="{!!$Setup.timesheet__c.useTimesheetPage__c}" styleClass="dropdown-link week-dropdown" html-data-reveal-id="timesheet"><i class="fa fa-calendar"></i>{!$Label.new_timesheet}</apex:outputLink>
+                <apex:outputLink value="{!$Setup.timesheet__c.Page_Creation_Feuille__c}" rendered="{!$Setup.timesheet__c.useTimesheetPage__c}" styleClass="dropdown-link week-dropdown"><i class="fa fa-calendar"></i>{!$Label.new_timesheet}</apex:outputLink>
+              </li>
+              <li class="{!IF($Setup.sirh__c.showExpenses__c, 'show', 'hide')}">
+                <apex:outputLink rendered="{!!$Setup.expenses__c.usePage__c}" value="#" styleClass="dropdown-link expense-dropdown" html-data-reveal-id="expenses"><i class="fa fa-credit-card"></i>{!$Label.new_expenses}</apex:outputLink>
+                <apex:outputLink rendered="{!$Setup.expenses__c.usePage__c}" value="{!$Setup.expenses__c.Page_creation_Note_de_frais__c}" styleClass="dropdown-link expense-dropdown"><i class="fa fa-credit-card"></i>{!$Label.new_expenses}</apex:outputLink>
+              </li>
+              <li class="{!IF($Setup.sirh__c.showLeave__c, 'show', 'hide')}">
+                <apex:outputLink rendered="{!!$Setup.timesheet__c.useLeavePage__c}" value="#" styleClass="dropdown-link leave-dropdown" html-data-reveal-id="{!IF((displayDateLeave || $Setup.timesheet__c.useDateLeaveModal__c), 'leave-date', 'leave')}"><i class="fa fa-ticket"></i>{!$Label.new_leave}</apex:outputLink>
+                <apex:outputLink rendered="{!$Setup.timesheet__c.useLeavePage__c}" value="{!$Setup.timesheet__c.Page_Creation_Demande__c}" styleClass="dropdown-link leave-dropdown"><i class="fa fa-ticket"></i>{!$Label.new_leave}</apex:outputLink>
+              </li>
+              <li class="{!IF($Setup.sirh__c.showTrainingRequest__c, 'show', 'hide')}">
+                <apex:outputLink rendered="{!!$Setup.TrainingModule__c.useTrainingRequestPage__c}" value="#" styleClass="dropdown-link training-dropdown" html-data-reveal-id="training-request"><i class="fa fa-graduation-cap"></i>{!$Label.new_training_request}</apex:outputLink>
+                <apex:outputLink rendered="{!$Setup.TrainingModule__c.useTrainingRequestPage__c}" value="{!$Setup.TrainingModule__c.Page_Creation_Demande_formation__c}" styleClass="dropdown-link training-dropdown"><i class="fa fa-graduation-cap"></i>{!$Label.new_training_request}</apex:outputLink>
+              </li>
+              <li><a class="dropdown-link red-dropdown red" href="/secur/logout.jsp"><i class="fa fa-sign-out"></i>{!$Label.Log_off}</a></li>
+            </ul>
+          </li>
+        </ul>
+
+        <ul class="center">
+          <li class="name"><h1 class="title">{!pageLabel}</h1></li>
+        </ul>
+      </section>
+
+      <section class="right-small show-for-small">
+        <a href="notificationOffCanvas" class="right-off-canvas-toggle {!IF(alertCount > 0, 'has-alerts', 'no-alert')}" data-count="{!alertCount}"><span class="fa-stack fa-lg"><i class="fa fa-circle-thin fa-stack-2x"></i><i class="fa fa-bell fa-stack-1x"></i></span></a>
+      </section>
+    </nav>
+  </apex:outputPanel>
+
+  <!-- Left hand side menu -->
+  <apex:outputPanel layout="block" id="sidebar" styleClass="left-sidebar primary-color hide-for-small hide-for-print joyride-sidebar-menu">
+    <ul id="joyride-sidebar-menu" class="property-nav">
+      <apex:repeat value="{!menuLinks}" var="menuLink">
+        <apex:variable value="{!RIGHT(menuLink.URL__c, LEN(menuLink.URL__c)-FIND('apex/', menuLink.URL__c)-4)}" var="cleanedURL" />
+        <li class="title">
+          <apex:outputLink value="{!menuLink.URL__c}" target="{!menuLink.Target__c}" rendered="{!(menuLink.Manager_only__c && isManager) || !menuLink.Manager_only__c}" styleClass="{!IF((menuLink.URL__c == $CurrentPage.Name) || (cleanedURL == $CurrentPage.Name), 'active-page', '')} {!IF(menuLink.Manager_only__c, 'manager-page', '')} {!cleanedURL}"><i class="fa {!menuLink.Icone__c}"></i>{!$Label[menuLink.DeveloperName]}</apex:outputLink>
+        </li>
+      </apex:repeat>
+    </ul>
+    <ul class="property-nav {!IF($Setup.sirh__c.Page_RGPD__c != null, 'show', 'hide')}" style="position: absolute; bottom: 8%;">
+      <li class="title">
+        <apex:outputLink value="{!JSENCODE($Setup.sirh__c.Page_RGPD__c)}" target="_blank" styleClass="">
+          <i class="fa fa-address-card"></i>RGPD
+        </apex:outputLink>
+      </li>
+    </ul>
+  </apex:outputPanel>
+  
+  <!-- Right off canvas menu -->
+  <nav id="notificationOffCanvas" class="right-off-canvas-menu notifications">
+    <h4>{!$ObjectType.SIRH_Notification__c.LabelPlural}</h4>
+    <ul class="no-bullet js-notifications">
+      <apex:repeat value="{!notifications}" var="notification">
+        <li class="notification" data-id="{!notification.Id}"> <i class="fa {!IF(notification.type__c == 'Création', 'fa-plus-circle Création-font', '')}{!IF(notification.type__c == 'Suppression', 'fa-times-circle Suppression-font', '')}{!IF(notification.type__c == 'Information', 'fa-info-circle Information-font', '')}{!IF(notification.type__c == 'Rappel', 'fa-bell Rappel-font', '')}{!IF(notification.type__c == 'Divers', 'fa-dot-circle-o Divers-font', '')}{!IF(notification.type__c == 'Interaction', 'fa-question-circle Interaction-font', '')}"></i><span>{!notification.Texte__c}</span> <i class="fa fa-square-o {!IF(notification.Lu__c == false, 'show', 'hide')}"></i></li>
+      </apex:repeat>
+    </ul>
+    <apex:image value="{!$Resource.white_bell}" rendered="{!notifications.size = 0}" />
+  </nav>
+  
+  
+  <apex:form enctype="multipart/form-data">
+  <!-- Modal upload -->
+    <div id="upload" class="row reveal-modal upload-modal" data-reveal="true">
+      <h3 class="small-12 column title">{!$Label.change_picture}</h3>
+
+      <div id="image-cropper" class="small-12 small-centered column">
+        <div class="small-6 column">
+          <div class="cropit-image-preview-container">
+            <div class="cropit-image-preview"></div>
+          </div>
+        </div>
+          
+        <div class="small-6 column">
+          <div class="alert"></div>
+          <div class="small-centered column">{!$Label.file_limit}</div>
+          <div class="select-image-btn button outline blue small-centered column"><i class="fa fa-image"></i> {!$Label.select_image}</div>
+          <div class="slider-wrapper small-centered column">
+                <i class="fa fa-image"></i>
+                <input type="range" class="cropit-image-zoom-input custom" />
+                <i class="fa fa-lg fa-image"></i>
+          </div>
+          <div class="outline button green hide-for-print validate-crop small-centered column"><i class="fa fa-upload"></i> {!$Label.upload}</div>
+          <input type="file" class="cropit-image-input" />
+        </div>
+      </div>
+      <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+    </div>
+    <!-- Modal timesheet -->
+    <div id="timesheet" class="row reveal-modal timesheet-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.new_timesheet}</h3>
+    
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-6 column">
+              <label>{!$ObjectType.Feuille_Temps_Hebdo__c.fields.Date_debut_semaine__c.Label}
+                <i class="fa fa-info-circle help-icon"
+                  title="{!$Label.Week_placeholder_start}"></i>
+                <input type="date" name="start" value="" class="start-select datepicker" required="required" />
+              </label>
+            </div>
+            <div class="small-12 medium-6 column">
+              <label>{!$ObjectType.Feuille_Temps_Hebdo__c.fields.Date_de_fin__c.Label}
+                <i class="fa fa-info-circle help-icon" title="{!$Label.Week_placeholder_start}"></i>
+                <input type="date" name="end" value="" class="end-select datepicker" required="required" />
+              </label>
+            </div>
+          </div>
+        </div>
+    
+        <a href="#" class="outline button green hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createWeek()">
+          <i class="fa fa-plus"></i> {!$Label.create}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print">
+          <i class="fa fa-minus"></i>
+        </a>
+    </div>
+    <!-- Modal training-request -->
+    <div id="training-request" class="row reveal-modal training-request-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.crta__new_training_request}</h3>
+    
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-6 column">
+              <label>{!$ObjectType.Demande_de_formation__c.fields.Type_de_formation__c.Label}
+                <apex:selectList id="type-select" value="{!selectedTrainingRequestType}" size="1" styleClass="type-select">
+                  <apex:selectOptions value="{!trainingRequestTypes}"></apex:selectOptions>
+                </apex:selectList>
+              </label>
+            </div>
+            <div class="small-12 medium-6 column">
+              <label>{!$ObjectType.Demande_de_formation__c.fields.Echeance_souhaitee__c.Label}
+                <input type="text" name="schedule" value=""
+                  class="schedule-select" />
+              </label>
+            </div>
+            <div class="small-12 column">
+              <label>{!$ObjectType.Demande_de_formation__c.fields.Description__c.Label}
+                <textarea class="description-select"></textarea>
+              </label>
+            </div>
+          </div>
+        </div>
+    
+        <a href="#" class="outline button green hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createTrainingRequest()">
+          <i class="fa fa-plus"></i> {!$Label.create}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print">
+          <i class="fa fa-minus"></i>
+        </a>
+    </div>
+    <!-- Modal expense -->
+    <div id="expenses" class="row reveal-modal expenses-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.new_expenses}</h3>
+    
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Note_de_frais__c.fields.Date_de_debut__c.Label}
+                <i class="fa fa-info-circle help-icon" title="{!$Label.Expense_placeholder_start}"></i>
+                <input type="date" name="start" value="" class="start-select datepicker" required="required" />
+              </label>
+            </div>
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Note_de_frais__c.fields.Date_de_fin__c.Label}
+                <i class="fa fa-info-circle help-icon" title="{!$Label.Expense_placeholder_start}"></i>
+                <input type="date" name="end" value="" class="end-select datepicker" required="required" />
+              </label>
+            </div>
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Note_de_frais__c.fields.Nom__c.Label}
+                <br/>
+                <input name="name" value="" type="text" placeholder="{!$Label.X255_max}" class="name" maxlength="255" />
+              </label>
+            </div>
+          </div>
+        </div>
+    
+        <a href="#" class="outline button green hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createExpenses()">
+          <i class="fa fa-plus"></i> {!$Label.create}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print">
+          <i class="fa fa-minus"></i>
+        </a>
+    </div>
+    <!-- Modal leave request -->
+    <div id="leave" class="row reveal-modal leave-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.new_leave}</h3>
+    
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Demande_de_conges__c.fields.Date_de_debut__c.Label}
+                <i class="fa fa-info-circle help-icon" title="{!$Label.Leave_placeholder_start}"></i>
+                <input type="datetime-local" name="start" value="" class="start-select datetimepicker" required="required"
+                />
+              </label>
+            </div>
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Demande_de_conges__c.fields.Type__c.Label}
+                <apex:selectList id="type-select1" value="{!selectedLeaveType}" size="1" styleClass="type-select">
+                  <apex:selectOptions value="{!leaveTypes}"></apex:selectOptions>
+                </apex:selectList>
+              </label>
+            </div>
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Demande_de_conges__c.fields.Date_de_fin__c.Label}
+                <i class="fa fa-info-circle help-icon" title="{!$Label.Leave_placeholder_end}"></i>
+                <input type="datetime-local" name="end" value="" class="end-select datetimepicker" required="required" />
+              </label>
+            </div>
+          </div>
+        </div>
+    
+        <a href="#" class="outline button green hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createLeave()">
+          <i class="fa fa-plus"></i> {!$Label.create}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print">
+          <i class="fa fa-minus"></i>
+        </a>
+    </div>
+    <!-- Modal leave request date only -->
+    <div id="leave-date" class="row reveal-modal leave-modal" data-reveal="true">
+        <h3 class="title">{!$Label.new_leave}</h3>
+    
+        <div class="small-12 medium-4 column">
+          <div class="row collapse">
+            <div class="small-6 column">
+              <label>{!$ObjectType.Demande_de_conges__c.fields.Date_de_debut__c.Label}
+                <input type="date" name="start" value="" class="start-select datepicker"
+                  required="required" />
+              </label>
+            </div>
+            <div class="small-6 column">
+              <label>{!$ObjectType.Demande_de_conges__c.fields.Periode__c.Label}
+                <apex:selectList id="start-period-select" value="{!selectedLeavePeriod}" size="1" styleClass="start-period-select">
+                  <apex:selectOptions value="{!leavePeriods}"></apex:selectOptions>
+                </apex:selectList>
+              </label>
+            </div>
+          </div>
+        </div>
+    
+        <div class="small-12 medium-4 column">
+          <div class="row">
+            <div class="small-12 column">
+              <label>{!$ObjectType.Demande_de_conges__c.fields.Type__c.Label}
+                <apex:selectList id="type-select2" value="{!selectedLeaveType}" size="1" styleClass="type-select">
+                  <apex:selectOptions value="{!leaveTypes}"></apex:selectOptions>
+                </apex:selectList>
+              </label>
+            </div>
+          </div>
+        </div>
+    
+    
+        <div class="small-12 medium-4 column">
+          <div class="row collapse">
+            <div class="small-6 column">
+              <label>{!$ObjectType.Demande_de_conges__c.fields.Date_de_fin__c.Label}
+                <input type="date" name="start" value="" class="end-select datepicker"
+                  required="required" />
+              </label>
+            </div>
+            <div class="small-6 column">
+              <label>{!$ObjectType.Demande_de_conges__c.fields.Periode_de_fin__c.Label}
+                <apex:selectList id="end-period-select" value="{!selectedLeavePeriod}" size="1" styleClass="end-period-select">
+                  <apex:selectOptions value="{!leavePeriods}"></apex:selectOptions>
+                </apex:selectList>
+              </label>
+            </div>
+          </div>
+        </div>
+    
+        <a href="#" class="outline button green hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createLeaveDate()">
+          <i class="fa fa-plus"></i> {!$Label.create}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print">
+          <i class="fa fa-minus"></i>
+        </a>
+    </div>
+  </apex:form>
+
+  <script type="text/javascript">
+    window.onload = function() {
+          var sidebar = document.getElementById("{!$Component.sidebar}");
+          sidebar.addEventListener('mouseenter',liMouseOver,false);
+          sidebar.addEventListener('mouseleave',liMouseOut,false);
+    }
+    
+    var NSD = ''; // namespace dot
+    var NSU = ''; // namespace underscore
+    var someMethod = '{!$RemoteAction.sirhMenuController.base64upload}';
+    if(someMethod.length > 6 && someMethod.substring(0, 5) == 'crta.') {
+        NSD = 'crta.';
+        NSU = 'crta__';
+    }
+    
+    function liMouseOver() {
+          var right = document.getElementById("{!$Component.right_content}");
+          right.className += " shrinked";
+    }
+    function liMouseOut() {
+          var right = document.getElementById("{!$Component.right_content}");
+          var shrinked = ' shrinked';
+          right.className = right.className.replace( shrinked, '' );
+    }
+  
+    function createWeek() {
+      jQuery('#timesheet .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var start;
+      var end;
+      if (!Modernizr.inputtypes.date) {
+            start = moment(jQuery('#timesheet .start-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            end = moment(jQuery('#timesheet .end-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+      } else {
+            start = moment(jQuery('#timesheet .start-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+            end = moment(jQuery('#timesheet .end-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+      }
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'TimesheetManager', 'createTimesheet', {
+        startDate: start,
+        endDate: end,
+        contactId: '{!contact.Id}'
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            var ubn = <apex:outputText value="{!JSENCODE(IF($Setup.sirh__c.useBrowserNotifications__c, "true", "false"))}"/>;
+            if(ubn) {
+              Push.create('{!$Organization.Name}', {
+                    body: '{!$Label.SI_Notif_timesheet_creation}',
+                    icon: {
+                          x16: '{!$Resource.temps}',
+                          x32: '{!$Resource.temps}'
+                    }
+              });
+              jQuery('#timesheet').foundation('reveal', 'close');
+              jQuery('#timesheet .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+            } else {
+              window.location.reload();
+            }
+          } else {
+            console.log(event);
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'<span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+            jQuery('#timesheet').foundation('reveal', 'close');
+            jQuery('#timesheet .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+          jQuery('#timesheet').foundation('reveal', 'close');
+          jQuery('#timesheet .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+        }
+      }); 
+    }
+
+    function createLeave() {
+      jQuery('#leave .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var start;
+      var end;
+      if (!Modernizr.inputtypes.date) {
+            start = moment(jQuery('#leave .start-select')[0].value, 'DD/MM/YYYY HH:mm').utc().format('YYYY-MM-DD[T]HH:mm:ss');
+            end = moment(jQuery('#leave .end-select')[0].value, 'DD/MM/YYYY HH:mm').utc().format('YYYY-MM-DD[T]HH:mm:ss');
+      } else {
+            start = moment(jQuery('#leave .start-select')[0].value, 'YYYY-MM-DD[T]HH:mm:ss').utc().format('YYYY-MM-DD[T]HH:mm:ss');
+            end = moment(jQuery('#leave .end-select')[0].value, 'YYYY-MM-DD[T]HH:mm:ss').utc().format('YYYY-MM-DD[T]HH:mm:ss');
+      }
+      var type = jQuery('#leave .type-select')[0];
+      var label = type.options[type.selectedIndex].text;
+
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'LeaveManager', 'createWithTime', {
+            startDatetime: start,
+            endDatetime: end,
+            leaveTypeString: type.value,
+            leaveTypeLabel: label,
+            contactId: '{!contact.Id}'
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            var ubn = <apex:outputText value="{!JSENCODE(IF($Setup.sirh__c.useBrowserNotifications__c, "true", "false"))}"/>;
+            if(ubn) {
+              body = '{!$Label.SI_Notif_leave_request_creation}';
+              Push.create('{!$Organization.Name}', {
+                body: body.replace('{1}', label).replace('{3}', start).replace('{4}', end),
+                icon: {
+                  x16: '{!$Resource.temps}',
+                  x32: '{!$Resource.temps}'
+                }
+              });
+              jQuery('#leave').foundation('reveal', 'close');
+              jQuery('#leave .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+            } else {
+              window.location.reload();
+            }
+          }  else {
+            console.log(event);
+            jQuery('#leave').foundation('reveal', 'close');
+            jQuery('#leave .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'<span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+            jQuery('#leave').foundation('reveal', 'close');
+            jQuery('#leave .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#leave').foundation('reveal', 'close');
+          jQuery('#leave .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+          jQuery('#leave').foundation('reveal', 'close');
+          jQuery('#leave .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+        }
+      });
+    }
+
+    function createLeaveDate() {
+      jQuery('#leave-date .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var start;
+      var end;
+      if (!Modernizr.inputtypes.date) {
+            start = moment(jQuery('#leave-date .start-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            end = moment(jQuery('#leave-date .end-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+      } else {
+            start = moment(jQuery('#leave-date .start-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+            end = moment(jQuery('#leave-date .end-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+      }
+      var type = jQuery('#leave-date .type-select')[0];
+      var label = type.options[type.selectedIndex].text;
+      var startPeriod = jQuery('#leave-date .start-period-select')[0].value;
+      var endPeriod = jQuery('#leave-date .end-period-select')[0].value;
+
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'LeaveManager', 'createWithoutTime', {
+            startDate: start,
+            startPeriod: startPeriod,
+            endDate: end,
+            endPeriod: endPeriod,
+            leaveTypeString: type.value,
+            leaveTypeLabel: label,
+            contactId: '{!contact.Id}'
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            var ubn = <apex:outputText value="{!JSENCODE(IF($Setup.sirh__c.useBrowserNotifications__c, "true", "false"))}"/>;
+            if(ubn) {
+              body = '{!$Label.SI_Notif_leave_request_creation}';
+              Push.create('{!$Organization.Name}', {
+                body: body.replace('{1}', label).replace('{3}', start).replace('{4}', end),
+                icon: {
+                  x16: '{!$Resource.temps}',
+                  x32: '{!$Resource.temps}'
+                }
+              });
+              jQuery('#leave-date').foundation('reveal', 'close');
+              jQuery('#leave-date .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+            } else {
+              window.location.reload();
+            }
+          } else {
+            console.log(event);
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'<span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+            jQuery('#leave-date').foundation('reveal', 'close');
+            jQuery('#leave-date .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+          jQuery('#leave-date').foundation('reveal', 'close');
+          jQuery('#leave-date .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+        }
+      });
+    }
+
+    function createExpenses() {
+      jQuery('#expenses .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var start;
+      var end;
+      if (!Modernizr.inputtypes.date) {
+            start = moment(jQuery('#expenses .start-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            end = moment(jQuery('#expenses .end-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+      } else {
+            start = moment(jQuery('#expenses .start-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+            end = moment(jQuery('#expenses .end-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+      }
+      var name = jQuery('#expenses .name')[0];
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'ExpensesManager', 'createExpenses', {
+        startDate: start,
+        endDate: end,
+        name: name.value,
+        contactId: '{!contact.Id}'
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            var ubn = <apex:outputText value="{!JSENCODE(IF($Setup.sirh__c.useBrowserNotifications__c, "true", "false"))}"/>;
+            if(ubn) {
+              Push.create('{!$Organization.Name}', {
+                body: '{!$Label.SI_Notif_expenses_creation}',
+                icon: {
+                  x16: '{!$Resource.temps}',
+                  x32: '{!$Resource.temps}'
+                }
+              });
+              jQuery('#expenses').foundation('reveal', 'close');
+              jQuery('#expenses .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+            } else {
+              window.location.reload();
+            }
+          } else {
+            console.log(event);
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'<span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+            jQuery('#expenses').foundation('reveal', 'close');
+            jQuery('#expenses .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+          jQuery('#expenses').foundation('reveal', 'close');
+          jQuery('#expenses .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+        }
+      });
+    }
+
+    function createTrainingRequest() {
+      jQuery('#training-request .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var type = jQuery('#training-request .type-select').val();
+      var schedule = jQuery('#training-request .schedule-select').val();
+      var description = jQuery('#training-request .description-select').val();
+
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'TrainingRequestManager', 'createTrainingRequest', {
+        moduleId: '',
+        sessionId: '',
+        type: type,
+        schedule: schedule,
+        description: description,
+        origin: 'Besoin complémentaire',
+        contactId: '{!contact.Id}'
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            var ubn = <apex:outputText value="{!JSENCODE(IF($Setup.sirh__c.useBrowserNotifications__c, "true", "false"))}"/>;
+            if(ubn) {
+              var body = '{!$Label.SI_Notif_training_request_creation}';
+              Push.create('{!$Organization.Name}', {
+                body: body.replace('{0}', ''),
+                icon: {
+                  x16: '{!$Resource.formation}',
+                  x32: '{!$Resource.formation}'
+                }
+              });
+              jQuery('#training-request').foundation('reveal', 'close');
+              jQuery('#training-request .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+            } else {
+              window.location.reload();
+            }
+          } else {
+            console.log(event);
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'<span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+            jQuery('#training-request').foundation('reveal', 'close');
+            jQuery('#training-request .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+          jQuery('#training-request').foundation('reveal', 'close');
+          jQuery('#training-request .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+        }
+      });
+    }
+
+    jQuery(document).ready(function($) {
+      jQuery('#image-cropper').cropit({
+        height: 300,
+        width: 300,
+        exportZoom: 1,
+        imageBackground: true,
+        imageBackgroundBorderWidth: 50
+      });
+     jQuery('#image-cropper').cropit('imageSrc', '{!photo}');
+
+      // When user clicks select image button,
+      // open select file dialog programmatically
+      jQuery('.select-image-btn').click(function() {
+        jQuery('.cropit-image-input').click();
+      });
+
+      jQuery('.button.validate-crop').click(function() {
+        jQuery(this).html('<i class="fa fa-spinner fa-spin"></i>');
+        var image = jQuery('#image-cropper').cropit('export', {type: 'image/jpeg', quality: .75,originalSize: false});
+        
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.sirhMenuController.base64upload}',
+            image, '{!contact.Id}',
+            function(result, event) {
+                if(event.status) {
+                    window.location.reload();
+                } else {
+                    jQuery('.upload-modal').foundation('reveal', 'close');
+                    jQuery('.upload-modal .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <span><a href="#" class="close">&otimes;</a></div>');
+                    jQuery(document).foundation('alert', 'reflow');
+                }
+            },
+            {escape: true}
+        );
+      });
+
+      jQuery('ul .notification').on('click', 'i.fa-square-o', function(event) {
+        event.preventDefault();
+        var notifId = jQuery(this).parents('li').attr('data-id');
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'NotificationManager', 'markAsRead', {
+              notifId: notifId
+        }, {
+          onSuccess: function (result) {
+            if(result == 'success') {
+              jQuery('.notification[data-id="'+notifId+'"] i.fa-square-o').attr('class', 'fa fa-check-square-o');
+              var decision = <apex:outputText value="{!JSENCODE(IF($Setup.sirh__c.showReadNotifications__c, "true", "false"))}"/>;
+              if(!decision) {
+                jQuery('.notification[data-id="'+notifId+'"]').fadeOut();
+              } else {
+                jQuery('.notification[data-id="'+notifId+'"] i.fa-square-o').attr('class', 'fa fa-check-square-o');
+              }
+              var alertCount = parseInt(jQuery('nav.top-bar .has-alerts').attr('data-count'))-1;
+              jQuery('nav.top-bar .has-alerts').attr('data-count', alertCount);
+            } else {
+              console.log(result);
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+            }
+          },
+          onFailure: function (error) {
+            console.log(error);
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      });
+    });
+  </script>
+</apex:component>

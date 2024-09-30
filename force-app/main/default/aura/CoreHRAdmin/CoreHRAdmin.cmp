@@ -1,0 +1,81 @@
+<aura:component
+    controller="CRTATabsController"
+    implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+    access="global"
+>
+    <aura:attribute name="labelsMap" type="Map" default="{}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <lightning:card title="{!$Label.c.AdminCoreHr}" iconName="utility:settings">
+        <div class="slds-p-left_medium slds-p-right_medium">
+            <lightning:accordion allowMultipleSectionsOpen="true">
+                <lightning:accordionSection name="1" label="{!$Label.c.SectionTitleCoreHRController_1}">
+                    <div class="slds-p-horizontal_medium">
+            <div class="slds-card_boundary slds-p-around_medium slds-size_1-of-1 slds-grid slds-wrap">
+               
+                         
+            
+                 <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-6">
+                            <a href="/lightning/o/crta__Collective_Agreement__c/list" target="_blank">{!v.labelsMap.crta__Collective_Agreement__c.LabelPlural}</a>
+                        </div>
+                        <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-6">
+                            <a href="/lightning/o/crta__Collective_Agreement_Rule__c/list" target="_blank">{!v.labelsMap.crta__Collective_Agreement_Rule__c.LabelPlural}</a>
+                        </div>
+                           <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-6">
+                            <a href="/lightning/o/crta__Employee_Number_Generator__c/list" target="_blank">{!v.labelsMap.crta__Employee_Number_Generator__c.LabelPlural}</a>
+                        </div>
+               
+                </div>
+
+           
+                    </div>
+                </lightning:accordionSection>
+                <lightning:accordionSection name="2" label="{!$Label.c.SectionTitleCoreHRController_2}">
+                    <div class="slds-p-horizontal_medium">
+            <div class="slds-card_boundary slds-p-around_medium slds-size_1-of-1 slds-grid slds-wrap">
+                <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-6">
+                            <a href="/lightning/o/crta__GS_Affectation_poste__c/list" target="_blank">{!v.labelsMap.crta__GS_Affectation_poste__c.LabelPlural}</a>
+                        </div> 
+                 <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-6">
+                            <a href="/lightning/o/crta__GS_Fiche_de_poste__c/list" target="_blank">{!v.labelsMap.crta__GS_Fiche_de_poste__c.LabelPlural}</a>
+                        </div>
+                        </div>
+                    </div>
+                </lightning:accordionSection>
+  <lightning:accordionSection name="2" label="{!$Label.c.SectionTitleCoreHRController_3}">
+                    <div class="slds-p-horizontal_medium">
+                <div class="slds-card_boundary slds-p-around_medium slds-size_1-of-1 slds-grid slds-wrap slds-m-top_medium">
+
+                    <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5">
+                        
+                       <a href="/lightning/o/crta__Medical_Examination_Center__c/list" target="_blank">{!v.labelsMap.crta__Medical_Examination_Center__c.LabelPlural}</a>
+                       </div>
+             
+                    <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5">
+                            <a href="/lightning/o/crta__BDU_Data_M_decine_du_travail__c/list" target="_blank">{!v.labelsMap.crta__BDU_Data_M_decine_du_travail__c.LabelPlural}</a>
+                        </div>
+
+                    <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5">
+                            <a href="/lightning/o/crta__BDU_Data_Accidents_du_travail__c/list" target="_blank">{!v.labelsMap.crta__BDU_Data_Accidents_du_travail__c.LabelPlural}</a>
+                        </div>
+                    <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5">
+                            <a href="/lightning/o/crta__Bank_Account__c/list" target="_blank">{!v.labelsMap.crta__Bank_Account__c.LabelPlural}</a>
+                        </div>
+                    <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5">
+                            <a href="/lightning/o/crta__Habilitation__c/list" target="_blank">{!v.labelsMap.crta__Habilitation__c.LabelPlural}</a>
+                        </div>
+                    <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5">
+                            <a href="/lightning/o/crta__Equipment__c/list" target="_blank">{!v.labelsMap.crta__Equipment__c.LabelPlural}</a>
+                        </div>
+                    <div class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-5">
+                       <a href="/lightning/o/crta__Equipment_Catalogue__c/list" target="_blank">{!v.labelsMap.crta__Equipment_Catalogue__c.LabelPlural}</a>
+                       </div>
+              
+                        </div>
+                    </div>
+                </lightning:accordionSection>
+                
+            </lightning:accordion>
+        </div>
+    </lightning:card>
+</aura:component>

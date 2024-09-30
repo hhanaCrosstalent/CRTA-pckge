@@ -1,0 +1,8 @@
+<design:component >
+    <design:attribute name="staticResource" label="Name of the static resource of an image" 
+                      description="The required name of the static resource of an image,
+                                   which will constitute the src attribute of an HTML img tag.
+                                   "/>
+	<design:attribute name="style" label="Style attribute of the image" 
+                      description="The optional style attribute of the HTML img tag." />
+</design:component>

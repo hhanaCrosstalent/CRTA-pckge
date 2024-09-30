@@ -1,0 +1,8 @@
+<design:component>
+    <design:attribute name="titleLink" label="{!$Label.crta.Label}"/>
+	<design:attribute name="link" label="{!$Label.crta.Link}" />
+    <design:attribute name="icon" label="{!$Label.crta.Icon}" description="{!$Label.crta.Icon_Description}"/>
+    <design:attribute name="textColor" label="{!$Label.crta.Text_Color}" />
+    <design:attribute name="iconsColor" label="{!$Label.crta.Icons_Color}"/>
+    <design:attribute name="backgroundColor" label="{!$Label.crta.Background_Color}"/>
+</design:component>

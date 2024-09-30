@@ -1,0 +1,7 @@
+<design:component>
+    <design:attribute name="textColor" label="{!$Label.crta.Text_Color}" />
+	<design:attribute name="width" label="{!$Label.crta.Width_Video}"/>
+    <design:attribute name="height" label="{!$Label.crta.Height_Video}"/>
+    <design:attribute name="videoCode" label="{!$Label.crta.Video_Code}"/>
+    <design:attribute name="showIcon" label="{!$Label.crta.Display_Icon}" />
+</design:component>

@@ -1,0 +1,82 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="HierarchyController">
+<!-- @author Felix van Hove -->
+<!-- TODO: in order to get this ready for Communities, improve the way contact links work by use of onSelect -->
+<!-- TODO: lacks user feedback; e.g. if saving the new hierarchy causes an error (e.g. due to circular references, the user needs English and the browser developer console to see -->
+
+    <aura:attribute name="showAccounts" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="tree" type="Contact[]" />
+    
+    <aura:attribute name="allContacts" type="Contact[]" />
+    
+    <aura:attribute name="searchedContactOld" type="String" />
+    <aura:attribute name="contactsOld" type="Contact[]" />
+    <aura:attribute name="selectedContactOld" type="Contact" />
+
+    <aura:attribute name="searchedContactNew" type="String" />
+    <aura:attribute name="contactsNew" type="Contact[]" />
+    <aura:attribute name="selectedContactNew" type="Contact" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+	<article class="slds-card">
+        <div class="slds-m-around_x-large slds-grid">
+            
+            <lightning:tree items="{!v.tree}" header="Hiérarchie" class="slds-col slds-size_3-of-4" />
+            
+            <div class="slds-col slds-size_1-of-4 slds-box">
+                
+                <h2 class="slds-page-header__title">Modifier la hiérarchie</h2>
+
+                <!-- auto-complete start -->
+                <label class="slds-form-element__label slds-no-flex slds-m-top_medium">
+                    <span>Vieux manager</span>
+                </label>
+                <div class="slds-form-element slds-lookup slds-is-close slds-text-body_regular" data-select="single">
+                    <div class="slds-form-element__control">
+                        <div class="slds-input-has-icon slds-input-has-icon_right">
+                            <lightning:icon class="slds-input__icon slds-show" iconName="utility:search" size="x-small" alternativeText="search" />
+                            <div aura:id="lookupField" class="slds-show">
+                                <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.onkeyup}" aura:id="input" class="slds-lookup__search-input slds-input leftPadding"
+                                    value="{!v.searchedContactOld}" placeholder="{!$Label.c.Search+'...'}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fix-container-height slds-scrollable_y dropdown-frame">
+                        <aura:iteration items="{!v.contactsOld}" var="item">
+                                        <a onclick="{!c.selectRecord}" data-id="{!item.Id}"><div class="slds-box">{!item.Name}</div></a>
+                        </aura:iteration>
+                    </div>
+                </div>
+                <!-- auto-complete end -->
+
+                <!-- auto-complete start -->
+                <label class="slds-form-element__label slds-no-flex slds-m-top_small">
+                    <span>Nouveau manager</span>
+                </label>
+                <div class="slds-form-element slds-lookup slds-is-close slds-text-body_regular" data-select="single">
+                    <div class="slds-form-element__control">
+                        <div class="slds-input-has-icon slds-input-has-icon_right">
+                            <lightning:icon class="slds-input__icon slds-show" iconName="utility:search" size="x-small" alternativeText="search" />
+                            <div aura:id="lookupField" class="slds-show">
+                                <ui:inputText click="{!c.onfocus2}" updateOn="keyup" keyup="{!c.onkeyup2}" aura:id="input" class="slds-lookup__search-input slds-input leftPadding"
+                                    value="{!v.searchedContactNew}" placeholder="{!$Label.c.Search+'...'}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fix-container-height slds-scrollable_y dropdown-frame">
+                        <aura:iteration items="{!v.contactsNew}" var="item">
+                            <a onclick="{!c.selectRecord2}" data-id="{!item.Id}">
+                                <div class="slds-box">{!item.Name}</div>
+                            </a>
+                        </aura:iteration>
+                    </div>
+                </div>
+                <!-- auto-complete end -->
+                
+                <lightning:button variant="brand" type="submit" onclick="{!c.submit}" label="{!$Label.c.Search}" class="slds-m-top_medium"/>
+
+            </div>
+        </div>
+    </article>
+
+</aura:component>

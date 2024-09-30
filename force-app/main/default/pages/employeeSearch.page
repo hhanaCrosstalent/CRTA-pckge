@@ -1,0 +1,86 @@
+<apex:page showHeader="true" sidebar="false" cache="false" controller="employeeSearchController" docType="html-5.0">
+
+        <style type="text/css" media="screen">
+            .sidebar { height: 800px; width: 24%; float: left;}
+            .results { height: 800px; width: 74%; float: right;}
+            .results .table { min-height: 150px; overflow: auto; margin-bottom: 10px;}
+            input, select { margin-bottom: 10px;}
+            body .bPageBlock  { margin-bottom: 0; }
+            body .secondaryPalette.bPageBlock { border-radius: 0; }
+        </style>
+
+    <apex:form id="sidebarForm">
+        <div class="sidebar">
+                <apex:pageBlock tabStyle="Contact" mode="detail">
+                        <apex:pageBlockSection columns="1" collapsible="true" title="Expérience">
+                            <apex:inputField label="{!$Label.crta__name}: " value="{!mockContact.FirstName}" />
+                            <apex:inputField label="{!$ObjectType.Contact.fields.MailingState.Label}: " value="{!mockContact.MailingState}" />
+                        </apex:pageBlockSection>
+                        <apex:pageBlockSection columns="1" collapsible="true" title="{!$Label.crta__search}">
+                            <apex:input label="{!$Label.crta__search}" type="search" value="{!searchText}" />
+                            <apex:commandButton action="{!search}" value="Valider" />
+                        </apex:pageBlockSection>
+                </apex:pageBlock>
+            </div>
+        <div class="results">
+            <div class="table">
+                <apex:pageBlock tabStyle="Contact" mode="edit" id="results">
+                    <apex:pageBlockTable value="{!matchedContacts}" var="contact" rows="50"  >
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Nom" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="nom" assignTo="{!sortField}"/>
+                                </apex:commandLink>
+                            </apex:facet>
+                            <a target="_parent" href="/{!contact.id}">{!contact.Name}</a>
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Fonction" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="fonction" assignTo="{!sortField}"/>
+                                </apex:commandLink>
+                            </apex:facet>
+                            {!contact.title}
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Date d'entrée" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="date_entree_societe" assignTo="{!sortField}"/>
+                                </apex:commandLink>
+                            </apex:facet>
+                            <apex:outputText value="{0, date, dd/MM/yyyy }" >
+                                <apex:param value="{!contact.CT_Date_of_entry_to_the_society__c}" />
+                            </apex:outputText>
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Date de sortie" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="date_sortie_societe" assignTo="{!sortField}"/>
+                                </apex:commandLink>
+                            </apex:facet>
+                            <apex:outputText value="{0, date, dd/MM/yyyy }" >
+                                <apex:param value="{!contact.CT_Exit_date__c}" />
+                            </apex:outputText>
+                        </apex:column>
+                        <apex:column style="text-align: center;">
+                            <apex:facet name="header">
+                                <apex:commandLink value="Type de contrat" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="type de contrat" assignTo="{!sortField}"/>
+                                </apex:commandLink>
+                            </apex:facet>
+                            {!contact.Contrat_pret__c}
+                        </apex:column>
+                        <apex:column style="text-align: center;">
+                            <apex:facet name="header">
+                                <apex:commandLink value="Temps de travail" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="temps de travail" assignTo="{!sortField}"/>
+                                </apex:commandLink>
+                            </apex:facet>
+                            {!contact.Temps_de_travail_en_pourcentage__c}%
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:pageBlock>
+            </div>
+        </div>
+    </apex:form>
+</apex:page>

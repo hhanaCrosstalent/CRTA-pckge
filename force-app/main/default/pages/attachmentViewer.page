@@ -1,0 +1,12 @@
+<apex:page sidebar="false" showHeader="false">
+    <apex:composition template="BDU_template">
+        <apex:define name="body">
+            <apex:outputPanel layout="block" rendered="{!$CurrentPage.parameters.isFile != null}">
+                <embed src="/_swf/192001/sfc/flex/DocViewer.swf" flashvars="shepherd_prefix={!$Site.Prefix}/sfc/servlet.shepherd&v={!$CurrentPage.parameters.id}&mode=chatterfilepreview&in_tests=false" width="900" height="1100" align="middle" id="renditionSmall" quality="high" bgcolor="#ffffff" name="renditionSmall" allowscriptaccess="sameDomain" allowfullscreen="true" pluginspage="http://www.adobe.com/go/getflashplayer" wmode="opaque" type="application/x-shockwave-flash"/>
+            </apex:outputPanel>
+            <apex:outputPanel layout="block" rendered="{!$CurrentPage.parameters.isFile == null}">
+            <embed class="av_embed" src="{!URLFOR($Action.Attachment.Download, $CurrentPage.parameters.id)}" type="application/pdf"  width="900" height="1100"/>
+            </apex:outputPanel>
+        </apex:define>
+    </apex:composition>
+</apex:page>

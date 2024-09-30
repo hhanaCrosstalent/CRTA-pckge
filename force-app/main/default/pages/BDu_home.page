@@ -1,0 +1,53 @@
+<apex:page sidebar="false" showHeader="false" controller="bdu_homeController">
+    <apex:composition template="BDU_template">
+        <apex:define name="body">
+          <apex:include pageName="{!page}" />
+          <script type="text/javascript">
+            function startIntro(){
+              var intro = introJs();
+              intro.setOptions({
+                nextLabel: "{!$Label.crta__si_joyride_button_next}",
+                prevLabel: "{!$Label.crta__si_joyride_button_previous}",
+                doneLabel: "{!$Label.crta__si_joyride_button_end}",
+                skipLabel: "{!$Label.crta__si_joyride_button_skip}",
+                exitOnEsc: true,
+                exitOnOverlayClick: true,
+                showStepNumbers: false,
+                keyboardNavigation: true,
+                disableInteraction: true,
+                steps: [
+                  { 
+                    intro: "{!$Label.crta__bdu_joyride_first_step}"
+                  },
+                  
+                  {
+                    element: jQuery('.joyride-topbar')[0],
+                    intro: "{!$Label.crta__bdu_joyride_topbar_step}",
+                    position: 'bottom'
+                  },
+                  {
+                    element: jQuery('.joyride-sidebar')[0],
+                    intro: "{!$Label.crta__bdu_joyride_sidebar_step}",
+                    position: 'right'
+                  }
+                ]
+              });
+              intro.start().setOption('doneLabel', '{!$Label.crta__si_joyride_button_next_page}').oncomplete(function() {
+                window.location.href = '{!$Page.bdu_page}?id=emploi&multipage=true';
+              }).onexit(function() {
+                Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.bdu_homeController.finishJoyride}',
+                    function(result, event) {
+                        if(result == null || result == 'null') {
+                            console.log(event);
+                        } else if(result != 'success') {
+                            console.log(result);
+                        }
+                    },
+                    {escape: true}
+                );
+              });
+            }
+          </script> 
+        </apex:define>
+    </apex:composition>
+</apex:page>

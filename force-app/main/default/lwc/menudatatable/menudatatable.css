@@ -1,0 +1,93 @@
+.slds-table_cell-buffer tr>th {
+background: var(--background);
+    color: white;
+}
+
+.slds-table:not(.slds-no-row-hover) tbody tr:hover>td {
+    background-color: #f1e3cf80;
+        font-weight: 500;
+   
+    color: #314486de;
+}
+
+
+.slds-box {
+    padding: var(--lwc-spacingMedium, 0px);
+    padding: 1px;
+    border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
+    border: 2px solid var(--background);
+
+    border: none;
+
+    
+}
+.fieldset-style {
+    border: 1px solid var(--background);
+    padding: 1%;
+    border-radius: 5px;
+    
+}
+
+.table-header {
+        color: var(--background);
+            display: inline-flex;
+
+}
+
+.table-header {
+margin-bottom: 1%;
+    font-size: 15px;
+    font-weight: 500;
+}
+.btn-style{
+        float: right;
+}
+
+
+.pagination-btn  {
+            margin-left: 2px;
+       --slds-c-button-neutral-spacing-inline-start: 5px;
+    --slds-c-button-neutral-spacing-inline-end: 0px;
+    --slds-c-button-neutral-color-border: #0047bb2e;
+    --slds-c-button-text-color: var(--background);
+    --slds-c-button-color-border-hover: var(--background);
+    --slds-c-button-neutral-spacing-block-end: -1px;
+    --slds-c-button-neutral-spacing-block-start: 0px;
+        --slds-c-button-neutral-color-border-hover: var(--background);
+}
+
+.pagination-btn:hover {
+    --slds-c-button-neutral-color-border-hover: var(--background);
+    --slds-c-button-neutral-color-background-hover: var(--background);
+
+    --sds-c-button-text-color-hover: var(--color);
+
+    --slds-c-button-text-color: var(--background);
+        --slds-c-button-color-border-hover: var(--background);
+}
+
+.pagination-style {
+    text-align: center;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+.no-data-container {
+    text-align: center;
+        padding-top: 1%;
+
+}
+
+.no-data-icon {
+    margin-bottom: 10px;
+}
+
+.no-data-text {
+    font-weight: bold;
+        color: gray;
+
+}
+
+.center-content {
+ text-align: center;
+}

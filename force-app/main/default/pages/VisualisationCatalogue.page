@@ -1,0 +1,462 @@
+<apex:page sidebar="false" showHeader="false" cache="false" docType="html-5.0" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" controller="VisualisationCatalogueController">
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+  <apex:form id="form">
+  <div id="catalogue">
+    <div class="left-block small-12 medium-12 large-6 column">
+      <!-- Filtres -->
+        <div id="filters" class="small-12 small-centered column info-block" data-fold="false">
+          <h4 class="title secondary-font header">
+            <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('filters');">
+              <i class="fa fa-filter"></i>
+              <span>{!$Label.Filters}</span>
+            </a>
+          </h4>
+          <div class="card">
+            <div class="row infos" data-foldable="true">
+              <div class="small-12 large-4 column info layer-up">
+                  <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Type__c.Label} :" for="type"/>
+                  <apex:selectList id="type" value="{!selectedType}" size="1" title="types" styleClass="type-select" html-data-field="FO_Type__c">
+                    <apex:selectOptions value="{!types}"></apex:selectOptions>
+                  </apex:selectList>
+              </div>
+              <div class="small-12 medium-6 large-4 column info layer-up">
+                    <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Organisme_de_formation__c.Label} :" for="organization"/>
+                    <apex:selectList id="organization" value="{!selectedOrganization}" size="1" title="organization" styleClass="org-select" html-data-field="FO_Organisme_de_formation__c">
+                          <apex:selectOptions value="{!organizations}"></apex:selectOptions>
+                    </apex:selectList>
+              </div>
+              <div class="small-12 medium-6 large-4 column info layer-up">
+                    <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.FO_catalogue_de_formation__c.fields.Mode__c.Label} :" for="mode"/>
+                    <apex:selectList id="mode" value="{!selectedMode}" size="1" title="modes" styleClass="mode-select" html-data-field="Mode__c">
+                          <apex:selectOptions value="{!modes}"></apex:selectOptions>
+                    </apex:selectList>
+              </div>
+              <div class="button-center">
+                    <button onclick="event.preventDefault(); loadModules(0);" class="green button outline"><i class="fa fa-search"></i> {!$Label.Search}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Liste des offres -->
+        <div id="list" class="small-12 small-centered column info-block" data-fold="false">
+          <h4 class="title secondary-font header">
+            <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('list');">
+              <i class="fa fa-search"></i>
+              <span>{!$ObjectType.FO_catalogue_de_formation__c.LabelPlural}</span>
+            </a>
+          </h4>
+          <div class="card no-border">
+            <div class="ct-table" data-foldable="true">
+              <table data-position="0">
+                <thead class="secondary-color header-table">
+                  <tr>
+                    <th>{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Type__c.Label}</th>
+                    <th>{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Nom_de_la_formation__c.Label}</th>
+                    <th>{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Duree__c.Label}</th>
+                    <th>{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Lieu__c.Label}</th>
+                    <th>{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Organisme_de_formation__c.Label}</th>
+                    <th>{!$ObjectType.FO_catalogue_de_formation__c.fields.Mode__c.Label}</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot class="pagination">
+                  <tr>
+                    <td colspan="6">
+                      <a href="#" data-direction="previous">
+                        <i class="fa fa-arrow-left"></i>
+                      </a>
+                      <span></span>
+                      <a href="#" data-direction="next">
+                        <i class="fa fa-arrow-right"></i>
+                      </a>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <div class="right-block small-12 medium-12 large-6 column">
+          <!-- Module -->
+            <div id="module" class="small-12 column info-block" data-fold="false" data-id="{!module.Id}">
+              <h4 id="moduleName" class="title secondary-font header">
+                <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('module');">
+                  <i class="fa fa-info-circle"></i>
+                  <span>{!IF(module != null, module.FO_Nom_de_la_formation__c, $ObjectType.FO_catalogue_de_formation__c.Label)}</span>
+                </a>
+              </h4>
+              <div class="card">
+                <div class="row infos" data-foldable="true">
+                  <div id="moduleDomaine" class="small-6 column">
+                    <label class="ct-label">{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Type__c.Label} :
+                      <br />
+                      <span class="ct-output">&nbsp;
+                        <apex:outputField rendered="{!module != null}" value="{!module.FO_Type__c}" />
+                      </span>
+                    </label>
+                  </div>
+                  <div id="moduleMode" class="small-6 column">
+                    <label class="ct-label">{!$ObjectType.FO_catalogue_de_formation__c.fields.Mode__c.Label} :
+                      <br />
+                      <span class="ct-output">&nbsp;
+                        <apex:outputField rendered="{!module != null}" value="{!module.Mode__c}" />
+                      </span>
+                    </label>
+                  </div>
+                  <div id="moduleDiplome" class="small-6 column">
+                    <label class="ct-label">{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Diplomante__c.Label} :
+                      <br />
+                      <span class="ct-output {!IF(module != null, 'show', 'hide')}">&nbsp;
+                        <i class="fa {!IF(module.FO_Diplomante__c, 'fa-check-square-o', 'fa-square-o')}"></i>
+                      </span>
+                    </label>
+                  </div>
+                  <div id="moduleCity" class="small-6 column">
+                    <label class="ct-label">{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Lieu__c.Label} :
+                      <br />
+                      <span class="ct-output">&nbsp;
+                        <apex:outputField rendered="{!module != null}" value="{!module.FO_Lieu__c}" />
+                      </span>
+                    </label>
+                  </div>
+                  <div id="moduleDescription" class="small-12 column">
+                    <label class="ct-label">{!$ObjectType.FO_catalogue_de_formation__c.fields.Objectifs_pedagogiques__c.Label} :
+                      <span class="ct-output">
+                        <apex:outputField rendered="{!module != null}" value="{!module.Objectifs_pedagogiques__c}" />
+                      </span>
+                    </label>
+                  </div>
+                  <hr class="separator" />
+                  <div id="organizationName" class="small-6 column">
+                    <label class="ct-label">{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Organisme_de_formation__c.Label} :
+                      <br />
+                      <span class="ct-output">&nbsp;
+                        <apex:outputField rendered="{!module != null}" value="{!module.Nom_de_l_organisme__c}" />
+                      </span>
+                    </label>
+                  </div>
+                  <div id="organizationContact" class="small-6 column">
+                    <label class="ct-label">{!$ObjectType.Organisme_de_formation__c.fields.FO_Contact__c.Label} :
+                      <span class="ct-output">&nbsp;
+                        <apex:outputField rendered="{!module != null}" value="{!module.Nom_du_formateur__c}" />
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+        
+            <apex:outputPanel layout="none" rendered="{!$Setup.TrainingModule__c.showEmployeeChoice__c}">
+              <div class="small-12 column">
+                <label>{!$ObjectType.Participation_session_formation__c.fields.Nom_du_stagiaire__c.Label}
+                  <apex:selectList id="employees" value="{!selectedEmployee}" size="1" title="employees">
+                    <apex:selectOptions value="{!employees}"></apex:selectOptions>
+                  </apex:selectList>
+                </label>
+              </div>
+            </apex:outputPanel>
+        
+            <apex:outputPanel layout="none" rendered="{!$Setup.TrainingModule__c.showSessions__c}">
+              <div id="sessions" class="small-12 column info-block" data-fold="false">
+                <h4 class="title secondary-font header">
+                  <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('sessions');">
+                    <i class="fa fa-list"></i>
+                    <span>{!$ObjectType.FO_Session_collective__c.LabelPlural}</span>
+                  </a>
+                </h4>
+                <div class="card no-border">
+                  <div class="ct-table" data-foldable="true">
+                    <table>
+                      <thead class="secondary-color header-table">
+                        <tr>
+                          <th>{!$ObjectType.FO_Session_collective__c.fields.FO_Date_et_heure_de_debut__c.Label}</th>
+                          <th>{!$ObjectType.FO_Session_collective__c.fields.FO_Duree_en_heures__c.Label}</th>
+                          <th>{!$ObjectType.FO_Session_collective__c.fields.Lieu__c.Label}</th>
+        
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <apex:repeat value="{!sessions}" var="session">
+                          <apex:outputPanel layout="none" rendered="{!$Setup.TrainingModule__c.showFullSessions__c}">
+                            <tr class="highlight-primary" data-id="{!session.Id}">
+                              <td>
+                                <apex:outputField value="{!session.FO_Date_et_heure_de_debut__c}" />
+                              </td>
+                              <td>
+                                <apex:outputField value="{!session.FO_Duree_en_heures__c}" />
+                              </td>
+                              <td>
+                                <apex:outputField value="{!session.Lieu__c}" />
+                              </td>
+        
+                              <td>
+                                <input id="{!session.Id}" type="radio" name="sessions" value="" class="{!IF(session.Participations_des_sessions_formations__r == null || session.Participations_des_sessions_formations__r.size == 0, 'show', 'hide')}"
+                                />
+                              </td>
+                            </tr>
+                          </apex:outputPanel>
+                        </apex:repeat>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </apex:outputPanel>
+        
+            <div class="button-center">
+              <a href="#" onclick="event.preventDefault(); apply('{!JSENCODE(module.Id)}', '{!JSENCODE(module.Name)}')" class="flat green button {!IF(!hasRequest, 'show', 'hide')}">
+                <i class="fa fa-send-o"></i> {!$Label.Button_selfregister}</a>
+            </div>
+        </div>
+      </div>
+      </apex:form>
+
+      
+    
+
+  <script type="text/javascript">
+    function loadModules(offset) {
+      jQuery('#filters button.green').html('<i class="fa fa-spin fa-spinner"></i>');
+
+      var fields = []
+      var values = []
+      var operations = []
+      values.push(document.getElementById('{!$Component.form.type}').value);
+      fields.push(document.getElementById('{!$Component.form.type}').getAttribute('data-field'));
+      values.push(document.getElementById('{!$Component.form.organization}').value);
+      fields.push(document.getElementById('{!$Component.form.organization}').getAttribute('data-field'));
+      values.push(document.getElementById('{!$Component.form.mode}').value);
+      fields.push(document.getElementById('{!$Component.form.mode}').getAttribute('data-field'));
+      values = cleanSoapArray(values);
+
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var limitN = <apex:outputText value="{!JSENCODE(TEXT($Setup.TrainingModule__c.moduleNumber__c))}"/> + 1;
+      var result = sforce.apex.execute(NSD+'TrainingModuleRepository', 'getAllActiveFilteredWithOffset', {
+        filterFields: fields,
+        filterOperations: operations,
+        filterValues: values,
+        offsetNumber: offset,
+        limitNumber: limitN
+      }, {
+        onSuccess: function (result) {
+          jQuery('#list table tbody').html('');
+          var limitNN = parseInt('<apex:outputText value="{!JSENCODE(TEXT($Setup.TrainingModule__c.moduleNumber__c))}"/>');
+          jQuery.each(result, function(index, val) {
+            if(index == limitNN) return false;
+            var line = '<tr class="highlight-primary" onclick="event.preventDefault(); getModule(\''+val.Id+'\')">';
+            line += '<td>'+val[NSU+'FO_Type__c']+'</td>';
+            line += '<td>'+val[NSU+'FO_Nom_de_la_formation__c']+'</td>';
+            line += '<td>'+val[NSU+'FO_Duree__c']+'</td>';
+            line += '<td>'+val[NSU+'FO_Lieu__c']+'</td>';
+            line += (typeof val[NSU+'Nom_de_l_organisme__c'] == 'undefined') ? '<td></td>' : '<td>'+val[NSU+'Nom_de_l_organisme__c']+'</td>';
+            line += (typeof val[NSU+'Mode__c'] == 'undefined') ? '<td></td>' : '<td>'+val[NSU+'Mode__c']+'</td>';
+            line += '</tr>';
+            jQuery('#list table tbody').append(line);
+          });
+          jQuery('#list table').attr('data-position', offset);
+
+          if(result.length < limitNN+1) {
+                jQuery('#list table tfoot a[data-direction="next"]').hide();
+          } else { 
+                jQuery('#list table tfoot a[data-direction="next"]').show();
+          }
+
+          jQuery('#filters button.green').html('<i class="fa fa-search"></i> {!$Label.search}');
+          if(jQuery('#list table').attr('data-position') == '0') {
+                jQuery('#list table tfoot a[data-direction="previous"]').hide();
+          } else { 
+                jQuery('#list table tfoot a[data-direction="previous"]').show();
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#filters button.green').html('<i class="fa fa-search"></i> {!$Label.search}');
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+          
+          jQuery('#filters button.green').html('<i class="fa fa-search"></i> {!$Label.search}');
+          if(jQuery('#list table').attr('data-position') == '0') {
+                jQuery('#list table tfoot a[data-direction="previous"]').hide();
+          } else { 
+                jQuery('#list table tfoot a[data-direction="previous"]').show();
+          }
+        }
+      });
+    }
+
+    function getModule(id) {
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'TrainingModuleRepository', 'getWithRequestsById', {
+            moduleId: id,
+            contactId: '{!JSENCODE(contactId)}'
+      }, {
+        onSuccess: function (result) {
+          cleanModule();
+          var module = result[0];
+          jQuery('#module').attr('data-id', module.Id);
+          jQuery('#moduleName span').html(module[NSU+'FO_Nom_de_la_formation__c']);
+          jQuery('#moduleDomaine span').html(module[NSU+'FO_Type__c']);
+          jQuery('#moduleMode span').html(module[NSU+'Mode__c']);
+          if(module[NSU+'FO_Diplomante__c'] == 'true') {
+                jQuery('#moduleDiplome span').html('<i class="fa fa-check-square-o"></i>');
+          } else {
+                jQuery('#moduleDiplome span').html('<i class="fa fa-square-o"></i>');
+          }
+          jQuery('#moduleCity span').html(module[NSU+'FO_Lieu__c']);
+          jQuery('#moduleDescription span').html('<br />'+decodeHTML(module[NSU+'Objectifs_pedagogiques__c']));
+          jQuery('#organizationName span').html(module[NSU+'Nom_de_l_organisme__c']);
+          jQuery('#organizationContact span').html(decodeHTML(module[NSU+'Nom_du_formateur__c']));
+          hasRequest('{!JSENCODE(contactId)}', module.Id, module[NSU+'FO_Nom_de_la_formation__c']);
+          getSessions('{!JSENCODE(contactId)}', module.Id);
+          var setupPageCatalogue = '<apex:outputText value="{!JSENCODE($Setup.sirh__c.Page_Catalogue__c)}"/>';
+          history.pushState(null, module[NSU+'FO_Nom_de_la_formation__c'], setupPageCatalogue+'?id='+module.Id);
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+        }
+      });
+    }
+
+    function getSessions(employeeId, moduleId) {
+      jQuery('#sessions table tbody').html('<div class="results"><i class="fa fa-2x fa-spin fa-spinner"></i></div>');
+      Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationCatalogueController.getSessions}', employeeId, moduleId, function(result, event) {
+        jQuery('#sessions table tbody').html('');
+        if(event.status) {
+          jQuery.each(result, function(index, session) {
+            if(!session[NSU+'Lieu__c']) session[NSU+'Lieu__c'] = '';
+            var showSessions = <apex:outputText value="{!JSENCODE(IF($Setup.TrainingModule__c.showSessions__c, "true", "false"))}"/>;
+            if(showSessions) {
+              var line = '<tr class="highlight-primary" data-id="'+session.Id+'">';
+              line+= '<td>'+moment(session[NSU+'FO_Date_et_heure_de_debut__c']).format('L LT')+'</td>';
+              line+= '<td>'+moment(session[NSU+'FO_Date_et_heure_de_fin__c']).format('L LT')+'</td>';
+              line += (typeof session[NSU+'Salle__c'] == 'undefined') ? '<td>'+session[NSU+'Lieu__c']+'</td>' : '<td>'+session[NSU+'Salle__c']+'</td>';
+              
+              line+= '<td><input id="'+session.Id+'" type="radio" name="sessions" value="" /></td>';
+              line+= '</tr>';
+              jQuery('#sessions table tbody').append(line);
+            }
+          });
+        }
+      }, {escape:true});
+    }
+
+    function hasRequest(employeeId, moduleId, moduleName) {
+      var buttonLabel = (employeeId == '{!JSENCODE(contactId)}') ? '{!$Label.crta__button_selfregister}' : '{!$Label.crta__button_register}';
+      jQuery('.right-block .green.button').html('<i class="fa fa-send-o"></i> '+buttonLabel);
+      jQuery('.right-block .green.button').hide();
+      Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationCatalogueController.hasRequest}', employeeId, moduleId, function(result, event) {
+        if(event.status) {
+          if(result) {
+            jQuery('.right-block .green.button').hide();
+          } else {
+            jQuery('.right-block .green.button').show();
+          }
+          jQuery('.right-block .green.button').attr('onclick', 'event.preventDefault(); apply(\''+moduleId+'\', \''+moduleName+'\')');
+        }
+      }, {escape: true});
+    }
+
+    function apply(id, moduleName) {
+      var sessionId = jQuery('#sessions input[type=radio]:checked').attr('id');
+      if(!sessionId) sessionId = '';
+      var employeeId = jQuery('.right-block select').val();
+      if(!employeeId) employeeId = '{!JSENCODE(contactId)}';
+      jQuery('.right-block .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'TrainingRequestManager', 'createTrainingRequest', {
+        moduleId: id,
+        sessionId: sessionId,
+        type: '',
+        schedule: '',
+        description: '',
+        origin: 'Inscription',
+        contactId: employeeId
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            var browserNot = <apex:outputText value="{!JSENCODE(IF($Setup.sirh__c.useBrowserNotifications__c, "true", "false"))}"/>;
+            if(browserNot) {
+              var body = '{!$Label.SI_Notif_training_request_creation}';
+              Push.create('{!$Organization.Name}', {
+                body: body.replace('{0}', moduleName),
+                icon: {
+                  x16: '{!$Resource.formation}',
+                  x32: '{!$Resource.formation}'
+                }
+              });
+              jQuery('.right-block .green.button').html('<i class="fa fa-thumbs-o-up"></i> {!$Label.Button_registered}');
+              jQuery('.right-block .green.button').hide();
+            } else {
+              window.location.reload();
+            }
+          } else {
+              console.log(result);
+              var buttonLabel = (employeeId == '{!JSENCODE(contactId)}') ? '{!$Label.Button_selfregister}' : '{!$Label.Button_register}';
+              jQuery('.right-block .green.button').html('<i class="fa fa-send-o"></i> '+buttonLabel);
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          var buttonLabel = (employeeId == '{!JSENCODE(contactId)}') ? '{!$Label.Button_selfregister}' : '{!$Label.Button_register}';
+          jQuery('.right-block .green.button').html('<i class="fa fa-send-o"></i> '+buttonLabel);
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+        }
+      });
+    }
+
+    function cleanModule() {
+          jQuery('#module').attr('data-id', '');
+          jQuery('#moduleName span').html('');
+          jQuery('#moduleFiliere span').html('');
+          jQuery('#moduleIndustry span').html('');
+          jQuery('#moduleDate span').html('');
+          jQuery('#moduleCity span').html('');
+          jQuery('#moduleDescription span').html('');
+          jQuery('#organizationName span').html('');
+          jQuery('#organizationDescription span').html('');
+          jQuery('#module ~ .button-center button').hide();
+    }
+    
+    // dummy to get rid of a silly error message 
+    function startIntro() {}
+
+    jQuery(document).ready(function() {
+          loadModules(0);
+
+          jQuery('#sessions').on('click', 'tr', function(event) {
+                var id = jQuery(this).attr('data-id');
+                jQuery('#'+id).prop('checked', 'true');
+          });
+
+          jQuery('.right-block').on('change', 'select', function(event) {
+                var employeeId = jQuery(this).val();
+                if(!employeeId) employeeId = '{!JSENCODE(contactId)}';
+                var moduleId = jQuery('#module').attr('data-id');
+                var moduleName = jQuery('#moduleName span').html();
+                hasRequest(employeeId, moduleId, moduleName);
+                getSessions(employeeId, moduleId);
+          });
+
+          jQuery('#list table').on('click', 'tfoot a', function(event) {
+                event.preventDefault();
+                var offset = parseInt(jQuery('#list table').attr('data-position'));
+                var direction = jQuery(this).attr('data-direction');
+                var xModNum = parseInt('<apex:outputText value="{!JSENCODE(TEXT($Setup.TrainingModule__c.moduleNumber__c))}"/>');
+                offset = (direction == 'previous') ? offset - xModNum : offset + xModNum;
+                offset = (offset < 0) ? 0 : offset;
+                loadModules(offset);
+          });
+    });
+  </script>
+</apex:define>
+</apex:composition>
+</apex:page>

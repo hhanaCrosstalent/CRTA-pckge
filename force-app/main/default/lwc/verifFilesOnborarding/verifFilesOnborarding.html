@@ -1,0 +1,145 @@
+<template>
+
+    <lightning-card>
+        <fieldset class="myFieldset">
+            <legend class="myLegend"> <lightning-icon icon-name="standard:employee_job"></lightning-icon>
+                <label style="font-weight: bold;padding-left:10px;font-size:20px">{label.application_verif_documents} </label> <!-- {label.application_verif_documents} -->
+            </legend>
+            <br> 
+            <div if:true={showTable}> 
+            <h4 style="padding-left:10px; font-weight: bold;"> {label.checking_document}  </h4>
+            <!-- <p style="font-weight: bold;padding-left:10px;font-size:20px"> {label.checking_document}  </p> -->
+             
+            <div class="slds-align_absolute-center slds-m-top_small slds-p-bottom_x-large" style="max-width: 100%;" >
+                <table 
+                    class="slds-table  slds-no-row-hover slds-table_bordered slds-table_fixed-layout"
+                    role="grid">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="TYPE">TYPE</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="NOM DU FICHIER">{label.FILE_NAME}</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="DATE DE CRÉATION">{label.CREATED_DATE}</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="ACCÈS AU DOCUMENT">{label.DOCUMENT_ACCESS} </div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="ETAT">{label.STATE} </div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="STATUT">{label.STATUT}</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="COMMENTAIRE">{label.COMMENT}</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <template for:each={listDocuments} for:item="position" for:index="index">
+                            <tr key={position.Id} class={position.styles} style="width: 100%;">
+                                <th scope="col" style="width: 10%;">
+                                    <template if:true={position.crta__Type__c}>
+                                        <div class="slds-p-around_xx-small slds-truncate custom-truncate">{position.crta__Type__c}</div>
+                                    </template>
+                                </th>
+                                <th scope="col" style="width: 20%;">
+                                    <template if:true={position.Title}>
+                                        <div class="slds-p-around_xx-small slds-truncate custom-truncate">{position.Title}</div>
+                                    </template>
+                                </th>
+
+                                <th scope="col" style="width: 10%;">
+                                    <!-- <div>{position.CreatedDate}</div> -->
+                                    <p><lightning-formatted-date-time value={position.CreatedDate}></lightning-formatted-date-time></p>
+                                </th>
+                                <th scope="col" style="width: 8%;">
+                                    <div>
+                                        <!-- 
+                                        <lightning-icon style="padding: 5%;"  icon-name="utility:file" data-id={position.ContentDocumentId} variant="brand"
+                                            onclick={ShowCVCandidature} size="small"></lightning-icon>
+                                          
+                                        <lightning-dynamic-icon style="padding: 5%;"  type="trend" option="down" alternative-text="Visualiser" data-id={position.ContentDocumentId} 
+                                        onclick={ShowCVCandidature}> </lightning-dynamic-icon>   
+                                        -->
+                                        <lightning-icon class="slds-align_absolute-center" icon-name="utility:preview" alternative-text="document_preview" title="preview" data-id={position.ContentDocumentId} 
+                                        onclick={ShowCVCandidature}> </lightning-icon>
+                                    </div>
+                                </th>
+                                <!-- <div>ETAT</div> -->
+                                <th style="width: 8%;" scope="col">
+                                    <div if:true={position.uncheck}>
+                                        <span class="dot"></span>
+                                        <lightning-icon icon-name="action:priority" alternative-text="priority" title="priority" size="xx-small"></lightning-icon>
+                                    </div>
+                                    <div if:true={position.compliant}>
+                                        <span class="dot conforme"></span>
+                                        <lightning-icon icon-name="action:approval" alternative-text="Approved" title="Approved" size="xx-small"></lightning-icon>
+                                    </div>
+                                    <div if:true={position.uncompliant}>
+                                        <span class="dot non-conforme"></span>
+                                        <lightning-icon icon-name="action:close" alternative-text="close" title="close" size="xx-small"></lightning-icon>
+
+                                    </div>
+                                </th>
+
+                                <th scope="col" style="width: 20%;">
+                                    <!-- <div>{position.Etat__c}</div> -->
+                                    <lightning-combobox class="slds-p-around_xx-small" style="width: 80%;" placeholder="Selectionner une valeur" value={position.crta__Etat__c} 
+                                      options={etatDocPickList}  data-key={index}
+                                        onchange={handle_Etat_Change}>
+                                    </lightning-combobox>
+                                </th>
+                              
+                                <th scope="col" style="width: 30% !important;">
+                                        <div  style="width: 100% !important;">
+                                            <lightning-input type="text" label=""
+                                             value={position.crta__Commentaire__c}
+                                             data-key={index}
+                                              onchange={handle_comment_Change}> </lightning-input>
+                                        </div>
+                                </th>
+
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="slds-align_absolute-center">
+                <template if:true={showButton}>
+                    <lightning-button  variant="brand" label="Sauvegarder" style="padding-left: 5%; padding-right: 5%;" class="slds-float_right slds-m-left_small" onclick={SaveDocumentVerification}  ></lightning-button>  
+                    <template if:true={showSendMail}>
+                    <lightning-button  variant="brand" 
+                        label={label.Fin_de_la_verification_et_envoi_d_email} 
+                        class="slds-float_right" onclick={SendMail} 
+                        disabled={DataSaved} ></lightning-button>  
+                </template>
+                </template>
+            </div>
+
+            </div>
+        </fieldset>
+    </lightning-card>
+
+
+
+
+
+    <div class="spinner">
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading... Veuillez Patienter ! " variant="brand" size="large">
+            </lightning-spinner>
+        </template>
+    </div>
+
+
+
+
+
+</template>

@@ -1,0 +1,66 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 26/11/2018 (CreatedDate)
+-->
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="SearchProfileController">
+    <aura:attribute name="listContacts" type="List" access="private"/>
+    <aura:attribute name="listContactsInit" type="List" access="private"/>
+    <aura:attribute name="valueText" type="String" access="private"/>
+    <aura:attribute name="recordTypes" type="String" default="Salarie" access="global"/>
+    <aura:attribute name="field1" type="String" default="" access="global"/>
+    <aura:attribute name="field2" type="String" default="" access="global"/>
+    <aura:attribute name="field3" type="String" default="" access="global"/>
+    <aura:attribute name="chatterProfile" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="isSearching" type="Boolean" default="false" access="private" />
+    <aura:attribute name="brandColor" type="String" default="#0047BB" access="global"/>
+	<aura:attribute name="currentUser" type="User"/> 
+
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div class="slds-card slds-wrap slds-p-top_medium slds-grid slds-grid_align-center">
+        <div class="slds-wrap slds-col slds-size--1-of-1 slds-grid slds-grid_align-center slds-m-bottom_medium">
+            <div class="slds-size--1-of-2">
+                <div class="slds-text-heading_medium slds-m-bottom_small">{!$Label.c.Search_Coworker}</div>
+                <lightning:input name="Input_Search" 
+                                autocomplete="off"
+                                placeholder="{!$Label.c.Placeholder_Search_Coworker}"
+                                aura:id="searchInput"
+                                value="{!v.valueText}" 
+                                isLoading="{!v.isSearching}" 
+                                type="search" 
+                                onchange="{!c.handleSearch}" />
+            </div>
+        </div>
+        <div class="slds-m-bottom_large slds-size--1-of-2" id="userList">
+            <aura:iteration var="item" items="{!v.listContacts}">
+                <div class="slds-size--1-of-1 slds-p-vertical_small" style="{!'--brand-color:' + v.brandColor + ';'}">
+                    <a data-userid="{!item.OwnerId}" data-contactid="{!item.Id}" onclick="{!c.goToContact}"
+                        class="slds-text-link_reset slds-border_bottom" title="{!$Label.c.Go_to_Profile}">
+                        <div class="ct-brand-color slds-text-title_caps slds-m-bottom_xx-small">
+                            {!item.LastName}&nbsp;{!item.FirstName}
+                        </div>
+                        <div class="slds-text-color_weak">{!item.field1}</div>
+                        <div>
+                            <aura:if isTrue="{!item.field2 != null}">
+                                <span class="slds-m-right_small">
+                                    {!item.field2}
+                                </span>
+                            </aura:if>
+                            <aura:if isTrue="{!item.field3 != null &amp;&amp; item.field2 != null}">
+                                <lightning:icon class="slds-m-right_x-small" iconName="utility:dash" size="xx-small" />
+                                &nbsp;
+                            </aura:if>
+                            <aura:if isTrue="{!item.field3 != null}">
+                                <span>
+                                    {!item.field3}
+                                </span>
+                            </aura:if>
+                        </div>
+                    </a>
+                </div>
+            </aura:iteration>
+        </div>
+    </div>
+</aura:component>

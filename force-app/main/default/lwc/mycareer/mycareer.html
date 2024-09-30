@@ -1,0 +1,136 @@
+<template>
+
+    <template if:true={isLoading}>  
+
+    <div  style="    text-align: end; padding-right: 1%;    padding-top: 1%;" class="slds-grid">
+        <div class="slds-size_7-of-8" style="    width: 98%; text-align: center;"><h2 class="header-cmp">{appLabel}</h2> </div>
+        <template if:true={content.link}>
+        <div><lightning-button-icon class="link-btn-icon" icon-name="utility:new_window"  name={content.link} onclick={handleOpenGLink} ></lightning-button-icon></div>
+</template>
+    </div>
+
+<template if:true={showAggSection}> 
+<fieldset class="fieldset-style"> 
+    <legend class="legend-header">{content.aggResultHeader}   </legend>       
+<div class="slds-grid slds-wrap"    style="justify-content: end;   padding: 0px 1px 1% 0%; ">
+ <template for:each={content.globalFilters} for:item="globalFilter" for:index="index">
+    <template if:true={globalFilter.selected}>
+     <lightning-button key={globalFilter.index} label={globalFilter.label} title={globalFilter.value}  variant="brand" class="right--1 btn-filter" onclick={onChangeGlobalFilter}>
+     </lightning-button>
+    </template>
+    <template if:false={globalFilter.selected}> 
+     <lightning-button key={globalFilter.index} label={globalFilter.label} title={globalFilter.value} variant="brand-outline" class="right--1 selected-btn-filter" onclick={onChangeGlobalFilter}>
+     </lightning-button>
+    </template>
+</template>
+</div>  
+<div class="slds-grid slds-wrap"    style="text-align: center;"> 
+ <template for:each={content.aggregates} for:item="aggregate" for:index="index">
+  <div class={aggregatedGridClass}  key={aggregate.index}>
+
+      <div class="slds-grid slds-wrap" key={aggregate.index}>
+    <div class="slds-col slds-size_2-of-2 " key={aggregate.index}>
+         <span class="header-agg">{aggregate.header}</span>    
+         <template if:true={aggregate.valueToDisplay}>
+         <template if:true={aggregate.displayCcy}>
+             <lightning-formatted-number class="txt-style"
+        value={aggregate.valueToDisplay}
+        currency-code={aggregate.ccyCode} 
+        format-style="currency">
+        </lightning-formatted-number>
+        </template> 
+         <template if:false={aggregate.displayCcy}>
+          <lightning-formatted-number class="txt-style"
+        value={aggregate.valueToDisplay}
+        >
+        </lightning-formatted-number>
+        </template>
+        </template>
+                 <template if:false={aggregate.valueToDisplay}>
+                    <p class="none-txt">-</p>
+</template>
+       </div>
+    <div class="slds-col slds-size_1-of-2" key={aggregate.index}>
+       
+        
+   <!--alternative-text="Open New Window" -->
+    </div>
+    </div>
+
+    <div class="slds-grid slds-wrap slds-hide" key={aggregate.index}>
+    <div class="slds-col slds-size_2-of-2 header-agg" key={aggregate.index}>
+         {aggregate.header}    
+       </div>
+     <div class="slds-col slds-size_1-of-2  num-agg" key={aggregate.index}>
+             <template if:false={aggregate.displayCcy}>    {aggregate.valueToDisplay} </template>
+    </div>
+    <div class="slds-col slds-size_1-of-2" key={aggregate.index}>
+        <template if:true={aggregate.displayCcy}>
+             <lightning-formatted-number class="txt-style"
+        value={aggregate.valueToDisplay}
+        currency-code={aggregate.ccyCode} 
+        format-style="currency">
+        </lightning-formatted-number>
+        </template>
+        
+        <template if:true={aggregate.link}>
+            <lightning-button-icon class="link-btn-icon" icon-name="utility:new_window"  name={aggregate.link} onclick={handleOpenWindow}  key={aggregate.index}></lightning-button-icon>
+        </template>
+   <!--alternative-text="Open New Window" -->
+    </div>
+    </div>
+
+   </div>
+
+</template>
+
+
+</div>
+</fieldset>
+</template>
+
+<template if:true={emptyCMP}>
+<!--<template for:each={content.tables} for:item="table" for:index="index">
+
+                
+ <div style="margin-top:2%; padding: 0% 1% 0% 1%;" key={table.index}> --><!--{table.index}-->
+       <!-- <lightning-datatable 
+                key-field="Id"
+                data={table.values}
+                columns={table.columns}>
+        </lightning-datatable>-->
+
+
+<!--<fieldset key={table.index} class="fieldset-style"> 
+    <legend class="table-header color-header"><span> {table.header}  </span>
+    </legend>-->
+    <div style="   padding: 1% 1% 0% 1%;">
+   <c-menudatatable  tables={content.tables}  display-header="true"></c-menudatatable>
+   </div>
+<!--</fieldset> -->
+
+    <!--</div>
+
+    </template>-->
+</template>    
+    <template if:false={emptyCMP}>
+<div class="cmp-style">
+<lightning-tabset class="tabset-menu">
+    <template for:each={content.tables} for:item="table" for:index="index">
+    <lightning-tab label={table.header}  id={table.index} key={table.index} >
+         <c-menudatatable key={table.index} table={table} ></c-menudatatable>
+    </lightning-tab>
+    </template>
+
+    <template for:each={content.components} for:item="cmp" for:index="index">
+        <lightning-tab label={cmp.label}  id={cmp.identifier} key={cmp.identifier} onactive={handleActive}>
+            <lwc if:true={loadingCmp}> 
+            <lwc:component lwc:is={componentConstructor} lwc:spread={childProps}></lwc:component>
+            </lwc>
+        </lightning-tab>
+    </template>
+</lightning-tabset>
+</div>
+    </template>
+</template>
+</template>

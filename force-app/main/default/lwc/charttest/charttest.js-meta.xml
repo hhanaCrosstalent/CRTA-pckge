@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+ <isExposed>true</isExposed>
+     <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+       <targetConfigs>  
+        <targetConfig targets="lightning__HomePage,lightning__AppPage">
+            <property name="selectionField" type="String" label="selected field APi name"/>
+            <property name="objectApiName" type="String"  label="Oject API name"/>
+            <property name="typeOfQry" label="Type of aggregated query" type="String"  datasource="SUM,COUNT,MAX,MIN" description="Select a type of aggregated data query"/>
+            <property name="groupbyField" type="String"  label="group by field api name"/>
+            <property name="contactFilter" type="String"  label="API name of contact filter"/>
+            <property name="filterCriteria" type="String"  label="filter criteria"/>
+            <property name="chartTitle" type="String"  label="Chart title"/>
+            <property name="chartType" label="Type chart" default="doughnuts" type="String"  datasource="doughnuts,bar" description="Select a type of chart"/>
+            <property name="chartHeight" label="Chart Height" default="450" type="Integer"  description="Insert the height of the chart"/>
+
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

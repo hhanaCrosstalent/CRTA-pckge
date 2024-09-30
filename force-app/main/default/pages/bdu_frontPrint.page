@@ -1,0 +1,4 @@
+<apex:page >
+  <h1>{!$CurrentPage.parameters.document}</h1>
+  <h3>{!$CurrentPage.parameters.year}</h3>
+</apex:page>

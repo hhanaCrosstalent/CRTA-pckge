@@ -1,0 +1,24 @@
+<!--
+ - Created by Saad on 12/01/2022.
+ -->
+
+<!-- File Loader -->
+<template>
+    <template if:true={loading}>
+        <div class="spinner">
+            <lightning-spinner
+                    alternative-text="Loading"
+                    size="large"></lightning-spinner>
+        </div>
+    </template>
+    <lightning-card>
+        <div class="file_uploader">
+            <lightning-file-upload
+                    name="fileUploader"
+                    accept={formats}
+                    onuploadfinished={handleUpload}
+                    class="fileClass">
+            </lightning-file-upload>
+        </div>
+    </lightning-card>
+</template>

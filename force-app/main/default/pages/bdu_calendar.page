@@ -1,0 +1,83 @@
+<apex:page showHeader="false" sidebar="false" controller="bdu_calendarController">
+  <apex:composition template="BDU_template">
+    <apex:define name="body">
+      <apex:stylesheet value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/fullcalendar.min.css')}" />
+      <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/vendor/jquery.js')}" />
+      <style type="text/css"> 
+        .filter { display: inline-block; float: left; margin-bottom: 20px; margin-left: 10px;}
+        .clear { clear: both;}
+      </style>
+      <!-- Filters -->
+      <div class="filters">
+        <div class="row">
+          <div class="filter">
+            <span class="ct-label">{!$Label.Filters} :</span>
+          </div>
+          <apex:repeat value="{!types}" var="type">
+            <div class="filter">
+              <label class="ct-label {!type}"><input type="checkbox" name="{!type}" checked="checked" /> {!type}</label>
+            </div>
+          </apex:repeat>
+        </div>
+      </div>
+      <div class="clear"></div>
+
+      <div id="fullcalendar"></div>
+
+      <apex:includeScript value="{!URLFOR($Resource.moments, 'moments.js')}"/>
+      <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/fullcalendar.min.js')}" />
+      <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/lang-all.js')}" />
+      <script type="text/javascript">
+        jQuery(document).ready(function() {
+          jQuery('.filters').on('click', 'input', function(event) {
+            if(jQuery(this).prop('checked') == true) {
+                    var type = jQuery(this).attr('name');
+                    jQuery('.fc-content[data-type="'+type+'"]').parent().fadeIn('fast');
+            } else {
+              var type = jQuery(this).attr('name');
+              jQuery('.fc-content[data-type="'+type+'"]').parent().fadeOut('fast');
+            }
+          });
+          jQuery('#fullcalendar').fullCalendar({
+            lang: 'fr',
+            header: {
+              left: 'prev,next today',
+              center: 'title',
+              right: 'month,agendaWeek,agendaDay'
+            },
+            defaultView: 'agendaWeek',
+            minTime: '08:00:00',
+            maxTime: '20:00:00',
+            contentHeight: 'auto',
+            events: function(start, end, timezone, callback) {
+              Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.bdu_calendarController.getCalendarEvents}', start, end,
+                  function(result, event) {
+                      if(event.status) {
+                          var events = [];
+                          jQuery.each(result, function(index, val) {
+                              events.push({
+                                  title: val.Subject+' (' +val.Location +')',
+                                  allDay: val.IsAllDayEvent,
+                                  start: jQuery('#fullcalendar').fullCalendar('getCalendar').moment(val.StartDateTime).local(),
+                                  end: jQuery('#fullcalendar').fullCalendar('getCalendar').moment(val.EndDateTime).local(),
+                                  description: val.Description,
+                                  type: val.Subject
+                              });
+                          });
+                          callback(events);
+                      }
+                  },
+                  {escape: true}
+               );
+            },
+            eventAfterRender: function( event, element, view ) { 
+              element.find('.fc-title').html(event.title); 
+              element.find('.fc-content').attr('title', event.description); 
+              element.find('.fc-content').attr('data-type', event.type); 
+            }
+          });
+        });
+      </script>
+    </apex:define>
+  </apex:composition>
+</apex:page>

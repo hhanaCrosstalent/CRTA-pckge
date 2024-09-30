@@ -1,0 +1,98 @@
+<apex:page >
+<style>
+.line_explication{ height:30px; padding-top:5px; font-size:14px; font-style:italic; padding-left:10px; margin: 10px 100px 0px 20px;; font-weight:bold; background-color:#e4e4f6; border-radius:15px;}
+</style>
+                <ul class="sub-menu">
+                        <li class="line_explication">
+                            <span class="w75 intitule">Création - Nouvel indicateur et valeur</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_new_indic_value)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                         <li class="line_explication">
+                            <span class="w75 intitule">Création - Nouveau contenu</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_new_content)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                        <li class="line_explication">
+                            <span class="w75 intitule">Paramétrage de l'application - Gestion des paramètres personnalisés</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_parametres_personnalises)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                        <li class="line_explication">
+                            <span class="w75 intitule">Paramétrage de l'application - Gestion des utilisateurs</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_gestion_des_utilisateurs)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                         <li class="line_explication">
+                            <span class="w75 intitule">Paramétrage de l'application - Gestion des groupes</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_gestion_des_groupes)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                         <li class="line_explication">
+                            <span class="w75 intitule">Paramétrage de la BDU - Gestion des notifications</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_gestion_notifications)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                        <li class="line_explication">
+                            <span class="w75 intitule">Paramétrage de la BDU - Modification de la page d'accueil</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_modification_page_daccueil)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                        <li class="line_explication">
+                            <span class="w75 intitule">Paramétrage de la BDU - Gestion des autorisations d'accès aux indicateurs</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_gestion_acces_aux_indicateurs)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                        <li class="line_explication">
+                            <span class="w75 intitule">Paramétrage de la BDU - Gestion de l'authentification à deux facteurs</span>
+                             
+                             <span class="w25">
+                                <apex:outputLink styleClass="url" value="{!URLFOR($Resource.Doc_gestion_authentification_a_deux_facteurs)}" target="_blank">
+                                    <apex:image url="{!URLFOR($Resource.Icone_file)}"  style="margin-right:150px;float:right;" width="25" />
+                                </apex:outputLink>
+
+                            </span>
+                         </li>
+                       
+                </ul>
+</apex:page>

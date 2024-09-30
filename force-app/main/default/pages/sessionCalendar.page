@@ -1,0 +1,80 @@
+<apex:page showHeader="true" sidebar="false" controller="sessionCalendarController">
+        <apex:stylesheet value="{!URLFOR($Resource.fullcalendar, 'fullcalendar-2.3.0/fullcalendar.min.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/vendor/jquery.js')}" />
+        <style type="text/css"> 
+          .filter { display: inline-block; float: left; margin-bottom: 20px;}
+          .clear { clear: both;}
+        </style>
+        <apex:sectionHeader title="Calendrier des Sessions collectives" />
+        <!-- Filters -->
+        <div class="filters">
+            <div class="row">
+                <div class="filter">
+                    <span class="ct-label">{!$Label.crta__filters} :</span>
+                </div>
+                <apex:repeat value="{!types}" var="type">
+                    <div class="filter">
+                        <label class="ct-label {!type}"><input type="checkbox" name="{!type}" checked="checked" /> {!type}</label>
+                    </div>
+                </apex:repeat>
+            </div>
+        </div>
+        <div class="clear"></div>
+
+        <div id="fullcalendar"></div>
+
+        <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar-2.3.0/lib/moment.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar-2.3.0/fullcalendar.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar-2.3.0/lang/fr.js')}" />
+        <script  type="text/javascript">
+                jQuery(document).ready(function() {
+                        jQuery('.filters').on('click', 'input', function(event) {
+                                if(jQuery(this).prop('checked') == true) {
+                                        var type = jQuery(this).attr('name');
+                                        jQuery('.fc-event.'+type).fadeIn('fast');
+                                } else {
+                                  var type = jQuery(this).attr('name');
+                                  jQuery('.fc-event.'+type).fadeOut('fast');
+                                }
+                        });
+                        jQuery('#fullcalendar').fullCalendar({
+                                lang: 'fr',
+                                header: {
+                                        left: 'prev,next today',
+                                        center: 'title',
+                                        right: 'month,agendaWeek,agendaDay'
+                                },
+                                defaultView: 'agendaWeek',
+                                events: function(start, end, timezone, callback) {
+                                        //crta.sessionCalendarController.getCalendarEvents(start, end, function(result, event){
+                                        var NSD = 'crta.'; // this page is not actively maintained anymore and only kept, because according to Jeff it might be used by client sites
+                                        var NSU = 'crta__';
+                                        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.sessionCalendarController.getCalendarEvents}', start, end, function(result, event) {
+                                                if (event.status) {
+                                                        var events = [];
+                                                        jQuery.each(result, function(index, val) {
+                                                                events.push({
+                                                                        title: val[NSU+'Catalogue_de_formation__r'][NSU+'FO_Type__c']+' : <br/>'+val[NSU+'FO_Nom_de_la_formation__c']  + '\n(' +val[NSU+'FO_Formateur__r'].Name +')',
+                                                                        start: $.fullCalendar.moment(val[NSU+'FO_Date_et_heure_de_debut__c']).local(),
+                                                                        end: $.fullCalendar.moment(val[NSU+'FO_Date_et_heure_de_debut__c']).add(val[NSU+'FO_Duree_en_heures__c'], 'hour'),
+                                                                        className: val[NSU+'Catalogue_de_formation__r'][NSU+'FO_Type__c'],
+                                                                        url: '/'+val.Id
+                                                                });
+                                                        });
+                                                        callback(events);
+                                                }
+                                        });
+                                },
+                                eventRender: function(event, element) {
+                                        /*element.qtip({
+                                                content: event.description
+                                        });*/
+                                },
+                                eventAfterRender: function( event, element, view ) { 
+                                         element.find('.fc-title').html(event.title); 
+                                         element.find('.fc-content').attr('title', event.description); 
+                                }
+                        });
+                });
+        </script>
+</apex:page>

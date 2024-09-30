@@ -1,0 +1,63 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 11/06/2019 (CreatedDate)
+-->
+<aura:component implements="force:hasRecordId,force:lightningQuickActionWithoutHeader"
+                controller="AlertMailArticleController">
+	<aura:attribute name="recordId" type="Id" access="public"/>
+	<aura:attribute name="emailTemplateList" type="List" access="public"/>
+    <aura:attribute name="orgEmailList" type="List" access="public"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isInit" type="Boolean" default="true" access="private"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:if isTrue="{!v.isLoading}">
+        <lightning:spinner alternativeText="Loading" size="medium" class="slds-align_absolute-center" />
+    </aura:if>
+    <div>
+        <aura:if isTrue="{!v.emailTemplateList.length == 0 &amp;&amp; !v.isInit }">
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                <span class="slds-assistive-text">error</span>
+                <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small">
+                    <lightning:icon iconName="utility:error" alternativeText="Error" variant="inverse" size="small"/>
+                </span>
+                <h2 class="slds-text-color_inverse">
+                    {!$Label.c.No_Email_Template}
+                </h2>
+            </div>
+        </aura:if>
+        <header class="slds-modal__header slds-m-bottom_medium">
+            <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">{!$Label.c.Share_by_Email}</h2>
+            
+        </header>
+        <div class="slds-align_absolute-center" >
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                    <lightning:select name="picklist" label="{!$Label.c.Email_Template}" aura:id="emailTemplate" disabled="{!v.emailTemplateList.length == 0}">
+                        <option value=""> - {!$Label.c.None} - </option>
+                        <aura:iteration items="{!v.emailTemplateList}" var="options">
+                            <option value="{!options.value}">{!options.label}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                    <lightning:select name="picklist" label="{!$Label.c.Email_Address}" aura:id="orgEmail" disabled="{!v.orgEmailList.length == 0}"> 
+                        <option value=""> - {!$Label.c.None} - </option>
+                        <aura:iteration items="{!v.orgEmailList}" var="options">
+                            <option value="{!options.value}">{!options.label}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+                <div class="slds-col slds-size_1-of-1">
+                    <lightning:button variant="brand" 
+                        label="Envoyer"
+                        class="slds-align_absolute-center"
+                        onclick="{!c.sendMail}"
+                        disabled="{!v.emailTemplateList.length == 0}"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

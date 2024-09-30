@@ -1,0 +1,35 @@
+<apex:component layout="block">
+      <apex:attribute name="expense" description="Wanted expense" type="Note_de_frais__c" required="true"/>
+      <apex:attribute name="expenseAmount" description="Wanted expense" type="Double" required="true"/>
+
+      <li id="{!expense.id}" class="timeline-block {!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c < 20, 'pending', '')} {!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c >= 20 && expense.Valeur_statut__c < 30, 'current', '')} {!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c >= 30, 'confirmed', '')}" data-type="expense">
+            <div class="tlcontent">
+                  <div class="tltype expense">
+                        <i title="{!$ObjectType.Note_de_frais__c.Label}" class="fa fa-credit-card"></i> 
+                        <a href="{!$Setup.crta__sirh__c.crta__Page_Frais__c}?id={!expense.id}">
+                              <apex:outputText value="{!$Label.crta__timeline_expense_title}">
+                                    <apex:param value="{!expense.Nom__c}"/>
+                                    <apex:param value="{!expense.Date_de_debut__c}"/>
+                                    <apex:param value="{!expense.Date_de_fin__c}"/>
+                              </apex:outputText>
+                        </a>
+                        <time class="tltime" datetime="{!expense.Date_de_debut__c}">
+                              <span>
+                                    <i title="{!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c < 20, $Label.open_expense, '')} {!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c >= 20 && expense.Valeur_statut__c < 30, $Label.pending_expense, '')} {!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c >= 30, $Label.approved_expense, '')}" class="fa {!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c < 20, 'fa-clock-o', '')} {!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c >= 20 && expense.Valeur_statut__c < 30, 'fa-edit', '')} {!IF(expense.Valeur_statut__c != null && expense.Valeur_statut__c >= 30, 'fa-check-circle-o', '')}"></i>
+                                    <apex:outputField value="{!expense.Date_de_debut__c}" />
+                              </span>
+                        </time>
+                  </div>
+                  <div class="tllabel">
+                        <div class="row tldetails">
+                              <apex:outputPanel styleClass="small-12 medium-6 column">
+                                  <span class="ct-label">{!$ObjectType.Frais__c.fields.Total__c.Label}</span>&nbsp;: <span class="ct-output">{!expenseAmount}{!$Label.expenses_currency}</span>
+                              </apex:outputPanel>
+                              <apex:outputPanel styleClass="small-12 medium-6 column">
+                                  <span class="ct-label">{!$ObjectType.Note_de_frais__c.fields.Statut__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!expense.Statut__c}" /></span>
+                              </apex:outputPanel>
+                        </div>
+                  </div>
+            </div>
+      </li>
+</apex:component>

@@ -1,0 +1,164 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> November, 2019 (CreatedDate)
+-->
+<aura:component implements="force:lightningQuickActionWithoutHeader" access="global">
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small"
+        aria-labelledby="welcome-mat-100-label" aria-describedby="welcome-mat-100-content" aria-modal="true">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header slds-modal__header_empty">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.close}">
+                    <lightning:icon iconName="utility:close" alternativeText="Close" size="small" class="slds-current-color"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+            </header>
+            <div class="slds-modal__content" id="welcome-mat-100-content">
+                <div class="slds-welcome-mat slds-welcome-mat_info-only">
+                    <div class="slds-welcome-mat__content slds-grid">
+                        <div class="welcome-doc-gen slds-size_1-of-2" style="{!'background-image: url('+ $Resource.BrandImg +');'}">
+                            <div class="slds-welcome-mat__info-content">
+                                <h2 class="slds-welcome-mat__info-title" id="welcome-mat-100-label">                
+                                    {!$Label.c.Article}
+                                </h2>
+                                <div class="slds-welcome-mat__info-description slds-text-longform">
+                                    <p>{!$Label.c.Tips_to_Get_Started}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <ul class="slds-welcome-mat__tiles slds-size_1-of-2 slds-welcome-mat__tiles_info-only">
+                            <li class="slds-welcome-mat__tile_info-only">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                                        <div class="slds-welcome-mat__tile-figure">
+                                            <div class="slds-welcome-mat__tile-icon-container">
+                                                <span class="slds-icon_container slds-icon-utility-animal_and_nature">
+                                                    <lightning:icon iconName="utility:date_input"
+                                                        alternativeText="{!$Label.c.Dates_Setting}" size="medium" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-welcome-mat__tile-body">
+                                            <h3 class="slds-welcome-mat__tile-title">{!$Label.c.Dates_Setting}</h3>
+                                            <p class="slds-welcome-mat__tile-description">
+                                                <ul class="slds-list_dotted">
+                                                    <li><aura:unescapedHtml value="{!$Label.c.Publication_Start_Date_Help}"/></li>
+                                                    <li><aura:unescapedHtml value="{!$Label.c.Publication_End_Date_Help}"/></li>
+                                                </ul>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="slds-welcome-mat__tile_info-only">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                                        <div class="slds-welcome-mat__tile-figure">
+                                            <div class="slds-welcome-mat__tile-icon-container">
+                                                <span class="slds-icon_container slds-icon-utility-animal_and_nature">
+                                                    <lightning:icon iconName="utility:archive"
+                                                        alternativeText="{!$Label.c.Archives_Help}" size="medium" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-welcome-mat__tile-body">
+                                            <h3 class="slds-welcome-mat__tile-title">{!$Label.c.Archives_Help}</h3>
+                                            <p class="slds-welcome-mat__tile-description">{!$Label.c.Archives_Help_Detail}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="slds-welcome-mat__tile_info-only">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                                        <div class="slds-welcome-mat__tile-figure">
+                                            <div class="slds-welcome-mat__tile-icon-container">
+                                                <span class="slds-icon_container slds-icon-utility-animal_and_nature">
+                                                    <lightning:icon iconName="utility:hide"
+                                                        alternativeText="{!$Label.c.Visibility_Restriction}" size="medium" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-welcome-mat__tile-body">
+                                            <h3 class="slds-welcome-mat__tile-title">{!$Label.c.Visibility_Restriction}</h3>
+                                            <p class="slds-welcome-mat__tile-description">{!$Label.c.Visibility_Restriction_Help_Detail}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="slds-welcome-mat__tile_info-only">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                                        <div class="slds-welcome-mat__tile-figure">
+                                            <div class="slds-welcome-mat__tile-icon-container">
+                                                <span class="slds-icon_container slds-icon-utility-animal_and_nature">
+                                                    <lightning:icon iconName="utility:image" alternativeText="{!$Label.c.Add_Banner_Help}" size="medium" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-welcome-mat__tile-body">
+                                            <h3 class="slds-welcome-mat__tile-title">{!$Label.c.Add_Banner_Help}</h3>
+                                            <p class="slds-welcome-mat__tile-description">
+                                                <aura:unescapedHtml value="{!$Label.c.Add_Banner_Help_Detail}"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="slds-welcome-mat__tile_info-only">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                                        <div class="slds-welcome-mat__tile-figure">
+                                            <div class="slds-welcome-mat__tile-icon-container">
+                                                <span class="slds-icon_container slds-icon-utility-animal_and_nature">
+                                                    <lightning:icon iconName="utility:image" alternativeText="{!$Label.c.Article_Cover_Image_Help}" size="medium" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-welcome-mat__tile-body">
+                                            <h3 class="slds-welcome-mat__tile-title">{!$Label.c.Article_Cover_Image_Help}</h3>
+                                            <p class="slds-welcome-mat__tile-description">
+                                                <aura:unescapedHtml value="{!$Label.c.Article_Cover_Image_Help_Detail}"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="slds-welcome-mat__tile_info-only">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                                        <div class="slds-welcome-mat__tile-figure">
+                                            <div class="slds-welcome-mat__tile-icon-container">
+                                                <span class="slds-icon_container slds-icon-utility-animal_and_nature">
+                                                    <lightning:icon iconName="utility:email" alternativeText="{!$Label.c.Share_by_Email}" size="medium" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-welcome-mat__tile-body">
+                                            <h3 class="slds-welcome-mat__tile-title">{!$Label.c.Share_by_Email}</h3>
+                                            <p class="slds-welcome-mat__tile-description">
+                                                {!$Label.c.Share_by_Email_Help_Detail}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</aura:component>

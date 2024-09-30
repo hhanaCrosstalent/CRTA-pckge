@@ -1,0 +1,163 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 28/11/2018 (CreatedDate)
+-->
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="width" type="Integer" default="450" access="global"/>
+    <aura:attribute name="height" type="Integer" default="240" access="global"/>
+    <aura:attribute name="videoCode" type="String" default="" access="global"/>
+    <aura:attribute name="showIcon" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="textColor" type="String" default="#0047BB" access="global"/>
+
+    <aura:attribute name="videoCodes" type="List" access="public"/>
+    <aura:attribute name="selectedVideo" type="String" access="public"/>
+    <aura:attribute name="displayBody" type="Boolean" default="true" access="global"/>
+   
+    <aura:attribute name="intervId" type="Integer" access="public"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+   
+
+
+    <div class="slds-grid slds-wrap content-style" style="{!'--text-color:'+ v.textColor +';    padding-left: 14px; padding-right: 19px;   background: white; padding-top: 16px; background: var(--backgroundCmp);'}" 
+    onmouseenter="{!c.stopInterval}" onmouseleave="{!c.setOnInterval}">
+    <div class="clickable header-style" style="    width: 100%; display: flex;     margin-bottom:12px;   padding-bottom: 5px; border-bottom: 1px solid #d0cdcd;" onclick="{!c.handleclick}">
+        <div class=" chevron">
+            <aura:if isTrue="{!v.displayBody}"><i class="fa fa-chevron-down"></i>
+                <aura:set attribute="else">
+                    <i class="fa fa-chevron-right"></i>
+                </aura:set>
+            </aura:if>
+        </div>
+            
+            <div class="ct-text-color " title="{!$Label.c.Label_Video}" style="width:85%;     font-size: 16px;">
+            <span class="title-card ct-text-color">{!$Label.c.Label_Video}</span>
+          </div>
+            
+            <aura:if isTrue="{!v.showIcon}">
+                    <lightning:icon iconName="utility:video" alternativeText="Vidéo"
+                                    class="slds-m-right_small slds-current-color icon-video" />
+                    <aura:set attribute="else">
+                        <lightning:icon iconName="utility:video" alternativeText="Vidéo"
+                                        class="slds-m-right_small slds-hidden icon-video" />
+                    </aura:set>
+                </aura:if>
+    </div>
+        
+    <aura:if isTrue="{!v.displayBody}">
+        <div class="v-container">
+        <div class="slds-hide slds-col slds-size_1-of-1">
+            <div class="slds-text-heading_medium slds-m-around_large ct-text-color">
+                <aura:if isTrue="{!v.showIcon}">
+                    <lightning:icon iconName="utility:video" alternativeText="Vidéo"
+                                    class="slds-m-right_small slds-current-color" />
+                    <aura:set attribute="else">
+                        <lightning:icon iconName="utility:video" alternativeText="Vidéo"
+                                        class="slds-m-right_small slds-hidden" />
+                    </aura:set>
+                </aura:if>
+                {!$Label.c.Label_Video}
+            </div>
+        </div>
+
+<aura:if isTrue="{!v.videoCodes &amp;&amp; v.videoCodes.length>0}">
+        <div class="slds-col slds-p-horizontal_small" style="min-height: 302px;"> <!--  slds-size_1-of-1   -->
+
+         <!--   <div class="slds-carousel" >
+<div class="slds-carousel__stage">
+<div class="slds-carousel__panels" style="transform:translateX(-100%); "> 
+<div id="content-id-01" class="slds-carousel__panel" aria-hidden="false" role="tabpanel" aria-labelledby="indicator-id-01" tabindex="-1">ello </div>
+<div id="content-id-02" class="slds-carousel__panel" aria-hidden="true" role="tabpanel" aria-labelledby="indicator-id-02" tabindex="0"> ello111 </div>
+</div>
+<ul class="slds-carousel__indicators" role="tablist">
+<li class="slds-carousel__indicator" role="presentation">
+<p id="indicator-id-01" class="slds-carousel__indicator-action"  role="tab" tabindex="-1" aria-selected="false" aria-controls="content-id-01" title="Visit App Exchange tab">... ello</p>
+</li>
+<li class="slds-carousel__indicator" role="presentation">
+<p id="indicator-id-02" class="slds-carousel__indicator-action "  role="tab" tabindex="0" aria-selected="true" aria-controls="content-id-02" title="Click to Customize tab">... MMMM</p>
+</li>
+</ul>
+</div>
+</div>-->
+
+
+
+<div class="slds-carousel">
+<div class="slds-carousel__stage">
+<span class="slds-carousel__autoplay">
+<button class="slds-hide slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small" aria-pressed="false" title="Stop auto-play">
+<span class="slds-assistive-text">Stop auto-play</span>
+</button>
+</span>
+<div class="slds-carousel__panels" style="transform:translateX(--100%)">
+<aura:iteration items="{!v.videoCodes}" var="video" indexVar="index">
+        <aura:if isTrue="{!v.selectedVideo == video}">  
+<div id="{!v.selectedVideo}" class="slds-carousel__panel slds-is-active" role="tabpanel" aria-labelledby="indicator-id-89">
+<div  class="myVideo" style="{!'min-width: ' + v.width  + '; min-height: ' + v.height + ';'}" >
+                    <iframe  width="{!v.width}" height="{!v.height}"
+                        src="{!'https://www.youtube-nocookie.com/embed/' + v.selectedVideo + '?rel=0'}" frameborder="0"
+                        allow="encrypted-media"  /> <!-- id="theIframe" onload="{!c.onclickIframe}"-->
+                </div>              
+</div>
+
+<aura:set attribute="else">
+<div id="{!video}" class="slds-carousel__panel slds-is-active slds-hide" role="tabpanel" aria-labelledby="indicator-id-89">
+<div  class="myVideo" style="{!'min-width: ' + v.width  + '; min-height: ' + v.height + ';'}">
+                    <iframe width="{!v.width}" height="{!v.height}"
+                        src="{!'https://www.youtube-nocookie.com/embed/' + video + '?rel=0'}" frameborder="0"
+                        allow="encrypted-media" />
+                </div>              
+</div>
+</aura:set>
+</aura:if>
+</aura:iteration>
+
+</div>
+<ul class="slds-carousel__indicators" role="tablist">
+<aura:iteration items="{!v.videoCodes}" var="video" indexVar="index">
+        <aura:if isTrue="{!v.selectedVideo == video}">              
+<li class="slds-carousel__indicator" role="presentation">
+ <a id="{!index}" class="slds-carousel__indicator-action slds-is-active"  role="tab" tabindex="0" aria-selected="false" aria-controls="content-id-85" title="{!index}" 
+ onclick="{!c.changeSelected}">
+    <span class="slds-assistive-text"> {!v.index}  Visit11</span>
+</a>
+</li>
+<aura:set attribute="else">
+    <li class="slds-carousel__indicator" role="presentation">
+
+     <a id="{!index}" class="slds-carousel__indicator-action"  role="tab" tabindex="-1" aria-selected="false" aria-controls="content-id-85" title="{!index}" onclick="{!c.changeSelected}">
+    <span class="slds-assistive-text">{!v.index} Visit22</span>
+</a>
+</li>
+</aura:set>
+</aura:if>
+
+
+</aura:iteration>
+</ul>
+</div>
+</div>
+           <!-- <lightning:card class="slds-p-vertical_large">
+
+
+            
+                <div class="myVideo" style="{!'min-width: ' + v.width  + '; min-height: ' + v.height + ';'}">
+                    <iframe width="{!v.width}" height="{!v.height}"
+                        src="{!'https://www.youtube-nocookie.com/embed/' + v.videoCode + '?rel=0'}" frameborder="0"
+                        allow="encrypted-media" />
+                </div>
+            </lightning:card>-->
+        </div>
+
+
+        <aura:set attribute="else">
+            <div class="no-data-container">
+            <c:nodataavailable></c:nodataavailable>
+            </div>
+        </aura:set>
+        </aura:if>
+        </div>
+        </aura:if>
+    </div>
+</aura:component>

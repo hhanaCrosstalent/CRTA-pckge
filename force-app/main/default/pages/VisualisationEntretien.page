@@ -1,0 +1,679 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" controller="VisualisationEntretienController" cache="false" docType="html-5.0" renderAs="{!$CurrentPage.parameters.render}">
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <apex:form id="entretienForm" styleClass="{!IF(isPreview == true, 'preview', '')}">
+            <!-- Infos -->
+            <div class="small-12 column details">
+                  <h3 class="title ">
+                        <apex:outputText value="{!$Label.crta__interview_title}">
+                              <apex:param value="{!interview.EI_Modele_d_entretien__r.Name}"/>
+                              <apex:param value="{!interview.EI_Salarie_qui_passe_l_entretien__r.name}"/>
+                              <apex:param value="{!interview.Manager__c}"/>
+                              <apex:param value="{!interview.EI_Date_de_l_entretien__c}"/>
+                        </apex:outputText>
+                  </h3>
+            </div>
+
+            <!-- Buttons -->
+            <apex:outputPanel layout="block"  styleClass="small-12 column hide-for-print" rendered="{!!isPreview}">
+                  <apex:commandLink action="{!save}" styleClass="button green flat"><i class="fa fa-save"></i> {!$Label.Interview_button_save}</apex:commandLink>
+                  <a href="#" onclick="window.print()" name="Print" class="button gray flat" ><i class="fa fa-print"></i> {!$Label.Interview_button_print}</a>
+            </apex:outputPanel>
+
+            <!-- Réglages -->
+            <apex:outputPanel layout="block" id="settings" styleClass="small-12 column tab-block hide-for-print" rendered="{!IF(contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0, true, false)}" html-data-fold="false">
+                  <h4 class="title secondary-font header">
+                    <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.settings}');">
+                      <i class="fa fa-gear"></i>
+                      <span>{!$Label.settings}</span>
+                    </a>
+                  </h4>
+                  <div class="card">
+                        <div class="row result-table" data-foldable="true">
+                              <div class="small-12 medium-6 large-4 column">
+                                    <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Entretien__c.fields.EI_Date_de_l_entretien__c.Label} :" for="eDate"/>
+                                  <apex:inputField value="{!interview.EI_Date_de_l_entretien__c}" id="eDate"/>
+                              </div>
+                              <div class="small-12 medium-6 large-4 column">
+                                    <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Entretien__c.fields.EI_Lieu__c.Label} :" for="ePlace"/>
+                                    <apex:inputField value="{!interview.EI_Lieu__c}" id="ePlace"/>
+                              </div>
+                              <div class="small-12 medium-6 large-4 column">
+                                    <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Entretien__c.fields.EI_Statut__c.Label} :" for="eStatus"/>
+                                    <apex:inputField value="{!interview.EI_Statut__c}" id="eStatus"/>
+                              </div>
+                        </div>
+                  </div>
+            </apex:outputPanel>
+
+            <!-- Section -->
+            <div id="sortable" class="details {!IF(isPreview != true, 'not-sortable', '')}">
+                  <!-- Poste -->
+                  <apex:outputPanel layout="block" id="positions" styleClass="small-12 column tab-block" rendered="{!$Setup.EI__c.showJobs__c}" html-data-id="1" html-data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.positions}');">
+                                    <i class="fa fa-briefcase"></i>
+                                    <span>{!$ObjectType.GS_Affectation_poste__c.LabelPlural}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div data-foldable="true">
+                                    <div class="row header-table secondary-color">
+                                          <div class="small-4 column">
+                                              <span>{!$ObjectType.GS_Affectation_poste__c.fields.GS_Fiche_de_poste__c.Label}</span>
+                                          </div>
+                                          <div class="small-4 column">
+                                              <span>{!$ObjectType.GS_Affectation_poste__c.fields.GS_Date_de_debut__c.Label}</span>
+                                          </div>
+                                          <div class="small-4 column">
+                                              <span>{!$ObjectType.GS_Affectation_poste__c.fields.GS_Date_de_fin__c.Label}</span>
+                                          </div>
+                                    </div>
+                                    <div class="result-table">
+                                          <apex:repeat value="{!positions}" var="position">
+                                                <a href="{!$Setup.crta__sirh__c.crta__Page_Poste__c}?id={!position.GS_Fiche_de_poste__r.Id}">
+                                                      <div class="row highlight-primary">
+                                                            <div class="small-4 column">
+                                                                  &nbsp;
+                                                                  <span class="ct-output"><apex:outputField value="{!position.GS_Fiche_de_poste__r.Name}" /></span>
+                                                            </div>
+                                                            <div class="small-4 column">
+                                                                  &nbsp;
+                                                                  <span class="ct-output"><apex:outputField value="{!position.GS_Date_de_debut__c}" /></span>
+                                                            </div>
+                                                            <div class="small-4 column">
+                                                                  &nbsp;
+                                                                  <span class="ct-output"><apex:outputField value="{!position.GS_Date_de_fin__c}" /></span>
+                                                            </div>
+                                                      </div>
+                                                </a>
+                                          </apex:repeat>
+                                    </div>
+                              </div>
+                        </div>
+                  </apex:outputPanel>
+
+                  <!-- Objectifs précédents -->
+                  <apex:outputPanel layout="block" id="pastObj" styleClass="small-12 column tab-block" rendered="{!$Setup.EI__c.showPastObjectives__c}" html-data-id="2" html-data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.pastObj}');">
+                                <i class="fa fa-history"></i>
+                                <span>{!$Label.past_objectives}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div data-foldable="true">
+                                    <div class="row header-table secondary-color hide-for-print">
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Description__c.Label}</span>
+                                          </div>
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Objectif_evalue_par_le_salarie__c.Label}</span>
+                                          </div>
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Objectif_evalue_par_le_manager__c.Label}</span>
+                                          </div>
+                                          <div class="hide-for-small medium-3 column">
+                                              <span>{!$Label.Actions}</span>
+                                          </div>
+                                    </div>
+                                    <div class="result-table">
+                                          <apex:repeat value="{!pastObjectives}" var="pastObjective">
+                                                <div class="row highlight-primary hide-for-print trigger-past-objectives-list" data-id="{!pastObjective.id}">
+                                                      <div class="small-4 medium-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!pastObjective.EI_Description__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 medium-3 column" data-type="employee">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!pastObjective.EI_Objectif_evalue_par_le_salarie__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 medium-3 column" data-type="manager">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!pastObjective.EI_Objectif_evalue_par_le_manager__c}" /></span>
+                                                      </div>
+                                                      <div class="hide-for-small medium-3 column">
+                                                          <a href="#" title="Détail" data-reveal-id="{!pastObjective.id}"><i class="fa fa-eye"></i></a>
+                                                          <a href="#" class="red-font" title="Supprimer"><i class="fa fa-minus-circle"></i></a>
+                                                      </div>
+                                                </div>
+                                          </apex:repeat>
+                                    </div>
+                              </div>
+                        </div>
+                        <apex:repeat value="{!pastObjectives}" var="pastObjective">
+                              <div id="{!pastObjective.Id}" class="row objective reveal-modal show-for-print" data-reveal="true">
+                                    <div class="small-12 column">
+                                        <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Description__c.Label} :" />
+                                        <apex:outputField styleClass="ct-output" value="{!pastObjective.EI_Description__c}" />
+                                    </div>
+
+                                    <div class="small-12 medium-4 large-3 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Objectif_evalue_par_le_salarie__c.Label} :" for="sEval"/>
+                                          <apex:inputField id="sEval" rendered="{!contactId = interview.EI_Salarie_qui_passe_l_entretien__c && readOnly == 0}" value="{!pastObjective.EI_Objectif_evalue_par_le_salarie__c}"/>
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_passe_l_entretien__c || readOnly == 1}" value="{!pastObjective.EI_Objectif_evalue_par_le_salarie__c}"/>
+                                    </div>
+                                    <div class="small-12 medium-8 large-9 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Commentaire_salarie__c.Label} :" for="sComment"/>
+                                          <apex:inputField id="sComment" rendered="{!contactId = interview.EI_Salarie_qui_passe_l_entretien__c && readOnly == 0}" value="{!pastObjective.EI_Commentaire_salarie__c}"/>
+                                          <apex:outputField styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_passe_l_entretien__c || readOnly == 1}" value="{!pastObjective.EI_Commentaire_salarie__c}"/>
+                                    </div>
+
+                                    <div class="small-12 medium-4 large-3 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Objectif_evalue_par_le_salarie__c.Label} :" for="mEval"/>
+                                          <apex:inputField id="mEval" rendered="{!contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="{!pastObjective.EI_Objectif_evalue_par_le_manager__c}"/>
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!pastObjective.EI_Objectif_evalue_par_le_manager__c}"/>
+                                    </div>
+                                    <div class="small-12 medium-8 large-9 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Commentaire_manager__c.Label} :" for="mComment"/>
+                                          <apex:inputField id="mComment" rendered="{!contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="{!pastObjective.EI_Commentaire_manager__c}"/>
+                                          <apex:outputField styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!pastObjective.EI_Commentaire_manager__c}"/>
+                                    </div>
+                                    <a href="#" class="flat button green modal-dismiss hide-for-print" onclick="updatePastObjective('{!pastObjective.id}')">{!$Label.crta__update}</a>
+                                    <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+                              </div>
+                        </apex:repeat>
+                  </apex:outputPanel>
+
+                  <!-- Objectifs -->
+                  <apex:outputPanel layout="block" id="objectives" styleClass="small-12 column tab-block" rendered="{!$Setup.EI__c.showObjectives__c}" html-data-id="3" html-data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.objectives}');">
+                                    <i class="fa fa-check-square"></i>
+                                    <span>{!$Label.future_objectives}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div data-foldable="true">
+                                    <div class="row header-table secondary-color hide-for-print">
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Description__c.Label}</span>
+                                          </div>
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Conditions_de_reussite__c.Label}</span>
+                                          </div>
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Ponderation_d_objectifs__c.Label}</span>
+                                          </div>
+                                          <div class="hide-for-small medium-3 column">
+                                              <span>{!$Label.Actions}</span>
+                                          </div>
+                                    </div>
+                                    <div class="result-table">
+                                          <apex:repeat value="{!objectives}" var="objective">
+                                                <div class="row highlight-primary hide-for-print trigger-future-objective-list" data-id="{!objective.id}">
+                                                      <div class="small-4 medium-3 column" data-type="description">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!objective.EI_Description__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 medium-3 column" data-type="success">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!objective.EI_Conditions_de_reussite__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 medium-3 column" data-type="weighting">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!objective.EI_Ponderation_d_objectifs__c}" /></span>
+                                                      </div>
+                                                      <div class="hide-for-small medium-3 column">
+                                                            <a href="#" title="Détail" data-reveal-id="{!objective.id}"><i class="fa fa-eye"></i></a>
+                                                            <apex:commandLink title="{!$Label.crta__delete}" action="{!delObjective}" onclick=" return confirm('{!$Label.crta__delete_objective}')">
+                                                                <apex:param assignTo="{!objIdToDel}" value="{!objective.Id}" name="objectiveId"/>
+                                                                <i class="fa fa-minus-circle red-font"></i>
+                                                            </apex:commandLink>
+                                                      </div>
+                                                </div>
+                                          </apex:repeat>
+                                    </div>
+                              </div>
+                        </div>
+                        <apex:repeat value="{!objectives}" var="objective">
+                              <div id="{!objective.id}" class="row objective reveal-modal show-for-print" data-reveal="true">
+                                    <div class="small-12 medium-4 large-3 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Ponderation_d_objectifs__c.Label} :" for="ponderation"/>
+                                          <apex:inputField type="number" id="ponderation" rendered="{!contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="{!objective.EI_Ponderation_d_objectifs__c}"/>
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!objective.EI_Ponderation_d_objectifs__c}"/>
+                                    </div>
+                                    <div class="small-12 medium-8 large-9 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Description__c.Label} :" for="description"/>
+                                          <apex:inputField id="description" rendered="{!contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="{!objective.EI_Description__c}"/>
+                                          <apex:outputField styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!objective.EI_Description__c}"/>
+                                    </div>
+
+                                    <div class="small-12 column">
+                                          <apex:outputLabel value="{!$ObjectType.EI_Ligne_objectif__c.fields.EI_Conditions_de_reussite__c.Label} :" styleClass="ct-label" for="condition"/>
+                                          <apex:inputField id="condition" rendered="{!contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="{!objective.EI_Conditions_de_reussite__c}"/>
+                                          <apex:outputField styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!objective.EI_Conditions_de_reussite__c}"/>
+                                    </div>
+                                    <a href="#" class="flat button green modal-dismiss hide-for-print " onclick="updateFutureObjective('{!objective.id}')">{!$Label.crta__update}</a>
+                                    <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+                              </div>
+                        </apex:repeat>
+                        <apex:commandButton styleClass="button flat green hide-for-print hide-for-small" value="{!$Label.crta__add_line}" id="addObjective" action="{!addObjective}"  rendered="{!contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && ReadOnly==0}"/>
+                  </apex:outputPanel>
+
+                  <!-- Compétences -->
+                  <apex:outputPanel layout="block" id="skills" styleClass="small-12 column tab-block" rendered="{!$Setup.EI__c.showSkills__c}" html-data-id="4" html-data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.skills}');">
+                                  <i class="fa fa-wrench"></i>
+                                  <span>{!$ObjectType.Skill__c.LabelPlural}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div data-foldable="true">
+                                    <div class="row header-table secondary-color">
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.Skill__c.fields.Name.Label}</span>
+                                          </div>
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.EI_ligne_competence__c.fields.IE_Competence_evaluee_par_le_salarie__c.Label}</span>
+                                          </div>
+                                          <div class="small-4 medium-3 column">
+                                              <span>{!$ObjectType.EI_ligne_competence__c.fields.IE_Competence_evaluee_par_le_manager__c.Label}</span>
+                                          </div>
+                                          <div class="medium-3 hide-for-small column">
+                                              <span>{!$Label.Actions}</span>
+                                          </div>
+                                    </div>
+                                    <div class="result-table">
+                                          <apex:repeat value="{!skills}" var="skill">
+                                                <div class="row highlight-primary trigger-skill-list" data-id="{!skill.id}">
+                                                      <div class="small-4 medium-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!skill.EI_Libelle_de_competence__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 medium-3 column" data-type="employee">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!skill.IE_Competence_evaluee_par_le_salarie__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 medium-3 column" data-type="manager">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!skill.IE_Competence_evaluee_par_le_manager__c}" /></span>
+                                                      </div>
+                                                      <div class="medium-3 hide-for-small  column">
+                                                            <a href="#" title="Détail" data-reveal-id="{!skill.id}"><i class="fa fa-eye"></i></a>
+                                                            <apex:commandLink title="{!$Label.crta__delete}" action="{!delSkill}" onclick=" return confirm('{!$Label.crta__delete_skill}')">
+                                                                  <apex:param assignTo="{!skillIdToDel}" value="{!skill.Id}" name="skillId"/>
+                                                                  <i class="fa fa-minus-circle red-font"></i>
+                                                            </apex:commandLink>
+                                                      </div>
+                                                </div>
+                                          </apex:repeat>
+                                    </div>
+                              </div>
+                        </div>
+                        <apex:repeat value="{!skills}" var="skill">
+                              <div id="{!skill.id}" class="row skill reveal-modal" data-reveal="true">
+                                    <div class="small-12 medium-4 large-3 column">
+                                          <apex:outputLabel value="{!$ObjectType.Skill__c.fields.Name.Label} :" styleClass="ct-label" for="name"/>
+                                          <apex:outputText styleClass="ct-output" value="{!skill.EI_Libelle_de_competence__c}"/>
+                                    </div>
+                                    <div class="small-12 medium-8 large-9 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_ligne_competence__c.fields.EI_Description_de_la_competence__c.Label} :"/>
+                                          <apex:outputText styleClass="ct-output" value="{!skill.EI_Description_de_la_competence__c}" />
+                                    </div>
+
+                                    <div class="small-12 medium-4 large-3 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_ligne_competence__c.fields.IE_Competence_evaluee_par_le_salarie__c.Label} :" for="sEval"/>
+                                          <apex:inputField id="sEval" rendered="{!contactId = interview.EI_Salarie_qui_passe_l_entretien__c && readOnly == 0}" value="{!skill.IE_Competence_evaluee_par_le_salarie__c}"/>
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_passe_l_entretien__c || readOnly == 1}" value="{!skill.IE_Competence_evaluee_par_le_salarie__c}"/>
+                                    </div>
+                                    <div class="small-12 medium-8 large-9 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_ligne_competence__c.fields.IE_Commentaire_Salarie__c.Label} :" for="sComment"/>
+                                          <apex:inputField id="sComment" rendered="{!contactId = interview.EI_Salarie_qui_passe_l_entretien__c && readOnly == 0}" value="{!skill.IE_Commentaire_Salarie__c}"/>
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_passe_l_entretien__c || readOnly == 1}" value="{!skill.IE_Commentaire_Salarie__c}"/>
+                                    </div>
+
+                                    <div class="small-12 medium-4 large-3 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_ligne_competence__c.fields.IE_Competence_evaluee_par_le_manager__c.Label} :" for="mEval"/>
+                                          <apex:inputField id="mEval" rendered="{!contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="{!skill.IE_Competence_evaluee_par_le_manager__c}"/>
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!skill.IE_Competence_evaluee_par_le_manager__c}"/>
+                                    </div>
+                                    <div class="small-12 medium-8 large-9 column">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.EI_ligne_competence__c.fields.IE_Commentaire_Manager__c.Label} :" for="mComment"/>
+                                          <apex:inputField id="mComment" rendered="{!contactId = interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="{!skill.IE_Commentaire_Manager__c}"/>
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!skill.IE_Commentaire_Manager__c}"/>
+                                    </div>
+                                    <apex:outputLink rendered="{!contactId == interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="#" styleClass="flat button green modal-dismiss hide-for-print" onclick="updateSkill('{!skill.id}')">{!$Label.crta__update}</apex:outputLink>
+                                    <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+                              </div>
+                        </apex:repeat>
+                  </apex:outputPanel>
+
+                  <!-- Formations passées -->
+                  <apex:outputPanel layout="block" id="pastTrainings" styleClass="small-12 column tab-block" rendered="{!$Setup.EI__c.showPastTrainings__c}" html-data-id="5" html-data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.pastTrainings}');">
+                                    <i class="fa fa-graduation-cap"></i>
+                                    <span>{!$Label.past_trainings}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div data-foldable="true">
+                                    <div class="row header-table secondary-color">
+                                          <div class="small-3 column">
+                                              <span>{!$ObjectType.Formation__c.fields.FO_Nom_de_la_formation__c.Label}</span>
+                                          </div>
+                                          <div class="small-3 column">
+                                              <span>{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Organisme_de_formation__c.Label}</span>
+                                          </div>
+                                          <div class="small-3 column">
+                                              <span>{!$ObjectType.Formation__c.fields.CT_Start_date__c.Label}</span>
+                                          </div>
+                                          <div class="small-3 column">
+                                              <span>{!$ObjectType.Formation__c.fields.FO_Statut__c.Label}</span>
+                                          </div>
+                                    </div>
+                                    <div class="result-table">
+                                          <apex:repeat value="{!pastTrainings}" var="pastTraining">
+                                                <div class="row highlight-primary">
+                                                      <div class="small-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!pastTraining.FO_Nom_de_la_formation__c}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!pastTraining.FO_Catalogue_de_formation__r.FO_Organisme_de_formation__r.Name}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!pastTraining.CT_Start_date__c}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!pastTraining.FO_Statut__c}" /></span>
+                                                      </div>
+                                                </div>
+                                          </apex:repeat>
+                                    </div>
+                              </div>
+                        </div>
+                  </apex:outputPanel>
+
+                  <!-- Formations prévues -->
+                  <apex:outputPanel layout="block" id="trainings" styleClass="small-12 column tab-block" rendered="{!$Setup.EI__c.showTrainings__c}" html-data-id="6" html-data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.trainings}');">
+                                <i class="fa fa-book"></i>
+                                <span>{!$Label.scheduled_trainings}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div data-foldable="true">
+                                    <div class="row header-table secondary-color">
+                                          <div class="small-3 column">
+                                              <span>{!$ObjectType.Formation__c.fields.FO_Nom_de_la_formation__c.Label}</span>
+                                          </div>
+                                          <div class="small-3 column">
+                                              <span>{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Organisme_de_formation__c.Label}</span>
+                                          </div>
+                                          <div class="small-3 column">
+                                              <span>{!$ObjectType.Formation__c.fields.CT_Start_date__c.Label}</span>
+                                          </div>
+                                          <div class="small-3 column">
+                                              <span>{!$ObjectType.Formation__c.fields.FO_Statut__c.Label}</span>
+                                          </div>
+                                    </div>
+                                    <div class="result-table">
+                                          <apex:repeat value="{!plannedTrainings}" var="plannedTraining">
+                                                <div class="row highlight-primary">
+                                                      <div class="small-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!plannedTraining.FO_Nom_de_la_formation__c}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!plannedTraining.FO_Catalogue_de_formation__r.FO_Organisme_de_formation__r.Name}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!plannedTraining.CT_Start_date__c}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!plannedTraining.FO_Statut__c}" /></span>
+                                                      </div>
+                                                </div>
+                                          </apex:repeat>
+                                    </div>
+                              </div>
+                        </div>
+                  </apex:outputPanel>
+
+                  <!-- Commentaires -->
+                  <apex:outputPanel layout="block" id="comments" styleClass="small-12 column tab-block comments" rendered="{!$Setup.EI__c.showComments__c}" html-data-id="7" html-data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.comments}');">
+                                    <i class="fa fa-pencil"></i>
+                                    <span>{!$Label.comments}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div class="result-table" data-foldable="true">
+                                    <apex:outputPanel layout="block" rendered="{!$Setup.EI__c.showTrainingComment__c}">
+                                          <apex:outputLabel value="{!$ObjectType.EI_Entretien__c.fields.EI_Formations_demandees__c.Label} : " for="trainingArea" styleClass="ct-label"  />
+                                          <apex:inputField id="trainingArea" rendered="{!contactId == interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}"  value="{!interview.EI_Formations_demandees__c}" />
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!interview.EI_Formations_demandees__c}" />
+                                    </apex:outputPanel>
+                                    <apex:outputPanel layout="block" rendered="{!$Setup.EI__c.showMobilityComment__c}">
+                                          <apex:outputLabel value="{!$ObjectType.EI_Entretien__c.fields.EI_Mobilite__c.Label} : " for="mobility" styleClass="ct-label"  />
+                                          <apex:inputField id="mobility" rendered="{!contactId == interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}"  value="{!interview.EI_Mobilite__c}" />
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!interview.EI_Mobilite__c}" />
+                                    </apex:outputPanel>
+                                    <apex:outputPanel layout="block" rendered="{!$Setup.EI__c.showEvolutionComment__c}">
+                                          <apex:outputLabel value="{!$ObjectType.EI_Entretien__c.fields.EI_Evolution__c.Label} : " for="evolution" styleClass="ct-label"  />
+                                          <apex:inputField id="evolution" rendered="{!contactId == interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}"  value="{!interview.EI_Evolution__c}" />
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!interview.EI_Evolution__c}" />
+                                    </apex:outputPanel>
+                                    <apex:outputPanel layout="block" rendered="{!$Setup.EI__c.showEmployeeComment__c}">
+                                          <apex:outputLabel value="{!$ObjectType.EI_Entretien__c.fields.EI_Commentaire_du_salarie__c.Label} : " for="sComment" styleClass="ct-label"  />
+                                          <apex:inputField id="sComment" rendered="{!contactId == interview.EI_Salarie_qui_passe_l_entretien__c && readOnly == 0}" value="{!interview.EI_Commentaire_du_salarie__c}" />
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_passe_l_entretien__c || readOnly == 1}" value="{!interview.EI_Commentaire_du_salarie__c}" />
+                                    </apex:outputPanel>
+                                    <apex:outputPanel layout="block" rendered="{!$Setup.EI__c.showManagerComment__c}">
+                                          <apex:outputLabel value="{!$ObjectType.EI_Entretien__c.fields.EI_Commentaire_du_manager__c.Label} : " for="mComment" styleClass="ct-label"  />
+                                          <apex:inputField id="mComment" rendered="{!contactId == interview.EI_Salarie_qui_fait_passer_l_entretien__c && readOnly == 0}" value="{!interview.EI_Commentaire_du_manager__c}" />
+                                          <apex:outputText styleClass="ct-output" rendered="{!contactId != interview.EI_Salarie_qui_fait_passer_l_entretien__c || readOnly == 1}" value="{!interview.EI_Commentaire_du_manager__c}" />
+                                    </apex:outputPanel>
+                              </div>
+                        </div>
+                  </apex:outputPanel>
+
+                  <!-- Pièces-jointes -->
+                  <apex:outputPanel layout="block" id="files" styleClass="small-12 column tab-block " rendered="{!$Setup.EI__c.showAttachments__c}" html-data-id="8" html-data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.entretienForm.files}');">
+                                    <i class="fa fa-paperclip"></i>
+                                    <span>{!$Label.attached_files}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div data-foldable="true">
+                                    <div class="row header-table secondary-color">
+                                          <div class="small-4 medium-3 column">
+                                                <span>{!$Label.name}</span>
+                                          </div>
+                                          <div class="small-4 medium-3 column">
+                                                <span>{!$Label.description}</span>
+                                          </div>
+                                          <div class="small-4 medium-3 column">
+                                                <span>{!$Label.sent_date}</span>
+                                          </div>
+                                          <div class="hide-for-small medium-3 column">
+                                                <span>{!$Label.action}</span>
+                                          </div>
+                                    </div>
+                                    <div class="result-table">
+                                          <apex:repeat value="{!attachments}" var="attach">
+                                                <div class="row highlight-primary">
+                                                      <div class="small-4 medium-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!attach.Name}" /></span>
+                                                      </div>
+                                                      <div class="small-4 medium-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!attach.Description}" /></span>
+                                                      </div>
+                                                      <div class="small-4 medium-3 column">
+                                                            &nbsp;
+                                                            <span class="ct-output"><apex:outputField value="{!attach.LastModifiedDate}" /></span>
+                                                      </div>
+                                                      <div class="hide-for-small medium-3 column">
+                                                            &nbsp;
+                                                            <apex:outputLink title="{!$Label.crta__download}" value="{!URLFOR($Action.Attachment.Download, attach.id)}">
+                                                                  <i class="fa fa-cloud-download"></i>
+                                                            </apex:outputLink>
+                                                            <apex:commandLink title="{!$Label.crta__delete}" action="{!delAttachment}" onclick=" return confirm('{!$Label.crta__delete_attachment}')">
+                                                                  <apex:param assignTo="{!attachIdToDel}" value="{!attach.Id}" name="attachId"/>
+                                                                  <i class="fa fa-minus-circle red-font"></i>
+                                                            </apex:commandLink>
+                                                      </div>
+                                                </div>
+                                          </apex:repeat>
+                                    </div>
+                              </div>
+                        </div>
+                  </apex:outputPanel>
+            </div>
+
+            <!-- Buttons -->
+            <apex:outputPanel layout="block"  styleClass="small-12 column hide-for-print" rendered="{!!isPreview}">
+                  <apex:commandLink action="{!save}" styleClass="button green flat"><i class="fa fa-save"></i> {!$Label.Interview_button_save}</apex:commandLink>
+                  <a href="#" onclick="window.print()" name="Print" class="button gray flat" ><i class="fa fa-print"></i> {!$Label.Interview_button_print}</a>
+            </apex:outputPanel>
+
+            <!-- Upload form -->
+            <apex:outputPanel rendered="{!If($Setup.EI__c.showUpload__c == true && isPreview != true, true, false)}">
+                  <div id="uploadPanel" class="hide-for-medium-down large-12 column tab-block upload" data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('uploadPanel');">
+                                    <i class="fa fa-cloud-upload"></i>
+                                    <span>{!$Label.add_file}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div class="result-table" data-foldable="true">
+                                    <div class="row">
+                                          <div class="small-12 medium-6 large-4 column">
+                                                <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__filename} :" for="fileName" />
+                                                <apex:inputText value="{!attachment.name}" id="fileName" />
+                                          </div>
+                                          <div class="small-12 medium-6 large-4 column">
+                                                <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__description} :" for="description" />
+                                                <apex:inputTextarea value="{!attachment.description}" id="description" />
+                                          </div>
+                                          <div class="small-12 medium-6 large-4 column">
+                                                <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__file} :" for="file" />
+                                                <apex:inputFile value="{!attachment.body}" filename="{!attachment.name}" id="file" />
+                                          </div>
+                                    </div>
+                                    <div class="row">
+                                          <div class="button-center">
+                                                <apex:commandButton styleClass="outline green button " action="{!upload}" value="{!$Label.crta__upload}" />
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </apex:outputPanel>
+      </apex:form>
+
+      
+  
+      <script type="text/javascript">
+            var container = document.getElementById("sortable");
+            var sort = new Sortable(container, {
+                  draggable: ".tab-block", // Specifies which items inside the element should be sortable
+                  handle: ".title",
+                  ghostClass: "sortable-ghost",
+                  store: {
+                        get: function (sortable) {
+                              var order = '<apex:outputText value="{!JSENCODE($Setup.EI__c.reviewBlocksOrder__c)}"/>';
+                              return order ? order.split('|') : [];
+                        },
+
+                    set: function (sortable) {
+                              var order = sortable.toArray().join('|');
+                              Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationEntretienController.updateOrder}', order, function(result, event) {
+                              }, {escape: true}
+                              );
+                        }
+                  }
+            });
+            {!IF(isPreview != true, 'sort.destroy();', '')}
+
+            function updateSkill(id) {
+                  var evaluation = document.getElementById(id).getElementsByTagName('select')[0];
+                  var comment = document.getElementById(id).getElementsByTagName('textarea')[0];
+                  var values = '{"id":"'+id+'", "eval":"'+evaluation.value+'", "comment":"'+comment.value+'", "isManager":"'+{!IF(contactId == interview.EI_Salarie_qui_fait_passer_l_entretien__c, '1','0')}+'"}';
+                  Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationEntretienController.updateSkill}', values, function(result, event) {
+                        if (event.result == 'success') {
+                              window.location.reload();
+                        } else if(result == null || result == 'null') {
+                                console.log(event);
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .green.button').html('{!$Label.crta__update}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+event.message+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        } else {
+                              console.log(event);
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .green.button').html('{!$Label.crta__update}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        };
+                  }, {escape: true});
+            }
+
+            function startIntro() {}
+
+            function updatePastObjective(id) {
+                  var evaluation = document.getElementById(id).getElementsByTagName('select')[0];
+                  var comment = document.getElementById(id).getElementsByTagName('textarea')[0];
+                  var values = '{"id":"'+id+'", "eval":"'+evaluation.value+'", "comment":"'+comment.value+'", "isManager":"'+{!IF(contactId == interview.EI_Salarie_qui_fait_passer_l_entretien__c, '1','0')}+'"}';
+                  Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationEntretienController.updatePastObjective}', values, function(result, event) {
+                        if (event.result == 'success') {
+                              window.location.reload();
+                        } else if(result == null || result == 'null') {
+                              console.log(event);
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .green.button').html('{!$Label.create}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+event.message+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        } else {
+                              console.log(event);
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .green.button').html('{!$Label.create}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        };
+                  }, {escape: true});
+            }
+
+            function updateFutureObjective(id) {
+                  var weighting = document.getElementById(id).getElementsByTagName('input')[0];
+                  var description = document.getElementById(id).getElementsByTagName('textarea')[0];
+                  var success = document.getElementById(id).getElementsByTagName('textarea')[1];
+                  var values = '{"id":"'+id+'", "weighting":"'+weighting.value+'", "description":"'+description.value+'", "success":"'+success.value+'"}';
+                  Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationEntretienController.updateFutureObjective}', values, function(result, event) {
+                        if (event.result == 'success') {
+                              window.location.reload();
+                        } else if(result == null || result == 'null') {
+                              console.log(event);
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .green.button').html('{!$Label.crta__update}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+event.message+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        } else {
+                              console.log(event);
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .green.button').html('{!$Label.crta__update}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  }, {escape: true});
+            }
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

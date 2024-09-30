@@ -1,0 +1,3 @@
+<apex:page tabstyle="Contact" standardController="Contact" extensions="recruitmentListController" recordSetVar="employes">
+    <apex:enhancedList type="Contact" customizable="true" height="600" ListId="{!view}"/>
+</apex:page>

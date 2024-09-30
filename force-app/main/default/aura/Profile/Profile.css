@@ -1,0 +1,107 @@
+.THIS .photo-user {    border-radius: 100px;
+    max-width: 200px;
+    max-height: 200px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    margin: auto;
+    margin-bottom: 25px;
+    cursor: default !important;
+    width: 118px;
+    height: 118px;
+}
+
+.THIS .photo-on-mobile {
+   max-width: 135px;
+    max-height: 135px;
+    width: 70%;
+    height: 170px;  
+}
+
+
+.THIS .myEditProfileButton {
+	position: relative;
+    bottom: 0;
+    top: 77%;
+    left: 77%;
+    background-color: #FFF;
+    border-radius: 100%;
+    /*width: 25px;
+    height: 25px;*/
+}
+
+.THIS .ProfileButtonMobile {
+    top: 75%;
+    left: 75%;
+    width: 25px;
+    height: 25px;
+    
+}
+
+.THIS .slds-text-bold {
+    font-weight: 500;
+}
+
+.THIS .helpText .slds-form-element__icon{
+    padding-top: 0;
+    padding-left: 4px;
+    vertical-align: text-bottom;
+      
+}
+
+.THIS .checkbox .slds-form-element__label {
+    padding-right: 0;
+}
+
+.THIS .checkbox .slds-checkbox_faux {
+    margin-right: 0!important;
+}
+
+.THIS .checkbox {
+    display: inline-block;
+}
+
+.THIS .ct-icon-color {
+    color : var(--icon-color);
+}
+
+.THIS .ct-section-color {
+    color : var(--section-color);
+}
+
+.THIS .ct-custom-icon svg{
+   fill: #706e6b;
+}
+
+.THIS .slds-sub-tabs__item .slds-tabs_default__link:focus, .THIS  .slds-sub-tabs__item.slds-has-focus {
+    text-decoration: none;
+}
+
+.THIS .slds-sub-tabs__item.slds-active, .THIS .slds-sub-tabs__item.slds-is-open {
+    background-color: #f5f5f5;
+}
+
+.THIS #modal-content {
+    padding-bottom: 60px;
+}
+                
+.THIS .bottom-2 {
+                        margin-top: -2px;
+                }
+                
+                
+                .THIS .top--5 {
+                        margin-top: -15px;
+                }
+                
+                
+                .THIS .p-6 {
+                        padding-right: 6%;
+                }
+
+
+                .THIS .acc-style {
+                
+                --slds-c-button-shadow-focus: none;
+    --_slds-g-shadow-outline-focus: none;
+                }

@@ -1,0 +1,13 @@
+<apex:page showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false">
+     <div style="padding:0px 50px;">
+           <p> Cette Base de Données Unique est accessible en permanence aux membres du Comité d’Entreprise (ou à défaut aux Délégués du Personnel), ainsi qu’aux membres du CHSCT et aux Délégués Syndicaux, et le cas échéant aux membres du Comité Central d’Entreprise.
+            <br /><br/>
+            Elle est mise à jour régulièrement par l’employeur, celui-ci informant les représentants du personnel de son actualisation.
+            <br /><br/>
+            La BDU se substituera, au plus tard le 31 décembre 2016, aux bilans et autres rapports transmis régulièrement au CE (bilan social, rapport sur l’égalité professionnelle, rapport sur l’hygiène, la sécurité et les conditions de travail, informations annuelles ou trimestrielles, etc.).
+            <br /><br/>
+            C’est l’employeur qui fixe les modalités d’accès, de consultation et d’utilisation de la BDU.
+            <br /><br/>
+            Les articles L. 2323-8, L.2323-9 et L.2323-10 du Code du travail sont relatifs à la BDU. Le décret du 29 juin 2016 en a précisé les contours et le contenu.</p>
+        </div>
+</apex:page>

@@ -1,0 +1,343 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false"  controller="VisualisationTicketController" >
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <apex:form id="filterForm">
+            <div id="ticketPage">
+                  <div class="left-block small-12 medium-12 large-6 column">
+                  <!-- Filtres -->
+                        <div id="filters" class="small-12 small-centered column info-block" data-fold="false">
+                                  <h4 class="title secondary-font header">
+                                    <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('filters');">
+                                      <i class="fa fa-filter"></i>
+                                      <span>{!$Label.Filters}</span>
+                                    </a>
+                              </h4>
+                              <div class="card">
+                                    <div class="row infos" data-foldable="true">
+                                          <div class="small-12 medium-6 large-4 column info">
+                                                <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Demande__c.fields.Module__c.Label} :" for="organization"/>
+                                                <apex:inputField id="module" value="{!mockTicket.Module__c}" html-data-field="Module__c" />
+                                          </div>
+                                          <div class="small-12 large-4 column info">
+                                                <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Demande__c.fields.Type__c.Label} :" for="type"/>
+                                                <apex:inputField id="type" value="{!mockTicket.Type__c}" html-data-field="Type__c" />
+                                          </div>
+                                          <div class="small-12 medium-6 large-4 column info">
+                                                <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Demande__c.fields.Priorite__c.Label} :" for="mode"/>
+                                                <apex:inputField id="priority" value="{!mockTicket.Priorite__c}" html-data-field="Priorite__c" />
+                                          </div>
+                                          <div class="button-center">
+                                                <button onclick="event.preventDefault(); loadTickets(0);" class="outline green button"><i class="fa fa-search"></i> {!$Label.Search}</button>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+
+                  <!-- Liste des demandes -->
+                  <div id="list" class="small-12 small-centered column info-block" data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('list');">
+                                    <i class="fa fa-search"></i>
+                                    <span>{!$ObjectType.Demande__c.LabelPlural}</span>
+                              </a>
+                        </h4>
+                        <div class="card no-border">
+                              <div class="ct-table" data-foldable="true">
+                                    <table data-position="0">
+                                          <thead class="secondary-color header-table">
+                                                <tr>
+                                                      <th>{!$ObjectType.Demande__c.fields.Intitule__c.Label}</th>
+                                                      <th>{!$ObjectType.Demande__c.fields.Module__c.Label}</th>
+                                                      <th>{!$ObjectType.Demande__c.fields.Type__c.Label}</th>
+                                                      <th>{!$ObjectType.Demande__c.fields.Priorite__c.Label}</th>
+                                                      <th>{!$ObjectType.Demande__c.fields.Date_de_cloture__c.Label}</th>
+                                                      <th>{!$ObjectType.Demande__c.fields.Statut__c.Label}</th>
+                                                </tr>
+                                          </thead>
+                                          <tbody></tbody>
+                                          <tfoot class="pagination">
+                                                <tr>
+                                                      <td colspan="6">
+                                                            <a href="#" data-direction="previous"><i class="fa fa-arrow-left"></i></a>
+                                                            <span></span>
+                                                            <a href="#" data-direction="next"><i class="fa fa-arrow-right"></i></a>
+                                                      </td>
+                                                </tr> 
+                                          </tfoot>
+                                    </table>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <div class="right-block small-12 medium-12 large-6 column">
+                  <!-- Loaded ticket -->
+                  <div id="ticket" class="small-12 column info-block" data-fold="false">
+                        <h4 id="ticketName" class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('ticket');">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span>{!ticket.Intitule__c}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div class="row infos" data-foldable="true">
+                                    <div id="ticketModule" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Demande__c.fields.Module__c.Label} : <br />
+                                              <span class="ct-output">&nbsp;<apex:outputField value="{!ticket.Module__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="ticketType" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Demande__c.fields.Type__c.Label} : <br />
+                                              <span class="ct-output">&nbsp;<apex:outputField value="{!ticket.Type__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="ticketPriority" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Demande__c.fields.Priorite__c.Label} : <br />
+                                              <span class="ct-output">&nbsp;<apex:outputField value="{!ticket.Priorite__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="ticketStatus" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Demande__c.fields.Statut__c.Label} : <br />
+                                              <span class="ct-output">&nbsp;<apex:outputField value="{!ticket.Statut__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="ticketDescription" class="small-12 column">
+                                          <label class="ct-label">{!$ObjectType.Demande__c.fields.Description__c.Label} : 
+                                              <span class="ct-output"><apex:outputField value="{!ticket.Description__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <hr class="separator" />
+                                    <div id="ticketAttribution" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Demande__c.fields.Attribution__c.Label} : <br />
+                                              <span class="ct-output">&nbsp;<apex:outputField value="{!ticket.Attribution__r.Name}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="ticketDate" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Demande__c.fields.Date_de_cloture__c.Label} :
+                                              <span class="ct-output">&nbsp;<apex:outputField value="{!ticket.Date_de_cloture__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="ticketResponse" class="small-12 column">
+                                          <label class="ct-label">{!$ObjectType.Demande__c.fields.Reponse__c.Label} :
+                                              <span class="ct-output">&nbsp;<apex:outputField value="{!ticket.Reponse__c}" /></span>
+                                          </label>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+
+                  <!-- New ticket -->
+                        <div id="new" class="small-12 column info-block" data-fold="false">
+                              <h4 class="title secondary-font header">
+                                    <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('new');">
+                                          <i class="fa fa-envelope"></i>
+                                          <span>{!$Label.ticket_new}</span>
+                                    </a>
+                              </h4>
+                              <div class="card">
+                                    <div class="row infos" data-foldable="true">
+                                          <div class="small-12 column">
+                                              <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Demande__c.fields.Intitule__c.Label} :" for="qName"/>
+                                              <apex:inputField value="{!mockTicket.Intitule__c}" id="qName" styleClass="name-select"/>
+                                          </div>
+                                          <div class="small-12 medium-6 column">
+                                              <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Demande__c.fields.Module__c.Label} :" for="qModule"/>
+                                              <apex:inputField value="{!mockTicket.Module__c}" id="qModule" styleClass="module-select"/>
+                                          </div>
+                                          <div class="small-12 medium-6 column">
+                                              <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Demande__c.fields.Type__c.Label} :" for="qType"/>
+                                              <apex:inputField value="{!mockTicket.Type__c}" id="qType" styleClass="type-select"/>
+                                          </div>
+                                          <div class="small-12 column">
+                                              <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Demande__c.fields.Description__c.Label} :" for="qDescription"/>
+                                              <apex:inputField value="{!mockTicket.Description__c}" id="qDescription" styleClass="description-select"/>
+                                          </div>
+                                          <div class="button-center">
+                                                <a href="#" onclick="event.preventDefault(); saveTicket();" class="button green outline"><i class="fa fa-send-o"></i> {!$Label.Button_validate}</a>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+            </div>
+      </div>
+      </apex:form>
+
+      <script type="text/javascript">
+            function loadTickets(offset) {
+                  jQuery('#filters button.green').html('<i class="fa fa-spin fa-spinner"></i>');
+
+                  var fields = []
+                  var values = []
+                  var operations = []
+                  values.push(document.getElementById('{!$Component.filterForm.type}').value);
+                  fields.push(document.getElementById('{!$Component.filterForm.type}').getAttribute('data-field'));
+                  values.push(document.getElementById('{!$Component.filterForm.module}').value);
+                  fields.push(document.getElementById('{!$Component.filterForm.module}').getAttribute('data-field'));
+                  values.push(document.getElementById('{!$Component.filterForm.priority}').value);
+                  fields.push(document.getElementById('{!$Component.filterForm.priority}').getAttribute('data-field'));
+                  values = cleanSoapArray(values);
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var tNumber = parseInt('<apex:outputText value="{!JSENCODE(TEXT($Setup.helpdesk__c.ticketNumber__c))}"/>');
+                  if(isNaN(tNumber)) {
+                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.crta__sirh_error_unknown} <strong>Please configure ticket number.</strong><span></div>');
+                    jQuery(document).foundation('alert', 'reflow');
+                    return;
+                  }
+                  var result = sforce.apex.execute(NSD+'TicketRepository', 'getAllFilteredWithOffsetByContact', {
+                        contactId: '{!JSENCODE(contactId)}',
+                        offsetNumber: offset,
+                        limitNumber: tNumber+1,
+                        filterFields: fields,
+                        filterOperations: operations,
+                        filterValues: values
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#list table tbody').html('');
+                              var xTicketNumber = parseInt('<apex:outputText value="{!JSENCODE(TEXT($Setup.helpdesk__c.ticketNumber__c))}"/>');
+                              jQuery.each(result, function(index, val) {
+                                    if(index == xTicketNumber) return false;
+                                    var line = '<tr class="highlight-primary" onclick="event.preventDefault(); getTicket(\''+val.Id+'\')">';
+                                    line += '<td>'+val[NSU+'Intitule__c']+'</td>';
+                                    line += '<td>'+val[NSU+'Module__c']+'</td>';
+                                    line += '<td>'+val[NSU+'Type__c']+'</td>';
+                                    line += '<td>'+val[NSU+'Priorite__c']+'</td>';
+                                    line += '<td>'+moment(val[NSU+'Date_de_cloture__c']).format('L')+'</td>';
+                                    line += '<td>'+val[NSU+'Statut__c']+'</td>';
+                                    line += '</tr>';
+                                    jQuery('#list table tbody').append(line);
+
+                              });
+                              jQuery('#list table').attr('data-position', offset);
+
+                              if(result.length < xTicketNumber+1) {
+                                    jQuery('#list table tfoot a[data-direction="next"]').hide();
+                              } else { 
+                                    jQuery('#list table tfoot a[data-direction="next"]').show();
+                              }
+                              jQuery('#filters button.green').html('<i class="fa fa-search"></i> {!$Label.search}');
+                              if(jQuery('#list table').attr('data-position') == '0') {
+                                    jQuery('#list table tfoot a[data-direction="previous"]').hide();
+                              } else { 
+                                    jQuery('#list table tfoot a[data-direction="previous"]').show();
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#filters button.green').html('<i class="fa fa-search"></i> {!$Label.search}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('#filters button.green').html('{!$Label.search}');
+                              if(jQuery('#list table').attr('data-position') == '0') {
+                                    jQuery('#list table tfoot a[data-direction="previous"]').hide();
+                              } else { 
+                                    jQuery('#list table tfoot a[data-direction="previous"]').show();
+                              }
+                        }
+                  });
+            }
+
+            function getTicket(id) {
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'TicketRepository', 'getById', {
+                        ticketId: id
+                  }, {
+                        onSuccess: function (result) {
+                              result = result[0];
+                              cleanTicket();
+                              jQuery('#ticketName span').html(result[NSU+'Intitule__c']);
+                              jQuery('#ticketModule span').html(result[NSU+'Module__c']);
+                              jQuery('#ticketType span').html(result[NSU+'Type__c']);
+                              jQuery('#ticketPriority span').html(result[NSU+'Priorite__c']);
+                              jQuery('#ticketStatus span').html(result[NSU+'Statut__c']);
+                              jQuery('#ticketDescription span').html('<br />'+decodeHTML(result[NSU+'Description__c']));
+                              jQuery('#ticketAttribution span').html(result[NSU+'Nom_du_support__c']);
+                              jQuery('#ticketDate span').html(moment(result[NSU+'Date_de_cloture__c']).format('L'));
+                              jQuery('#ticketResponse span').html('<br />'+decodeHTML(result[NSU+'Reponse__c']));
+
+                              history.pushState(null, result.Name, '{!$Page.VisualisationTicket}?id='+result.Id);
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  });
+            }
+
+            function cleanTicket() {
+                  jQuery('#ticketName span').html('');
+                  jQuery('#ticketType span').html('');
+                  jQuery('#ticketModule span').html('');
+                  jQuery('#ticketPriority span').html('');
+                  jQuery('#ticketStatus span').html('');
+                  jQuery('#ticketDescription span').html('');
+                  jQuery('#ticketResponse span').html('');
+                  jQuery('#ticketAttribution span').html('');
+                  '{!$Label.Support}';
+            }
+
+            function saveTicket() {
+                  jQuery('#new .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  var name = document.getElementById('{!$Component.ticketForm.qName}').value;
+                  var module = document.getElementById('{!$Component.ticketForm.qModule}').value;
+                  var type = document.getElementById('{!$Component.ticketForm.qType}').value;
+                  var description = CKEDITOR.instances[Object.keys(CKEDITOR.instances)[0]].getData();
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'TicketManager', 'saveTicket', {
+                        name: name,
+                        module: module,
+                        type: type,
+                        description: description,
+                        contactId: '{!JSENCODE(contactId)}'
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    if({!JSENCODE(IF($Setup.sirh__c.useBrowserNotifications__c, "true", "false"))}) {
+                                          body = '{!$Label.SI_Notif_ticket_creation}';
+                                          Push.create('{!$Organization.Name}', {
+                                                body: body.replace('{0}', name).replace('{1}', module),
+                                                icon: {
+                                                      x16: '{!$Resource.temps}',
+                                                      x32: '{!$Resource.temps}'
+                                                }
+                                          });
+                                      jQuery('#new .green.button').html('<i class="fa fa-send-o"></i> {!$Label.Button_validate}');
+                                    } else {
+                                          window.location.reload();
+                                    }
+                              } else {
+                                    console.log(event);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'<span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                                    jQuery('#new .green.button').html('<i class="fa fa-send-o"></i> {!$Label.Button_validate}');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('#new .green.button').html('<i class="fa fa-send-o"></i> {!$Label.Button_validate}');
+                        }
+                  });
+            }
+            
+            function startIntro() {}
+
+            jQuery(document).ready(function() {
+                  loadTickets(0);
+
+                  jQuery('#list table').on('click', 'tfoot a', function(event) {
+                        event.preventDefault();
+                        var offset = parseInt(jQuery('#list table').attr('data-position'));
+                        var direction = jQuery(this).attr('data-direction');
+                        var tNumber = parseInt('<apex:outputText value="{!JSENCODE(TEXT($Setup.helpdesk__c.ticketNumber__c))}"/>');
+                        offset = (direction == 'previous') ? offset - tNumber : offset + tNumber;
+                        offset = (offset < 0) ? 0 : offset;
+                        loadTickets(offset);
+                  });
+            });
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

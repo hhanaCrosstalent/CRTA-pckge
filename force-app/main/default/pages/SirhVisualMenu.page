@@ -1,0 +1,112 @@
+<apex:page showheader="true" sidebar="false">
+  <apex:stylesheet value="{!URLFOR($Resource.foundation, 'css/foundation.min.css')}" />
+  <style>
+    ul li { margin: 0;}
+    .module img { display: block; height: 48px; width: 48px; margin: auto; }
+    .module h4 { display: block; text-align: center; margin-bottom: 0; font-size:1.2em;}
+    .module ul li { margin-left: 15%; line-height: 1.1; }
+    .module ul li a { font-size: 0.9em; }
+    div.bPageBlock.apexDefaultPageBlock { margin: 0 -10px;}
+    table { background: none;}
+    h2 { font-family: Arial,Helvetica,sans-serif;}
+    .hide { display: none !important;}
+  </style>
+  <apex:pageBlock >
+    <ul class="small-block-grid-5">
+      <li class="module">
+        <img src="{!$Resource.dossier}" />
+        <h4>{!$Label.SiMenu_employee_file}</h4>
+        <ul>
+          <li><a target="_blank" href="{!URLFOR($Action.Contact.Tab, $ObjectType.Contact)}">{!$ObjectType.Contact.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Contact.Tab, $ObjectType.Contact)}">{!$Label.SiMenu_employees}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Page.recruitmentList)}">{!$Label.SiMenu_external_candidates}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Contact.Tab, $ObjectType.Contact)}">{!$Label.SiMenu_temporary_employees}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Contact.Tab, $ObjectType.Contact)}">{!$Label.SiMenu_employee_file}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Page.employeeSearch)}">{!$Label.SiMenu_employee_search }</a></li>
+        </ul>
+      </li>
+      <li class="module">
+        <img src="{!$Resource.poste}" />
+        <h4>{!$Label.SiMenu_jobs_organisation}</h4>
+        <ul>
+          <li><a target="_blank" href="{!URLFOR($Action.GS_Affectation_poste__c.Tab, $ObjectType.GS_Affectation_poste__c)}">{!$ObjectType.GS_Affectation_poste__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.GS_Fiche_de_poste__c.Tab, $ObjectType.GS_Fiche_de_poste__c)}">{!$ObjectType.GS_Fiche_de_poste__c.LabelPlural}</a></li>
+        </ul>
+      </li>
+      <li class="module {!IF($Setup.crta__sirh__c.crta__showJobOffers__c, 'show', 'hide')}">
+        <img src="{!$Resource.recrutement}" />
+        <h4>{!$Label.SiMenu_recruitment}</h4>
+        <ul>
+          <li><a target="_blank" href="{!URLFOR($Page.recruitmentRequests)}">{!$Label.SiMenu_recruitment_request}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Offre_d_emploi__c.Tab, $ObjectType.Offre_d_emploi__c)}">{!$ObjectType.Offre_d_emploi__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Page.candidateSearch)}">{!$Label.SiMenu_candidate_search}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Page.Recherche_offre_d_emploi)}">{!$Label.SiMenu_offer_search}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Positionnement__c.Tab, $ObjectType.Positionnement__c)}">{!$ObjectType.Positionnement__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Page.offerGeolocation)}">{!$Label.SiMenu_geolocation}</a></li>
+        </ul>
+      </li>
+      <li class="module {!IF($Setup.crta__sirh__c.crta__showSkills__c, 'show', 'hide')}">
+        <img src="{!$Resource.competence}" />
+        <h4>{!$Label.SiMenu_skills}</h4>
+        <ul>
+          <li><a target="_blank" href="{!URLFOR($Action.GS_Fiche_de_poste__c.Tab, $ObjectType.GS_Fiche_de_poste__c)}">{!$ObjectType.GS_Fiche_de_poste__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Skill__c.Tab, $ObjectType.Skill__c)}">{!$ObjectType.Skill__c.LabelPlural}</a></li>
+        </ul>
+      </li>
+      <li class="module {!IF($Setup.crta__sirh__c.crta__showInterviews__c, 'show', 'hide')}">
+        <img src="{!$Resource.evaluation}" />
+        <h4>{!$Label.SiMenu_interview_evaluation}</h4>
+        <ul>
+          <li><a target="_blank" href="{!URLFOR($Action.EI_Entretien__c.Tab, $ObjectType.EI_Entretien__c)}">{!$ObjectType.EI_Entretien__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.EI_Modele_d_entretien__c.Tab, $ObjectType.EI_Modele_d_entretien__c)}">{!$ObjectType.EI_Modele_d_entretien__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.EI_Ligne_objectif__c.Tab, $ObjectType.EI_Ligne_objectif__c)}">{!$ObjectType.EI_Ligne_objectif__c.LabelPlural}</a></li>
+        </ul>
+      </li>
+    </ul>
+    <ul class="small-block-grid-5">
+      <li class="module {!IF($Setup.crta__sirh__c.crta__showMobility__c, 'show', 'hide')}">
+        <img src="{!$Resource.mobilite}" />
+        <h4>{!$Label.SiMenu_mobility}</h4>
+        <ul>
+          <li><a target="_blank" href="{!URLFOR($Page.employeeSearch)}">{!$Label.SiMenu_employee_search}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Offre_d_emploi__c.Tab, $ObjectType.Offre_d_emploi__c)}">{!$ObjectType.Offre_d_emploi__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Positionnement__c.Tab, $ObjectType.Positionnement__c)}">{!$ObjectType.Positionnement__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Page.offerGeolocation)}">{!$Label.SiMenu_geolocation}</a></li>
+        </ul>
+      </li>
+      <li class="module {!IF($Setup.crta__sirh__c.crta__showTrainings__c, 'show', 'hide')}">
+        <img src="{!$Resource.formation}" />
+        <h4>{!$Label.SiMenu_training}</h4>
+        <ul>
+          <li><a target="_blank" href="{!URLFOR($Action.Formation__c.Tab, $ObjectType.Formation__c)}">{!$ObjectType.Formation__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.Organisme_de_formation__c.Tab, $ObjectType.Organisme_de_formation__c)}">{!$ObjectType.Organisme_de_formation__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.FO_catalogue_de_formation__c.Tab, $ObjectType.FO_catalogue_de_formation__c)}">{!$ObjectType.FO_catalogue_de_formation__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Action.FO_Session_collective__c.Tab, $ObjectType.FO_Session_collective__c)}">{!$ObjectType.FO_Session_collective__c.LabelPlural}</a></li>
+          <li><a target="_blank" href="{!URLFOR($Page.sessionCalendar)}">{!$Label.SiMenu_calendar}</a></li>
+        </ul>
+      </li>
+      <li class="module {!IF($Setup.crta__sirh__c.crta__showSalaryReview__c, 'show', 'hide')}">
+        <img src="{!$Resource.remuneration}" />
+        <h4>{!$Label.SiMenu_salary_review}</h4>
+        <ul>
+          <li><a target="_blank" href="{!URLFOR($Action.Revision_salariale__c.Tab, $ObjectType.Revision_salariale__c)}">{!$ObjectType.Revision_salariale__c.LabelPlural}</a></li>
+        </ul>
+      </li>
+      <li class="module {!IF($Setup.crta__sirh__c.crta__showExpenses__c || $Setup.crta__sirh__c.crta__showTimes__c, 'show', 'hide')}">
+        <img src="{!$Resource.temps}" />
+        <h4>{!$Label.SiMenu_Time_and_expenses_management}</h4>
+        <ul>
+          <li class="{!IF($Setup.crta__sirh__c.crta__showTimes__c, 'show', 'hide')}"><a target="_blank" href="{!URLFOR($Action.Feuille_Temps_Hebdo__c.Tab, $ObjectType.Feuille_Temps_Hebdo__c)}">{!$ObjectType.Feuille_Temps_Hebdo__c.LabelPlural}</a></li>
+          <li class="{!IF($Setup.crta__timesheet__c.crta__useConstraint__c, 'show', 'hide')}"><a target="_blank" href="{!URLFOR($Action.Astreinte__c.Tab, $ObjectType.Astreinte__c)}">{!$ObjectType.Astreinte__c.LabelPlural}</a></li>
+          <li class="{!IF($Setup.crta__timesheet__c.crta__usePause__c, 'show', 'hide')}"><a target="_blank" href="{!URLFOR($Action.Pause__c.Tab, $ObjectType.Pause__c)}">{!$ObjectType.Pause__c.LabelPlural}</a></li>
+          <li class="{!IF($Setup.crta__sirh__c.crta__showExpenses__c, 'show', 'hide')}"><a target="_blank" href="{!URLFOR($Action.Note_de_frais__c.Tab, $ObjectType.Note_de_frais__c)}">{!$ObjectType.Note_de_frais__c.LabelPlural}</a></li>
+        </ul>
+      </li>
+      <li class="module">
+        <img src="{!$Resource.pilotage}" />
+        <h4>{!$Label.SiMenu_HR_dashboards}</h4>
+      </li>
+    </ul>
+  </apex:pageBlock>
+
+</apex:page>

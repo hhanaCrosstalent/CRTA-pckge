@@ -1,0 +1,313 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 23/11/2018 (CreatedDate)
+-->
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="ArticlesListController">
+    <aura:attribute name="sizeArticles" type="String" default="3" access="private"/>
+    <aura:attribute name="articleType" type="String" default="Media" access="global"/>
+    <aura:attribute name="isVertical" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="limiter" type="Decimal" default="3" access="private"/>
+    <aura:attribute name="listArticles" type="List" access="private"/>
+    <aura:attribute name="pageReference" type="Object" access="private"/>
+    <aura:attribute name="isMobile" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="isAccordion" type="Boolean" default="false" access="global"/> 
+
+    <aura:attribute name="textColor" type="String" default="#0047BB" access="global"/>
+    
+    <aura:attribute name="displayBody" type="Boolean" default="true" access="global"/>
+
+
+        
+    <aura:attribute name="displayArticleModal" type="Boolean" default="false" access="public"/>
+    
+    <aura:attribute name="articleId" type="String"  access="public"/>
+        <aura:attribute name="articleName" type="String"  access="public"/>
+
+    <lightning:navigation aura:id="navService" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div class="slds-grid slds-wrap content-style" style="{!'--text-color:'+ v.textColor +';   padding-left: 14px; padding-right: 19px;     background: white; padding-top: 2%; background: var(--backgroundCmp);'}">
+      <div class="clickable header-style" style="    width: 100%; display: flex;     margin-bottom: 2%;   padding-bottom: 5px; border-bottom: 1px solid #d0cdcd;" onclick="{!c.handleclick}">
+        <div class=" chevron">
+            <aura:if isTrue="{!v.displayBody}"><i class="fa fa-chevron-down"></i>
+                <aura:set attribute="else">
+                    <i class="fa fa-chevron-right"></i>
+                </aura:set>
+            </aura:if>
+           </div>
+            
+            <div class="ct-text-color "  style="width:85%;     font-size: 16px;">
+                 <aura:if isTrue="{!v.articleType == 'Media'}">
+                    <aura:unescapedHtml value="{!$Label.c.Label_Article_List}" />
+                </aura:if>
+                <aura:if isTrue="{!v.articleType == 'Event'}">
+                    <aura:unescapedHtml value="{!$Label.c.Label_Event}" />
+                </aura:if>
+                <aura:if isTrue="{!v.articleType == 'Archives'}">
+                    <aura:unescapedHtml value="{!$Label.c.Label_Archives}" />
+                </aura:if>
+          </div>
+          
+           <lightning:icon iconName="utility:planning_poker" alternativeText="Vidéo"
+                                    class="slds-m-right_small slds-current-color" />
+        </div>
+        <div class=" slds-hide slds-col slds-size_1-of-1">
+            <div class="slds-text-heading_medium slds-m-around_large ct-text-color">
+                <aura:if isTrue="{!v.articleType == 'Media'}">
+                    <aura:unescapedHtml value="{!$Label.c.Label_Article_List}" />
+                </aura:if>
+                <aura:if isTrue="{!v.articleType == 'Event'}">
+                    <aura:unescapedHtml value="{!$Label.c.Label_Event}" />
+                </aura:if>
+                <aura:if isTrue="{!v.articleType == 'Archives'}">
+                    <aura:unescapedHtml value="{!$Label.c.Label_Archives}" />
+                </aura:if>
+            </div>
+        </div>
+     <aura:if isTrue="{!v.displayBody}">
+
+        <aura:if isTrue="{!v.articleType == 'Media'}">
+            <aura:if isTrue="{!!empty(v.listArticles)}">
+                <aura:iteration items="{!v.listArticles}" var="article">
+                    <div class="{!'slds-col slds-size_1-of-1 slds-large-size_1-of-'+v.sizeArticles+' slds-p-horizontal_medium slds-m-bottom_xx-large '}">
+                        <lightning:card>
+                            <aura:set attribute="footer">
+                                <aura:if isTrue="{!article.crta__Texte__c != null}">
+                                    <div class="slds-grid slds-wrap slds-p-around_small">
+                                        <div
+                                            class="slds-text-align_left slds-size_2-of-3 slds-large-size_3-of-4 slds-p-left_x-small slds-grid slds-grid_vertical">
+                                            <div class="slds-col slds-m-vertical_x-small ct-text-color slds-text-title_bold article-name">
+                                                <aura:if isTrue="{!article.crta__Pin_to_Top__c}">
+                                                    <lightning:icon iconName="utility:pin"
+                                                        alternativeText="{!$Label.c.Pinned}"
+                                                        class="slds-m-right_small slds-current-color"
+                                                        size="x-small " />
+                                                </aura:if>
+                                                {!article.Name}
+                                            </div>
+                                            <div class="slds-col slds-text-color_weak"> 
+                                                <lightning:formattedDateTime value="{!article.crta__Date_de_publication__c}"
+                                                    year="numeric" 
+                                                    month="numeric" 
+                                                    day="numeric" 
+                                                    class="MyDate" /> <!--                                                     weekday="long" -->
+                                            </div>
+                                        </div>
+                                        <aura:if isTrue="{!!v.isAccordion}">
+                                            <div class="slds-size_1-of-3 slds-large-size_1-of-4 slds-align_absolute-center">
+                                                <lightning:button label="{!$Label.c.Read}" 
+                                                    title="{!$Label.c.Open}"
+                                                    onclick="{!c.showContent}" 
+                                                    name="{!article.Id + '#' + article.Name}" 
+                                                    class="ct-text-color" />
+                                            </div>
+                                        </aura:if>
+                                        <aura:if isTrue="{!v.isAccordion}">
+                                            <div aura-id="{!article.Id}"
+                                                class="{!'slds-size_1-of-1 myArticleDesc ' + article.Id}">
+                                                <div class="mySeparator slds-m-vertical_x-small slds-align_absolute-center"></div>
+                                                <lightning:accordion aura:id="accordion" activeSectionName="B" allowMultipleSectionsOpen="true">
+                                                    <lightning:accordionSection name="A" label="{!$Label.c.Article }">
+                                                        <aura:unescapedHtml value="{!article.crta__Texte__c}">
+                                                        </aura:unescapedHtml>
+                                                    </lightning:accordionSection>
+                                                </lightning:accordion>
+                                            </div>
+                                        </aura:if>
+                                    </div>
+                                </aura:if>
+                                <aura:if isTrue="{!article.crta__Texte__c == null}">
+                                    <div class="slds-grid slds-wrap slds-p-around_small">
+                                        <div
+                                            class="slds-size_1-of-1 slds-large-size_1-of-2 slds-align_absolute-center slds-m-vertical_x-small article-name">
+                                            {!article.Name}
+                                        </div>
+                                        <div
+                                            class="slds-size_1-of-1 slds-large-size_1-of-2 slds-align_absolute-center slds-m-vertical_x-small"> 
+                                            <lightning:formattedDateTime value="{!article.crta__Date_de_publication__c}"
+                                                year="numeric" 
+                                                month="numeric" 
+                                                day="numeric" 
+                                               
+                                                class="MyDate" /><!--  weekday="long" -->
+                                        </div>
+                                    </div>
+                                </aura:if>
+                            </aura:set>
+                            <aura:if isTrue="{!article.crta__Link__c != null}">
+                                <div class="slds-text-align_center">
+                                    <iframe width="100%" height="380" src="{!article.crta__Link__c}" frameborder="0"
+                                        allow="encrypted-media" />
+                                </div>
+                                <aura:set attribute="else">
+                                    <aura:if isTrue="{!article.AttachedContentDocuments != null}">
+                                        <aura:iteration items="{!article.AttachedContentDocuments}" var="image">
+                                            <aura:if isTrue="{!!v.isMobile}">
+                                                <div class="articleImg"
+                                                style="{! 'background-image:url(/sfc/servlet.shepherd/version/download/' + image.ContentDocument.LatestPublishedVersionId + ');'}">
+                                                </div>
+                                                <aura:set attribute="else">
+                                                    <img src="{!'/sfc/servlet.shepherd/version/download/' + image.ContentDocument.LatestPublishedVersionId}" />
+                                                </aura:set>
+                                            </aura:if>
+                                        </aura:iteration>
+                                        <aura:set attribute="else">
+                                            <div class="articleImg"
+                                                style="{!'background-image:url(' + $Resource.articleImageDefault + ');'}">
+                                            </div>
+                                        </aura:set>
+                                    </aura:if>
+                                </aura:set>
+                            </aura:if>
+                        </lightning:card>
+                    </div>
+                </aura:iteration>
+            	<aura:set attribute="else">
+                    <div class="slds-col slds-size_1-of-1 slds-p-around_large ">
+                        <lightning:card>
+                            <div class="slds-col slds-size_1-of-1 slds-p-around_large slds-align_absolute-center">
+                                <div class="slds-illustration slds-illustration_small " aria-hidden="true">
+                                    <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt="" />
+                                    <div class="slds-text-longform">
+                                        <p class="slds-text-body_regular">{!$Label.c.No_Article}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </lightning:card>
+                    </div>
+                </aura:set>
+            </aura:if>
+        </aura:if>
+        <aura:if isTrue="{!v.articleType != 'Media'}">
+            <div class="slds-col slds-size_1-of-1 slds-p-horizontal_medium slds-m-bottom_xx-large h-portal-cards" style="min-height: 253px;">
+                <lightning:card class="slds-p-top_medium article-list-container scroll-y">
+                    <aura:if isTrue="{!!empty(v.listArticles)}">
+                        <aura:iteration items="{!v.listArticles}" var="article" indexVar="index">
+                            <aura:if isTrue="{!v.articleType == 'Event'}">
+                                <div class="slds-col slds-size_1-of-1 slds-p-horizontal_large slds-m-bottom_medium">
+                                    <div class="slds-text-title_caps slds-text-title_bold slds-m-bottom_small">
+                                        <lightning:icon iconName="utility:event" alternativeText="{!article.Name}"
+                                            class="slds-m-right_small slds-current-color" size="x-small" />
+                                        {!article.Name}
+                                    </div>
+                                    <div class="slds-m-bottom_x-small myEventDate">
+                                        <aura:if isTrue="{!article.crta__End_Date__c != NULL}">
+                                            <lightning:formattedDateTime class="slds-m-right_xx-small"
+                                                value="{!article.crta__Start_Date__c}"
+                                                year="numeric" 
+                                                month="numeric" 
+                                                day="numeric" />
+                                            <aura:if isTrue="{!article.crta__Start_Time__c != null}">
+                                                <span>&bull;&nbsp;{!article.crta__Start_Time__c}</span>
+                                            </aura:if>
+                                            -
+                                            <lightning:formattedDateTime class="slds-m-right_xx-small"
+                                                value="{!article.crta__End_Date__c}"
+                                                year="numeric" 
+                                                month="numeric" 
+                                                day="numeric" />
+                                            <aura:if isTrue="{!article.crta__End_Time__c != null}">
+                                                <span>&bull;&nbsp;{!article.crta__End_Time__c}</span>
+                                            </aura:if>
+                                            <aura:set attribute="else">
+                                                <lightning:formattedDateTime class="slds-m-right_xx-small"
+                                                    value="{!article.crta__Start_Date__c}"
+                                                    year="numeric" 
+                                                    month="numeric" 
+                                                    day="numeric" />
+                                                <aura:if
+                                                    isTrue="{!and(article.crta__Start_Time__c != null, article.crta__End_Time__c == null)}">
+                                                        <span>&bull;&nbsp;{!article.crta__Start_Time__c}</span>
+                                                </aura:if>
+                                                <aura:if
+                                                    isTrue="{!and(article.crta__Start_Time__c != null, article.crta__End_Time__c != null)}">
+                                                        <span>&bull;&nbsp;{!article.crta__Start_Time__c}</span>
+                                                        &nbsp;-&nbsp;
+                                                        <span>{!article.crta__End_Time__c}</span>
+                                                </aura:if>
+                                            </aura:set>
+                                        </aura:if>
+                                    </div>
+                                </div>
+                                <aura:set attribute="else">
+                                    <div class="{!(lessthan(index, v.listArticles.length - 1) ? 'slds-border_bottom' : '') +
+										 ' slds-grid slds-wrap  slds-p-horizontal_large slds-p-bottom_small slds-m-bottom_small'}">
+                                        <div class="slds-col slds-size_3-of-4">
+                                            <div class="slds-text-title_bold ct-primary-text-color slds-m-bottom_xx-small article-name">
+                                                {!article.Name}
+                                            </div>
+                                            {!article.crta__Date_de_publication__c}
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4 slds-text-align_right">
+                                            <div class="slds-m-top_x-small slds-text-color_weak">
+                                                <aura:if isTrue="{!!v.inCommunity}">
+                                                    <lightning:button label="{!$Label.c.Read}" 
+                                                        title="{!$Label.c.Open}"
+                                                        onclick="{!c.showContent}" 
+                                                        name="{!article.Id + '#' + article.Name}" 
+                                                        class="ct-text-color" />
+                                                        <aura:set attribute="else">
+                                                            {!v.article.crta__Texte__c}
+                                                        </aura:set>
+                                                </aura:if>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </aura:set>
+                            </aura:if>
+                        </aura:iteration>
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{!v.articleType == 'Event'}">
+                                <div
+                                class="slds-col slds-size_1-of-1 slds-p-around_large slds-align_absolute-center ">
+                                    <div class="slds-illustration slds-illustration_small " aria-hidden="true">
+                                        <img src="/projRes/ui-home-private/emptyStates/noAssistant.svg"
+                                            class="slds-illustration__svg" alt="" />
+                                        <div class="slds-text-longform">
+                                            <p class="slds-text-body_regular">{!$Label.c.No_Events}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <aura:set attribute="else">
+                                    <div
+                                        class="slds-col slds-size_1-of-1 slds-p-around_large slds-align_absolute-center h-portal-cards" style="min-height: 253px;"  
+>
+                                        <div class="slds-illustration slds-illustration_small " aria-hidden="true">
+                                            <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt="" />
+                                            <div class="slds-text-longform">
+                                                <p class="slds-text-body_regular">{!$Label.c.No_Archives}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </aura:set>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>
+                </lightning:card>
+            </div>
+        </aura:if>
+     </aura:if>   
+         
+    </div>
+
+    <aura:if isTrue="{!v.displayArticleModal}">
+            <div role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container slds-modal_medium">
+                    <header class="slds-modal__header slds-text-heading_large slds-text-align_center">
+                        {!v.articleName}
+                    </header>
+                    <div class="slds-modal__content">                    
+                     <c:ArticleDetails articleId="{!v.articleId}"  hideArticleName="true"/>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.closeModal}">
+                            {!$Label.c.Close}
+                        </button>
+                    </footer>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+</aura:component>

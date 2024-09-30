@@ -1,0 +1,8 @@
+<design:component>
+   <!-- <design:attribute name="articleType" label="{!$Label.crta.Select_Type_Article}" datasource="apex://ArticlesPicklistHelper"/>-->
+    <design:attribute name="articleType" label="{!$Label.crta.Select_Type_Article}" datasource="Event,Archives,Media"/>
+    <design:attribute name="isVertical" label="{!$Label.crta.Vertical_Mode}" description="{!$Label.crta.Vertical_Mode_Description}"/>
+    <design:attribute name="isMobile" label="{!$Label.crta.Mobile_Version}" description="{!$Label.crta.Vertical_Mode_Description}"/>
+    <design:attribute name="textColor" label="{!$Label.crta.Text_Color}" />
+    <design:attribute name="isAccordion" label="{!$Label.crta.is_Accordion}" />
+</design:component>

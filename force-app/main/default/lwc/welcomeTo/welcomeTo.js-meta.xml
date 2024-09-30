@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+ <isExposed>true</isExposed>
+ 
+     <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+     <targetConfigs>  
+        <targetConfig targets="lightning__HomePage,lightning__AppPage">
+            <property name="limit" type="String" default="4" label="Nombre initial de contacts"/>
+            <property name="intervalDays" type="String" default="7" label="Intervalle de temps (jr)"/>
+            <property name="functionApiName" type="String" default="title" label="Api name du champ 'function' dans l'objet Contact"/>
+            <property name="accApiName" type="String" default="AccountId" label="Api name du champ 'Compte' dans l'objet Contact"/>
+
+        </targetConfig>
+    </targetConfigs>
+
+   
+</LightningComponentBundle>

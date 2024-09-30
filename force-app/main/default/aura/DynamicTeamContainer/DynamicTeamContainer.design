@@ -1,0 +1,8 @@
+<design:component >
+    <design:attribute name="recordTypes" label="{!$Label.crta.Record_Types}"
+        description="{!$Label.crta.Separator_Record_Types}" />
+    <design:attribute name="brandColor" label="{!$Label.crta.Brand_Color}" />
+    <design:attribute name="showTeamVisualisation" label="{!$Label.crta.Display_Team_Tab}" />
+    <design:attribute name="showAttachmentLevel" label="{!$Label.crta.Display_Attachement_Level}" />
+    <design:attribute name="showSearchEmployee" label="{!$Label.crta.Display_Search_Employee}" />
+</design:component>

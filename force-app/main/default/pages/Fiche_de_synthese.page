@@ -1,0 +1,96 @@
+<apex:page standardController="Contact"  tabStyle="contact" sidebar="false" showHeader="false">
+<apex:form >
+
+
+<apex:pageBlock id="Entete" title="{!$Label.crta__donn_es_candidat}"> 
+<div style="font-size: 1em;">
+<br>
+    {!$ObjectType.Contact.fields.Name.Label}   : <b><apex:outputText value="{!Contact.FirstName}  {!Contact.lastName}"></apex:outputtext> </b>
+</br>
+
+<br>
+    {!$Label.crta__suivi_par}  : <b><apex:outputText value="{!Contact.owner.name}"></apex:outputtext> </b>
+</br>
+
+
+<br>
+    {!$ObjectType.Contact.fields.CT_Support__c.Label}  : <b><apex:outputText value="{!Contact.CT_Support__c}"></apex:outputtext> </b>
+</br>
+
+<br>
+    {!$ObjectType.Contact.fields.CT_Situation__c.Label}  : <b><apex:outputText value="{!Contact.Texte_situation__c}"></apex:outputtext> </b>
+</br>
+
+<br>
+    {!$ObjectType.Contact.fields.CT_Job_lending_location__c.Label}  : <b><apex:outputText value="{!Contact.CT_Job_lending_location__c}"></apex:outputtext> </b>
+</br>
+
+<br>
+     {!$ObjectType.Contact.fields.CT_Date_of_receipt_of_the_order__c.Label} : <b>
+     <apex:outputText value="{0, date, dd'/'MM'/'yyyy}">
+          <apex:param value="{!Contact.CT_Date_of_receipt_of_the_order__c}"></apex:param>
+     </apex:outputtext>
+     </b>
+</br>
+
+<br>
+    {!$ObjectType.Contact.fields.CT_Duration_of_the_benefit_month__c.Label} : <b><apex:outputText value="{!Contact.CT_Duration_of_the_benefit_month__c}"></apex:outputtext> </b>
+</br>
+
+<br>
+     {!$ObjectType.Contact.fields.CT_Date_of_accession__c.Label} : <b>
+     <apex:outputText value="{0, date, dd'/'MM'/'yyyy}">
+          <apex:param value="{!Contact.CT_Date_of_accession__c}"></apex:param>
+     </apex:outputtext>
+     </b>
+</br>
+
+</diV>
+   
+</apex:pageBlock>            
+
+<apex:pageBlock id="ActivityHistory" Title="{!$Label.crta__historique_des_activit_s}">   
+     <apex:pageBlockTable value="{!contact.ActivityHistories}" var="h" width="100%" >
+          <apex:column headerValue="Date" width="20%" value="{!h.activitydate}"/>
+          <apex:column headerValue="{!$ObjectType.Event.fields.durationinminutes.Label}" width="20%" value="{!h.durationinminutes}"/>
+          <apex:column headerValue="{!$ObjectType.Event.fields.subject.Label}" width="40%" value="{!h.subject}"/>
+          <apex:column headerValue="{!$ObjectType.Event.fields.description.Label}" width="40%" value="{!h.description}"/>
+     </apex:pageBlockTable>
+</apex:pageBlock>
+
+<br></br>        
+<apex:pageBlock id="OpenActivity" Title="{!$Label.crta__activit_s_en_cours}">            
+     <apex:pageBlockTable value="{!contact.OpenActivities}" var="a">
+          <apex:column headerValue="Date"  value="{!a.Activitydate}"/>
+          <apex:column headerValue="{!$ObjectType.Event.fields.durationinminutes.Label}" width="20%" value="{!a.durationinminutes}" />
+          <apex:column headerValue="{!$ObjectType.Event.fields.subject.Label}" width="20%" value="{!a.subject}"  />
+          <apex:column headerValue="{!$ObjectType.Event.fields.description.Label}" width="20%" value="{!a.description}" />
+     </apex:pageBlockTable>
+</apex:pageBlock>
+           
+<br></br>           
+<apex:pageBlock id="SolutionTrouvee" Title="{!$Label.crta__solution_trouv_e}">      
+<br>
+     {!$ObjectType.Contact.fields.CT_Exit_date__c.Label} : <b>
+     <apex:outputText value="{0, date, dd'/'MM'/'yyyy}">
+          <apex:param value="{!Contact.CT_Exit_date__c}"></apex:param>
+     </apex:outputtext>
+     </b>
+</br>   
+<br>
+    {!$ObjectType.Contact.fields.CT_Solution_identified__c.Label}  : <b><apex:outputText value="{!Contact.CT_Solution_identified__c}"></apex:outputtext> </b>
+</br>
+<br>
+    {!$ObjectType.Contact.fields.CT_Solution_identified_postal_code__c.Label}  : <b><apex:outputText value="{!Contact.CT_Solution_identified_postal_code__c}"></apex:outputtext> </b>
+</br>
+<br>
+    {!$ObjectType.Contact.fields.CT_Solution_identified_Rem_anual__c.Label}  : <b><apex:outputText value="{!Contact.CT_Solution_identified_Rem_anual__c}"></apex:outputtext> </b>
+</br>
+<br>
+    {!$ObjectType.Contact.fields.CT_Solution_identified_Synthesis__c.Label}  : <b><apex:outputText value="{!Contact.CT_Solution_identified_Synthesis__c}"></apex:outputtext> </b>
+</br>
+    
+</apex:pageBlock>             
+
+</apex:form>
+</apex:page>

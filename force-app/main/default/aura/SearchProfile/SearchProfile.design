@@ -1,0 +1,8 @@
+<design:component>
+    <design:attribute name="recordTypes" label="{!$Label.crta.Record_Types}" description="{!$Label.crta.Separator_Record_Types}"/>
+    <design:attribute name="brandColor" label="{!$Label.crta.Brand_Color}" />
+    <design:attribute name="chatterProfile" label="{!$Label.crta.Redirect_to_Chatter_Profile}"/>
+    <design:attribute name="field1" label="{!$Label.crta.Field_1}"/>
+    <design:attribute name="field2" label="{!$Label.crta.Field_2}"/>
+    <design:attribute name="field3" label="{!$Label.crta.Field_3}"/>
+</design:component>

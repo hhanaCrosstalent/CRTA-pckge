@@ -1,0 +1,7 @@
+.THIS .has-value input{
+    padding-left: 2.25rem;
+}
+
+.THIS .slds-has-error + .slds-input__icon {
+    top: 29%;
+}

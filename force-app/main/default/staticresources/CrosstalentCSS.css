@@ -1,0 +1,133 @@
+.ct-status-declared { /* declaration en cours */
+   background-color: #2469b3 !important;
+   color: white !important;
+   border-style: none !important;
+}
+.ct-status-canceled { /* annulee */
+   background-color: #66b0ff !important;
+   color: white !important;
+   border-style: none !important;
+}
+.ct-status-pending { /* en attente de validation */
+   background-color: #ff4500 !important;
+   color: white !important;
+   border-style: none !important;
+}
+.ct-status-pending-leg { /* en attente de validation */
+   background-color: #ff4500 !important;
+   color: white !important;
+   border-style: none !important;
+   border-radius: 6px;
+}
+.ct-status-validated-one { /* valides par le premier manager */
+   background-color: #228b22 !important;
+   color: white !important;
+   border-style: none !important;
+}
+.ct-status-validated-leg { /* valides par le premier manager */
+   background-color: #228b22 !important;
+   color: white !important;
+   border-style: none !important;
+   border-radius: 6px;
+}
+.ct-status-validated-two { /* valides par le second manager */
+   background-color: #3d800d !important;
+   color: white !important;
+   border-style: none !important;
+}
+.ct-status-validated-three { /* valides par le RH */
+   background-color: #1e4006 !important;
+   color: white !important;
+   border-style: none !important;
+}
+.ct-status-rejected { /* refuse */
+   background-color: #e64721 !important;
+   color: white !important;
+   border-style: none !important;
+}
+.ct-status-closed { /* cloturee */
+   background-color: #002940 !important;
+   color: white !important;
+   border-style: none !important;
+}
+.ct-public-holiday { /* jours feries */
+    background-color: #ba55d3 !important;
+    color: white !important;
+    border-style: none !important;
+    
+}
+.ct-public-holiday-leg { /* jours feries */
+    background-color: #ba55d3 !important;
+    color: white !important;
+    border-style: none !important;
+    border-radius: 6px;
+}
+.ct-calendar-one { /* non attribue */
+    background-color: #ffc766 !important;
+    color: white !important;
+    border-style: none !important;
+}
+.ct-calendar-two { /* RH */
+    background-color: #c0c0c0 !important;
+    color: white !important;
+    border-style: none !important;
+}
+.ct-calendar-two-leg { /* RH */
+    background-color: #c0c0c0 !important;
+    color: white !important;
+    border-style: none !important;
+    border-radius: 6px;
+}
+.ct-calendar-three { /* non attribue */
+    background-color: #bfc8ff !important;
+    color: white !important;
+    border-style: none !important;
+}
+.ct-calendar-four { /* OFF */
+    background-color: #FF69B4 !important;
+    color: white !important;
+    border-style: none !important;
+}
+.ct-calendar-four-leg { /* OFF */
+    background-color: #FF69B4 !important;
+    color: white !important;
+    border-style: none !important;
+    border-radius: 6px;
+}
+.ct-calendar-five { /* non attribue */
+    background-color: white !important;
+    color: #555f61 !important;
+    border-style: none !important;  
+}
+
+.ct-transparent{
+    background-color: white !important;
+    color: #555f61 !important;
+    border-style: none !important;
+    
+}
+.ct-transparent-leg{
+    background-color: white;
+    color: #555f61;
+    border: solid 0.5px #555f61;
+    border-radius: 6px;
+}
+.ct-status-cancellation-requested-leg {
+   background-color: #41AEDA;
+   color: white;
+   border-style: none !important;
+   border-radius: 6px;
+}
+.ct-status-cancellation-requested { /
+   background-color: #41AEDA;
+   color: white;
+   border-style: none !important;
+}
+.ct-modifiedPresence {
+    background-color: #FF3374;
+    color: white;
+    border-style: none !important;
+    border-radius: 6px; 
+}
+
+

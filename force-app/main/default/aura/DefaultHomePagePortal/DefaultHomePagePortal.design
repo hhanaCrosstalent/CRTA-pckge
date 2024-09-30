@@ -1,0 +1,10 @@
+<design:component >
+    <flexipage:template>
+        <flexipage:region name="bannerElement" defaultWidth="Xlarge"/>
+        <flexipage:region name="firstElement" defaultWidth="Small"/>
+        <flexipage:region name="secondElement" defaultWidth="Small"/>
+        <flexipage:region name="thirdElement" defaultWidth="Small"/>
+        <flexipage:region name="firstColumn" defaultWidth="Small"/>
+        <flexipage:region name="secondColumn" defaultWidth="Small"/>
+    </flexipage:template>  
+</design:component>

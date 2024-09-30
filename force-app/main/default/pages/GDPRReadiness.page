@@ -1,0 +1,283 @@
+<apex:page controller="GDPRReadinessController" sidebar="false" showHeader="false">
+    <style>
+        .slds-table, .slds-table td {
+            border-style: solid;
+            border-width: 0.1px;
+            border-spacing: 0;
+        }
+        .slds-table td {
+            padding: 0.5em;
+        }
+        .slds-table thead {
+            font-weight: bold;
+        }
+        .slds-float_right {
+            text-align: right;
+        }
+    </style>
+    <apex:pageMessages id="showmsg"></apex:pageMessages>
+    <div style="padding-left: 5em;padding-right: 5em; padding-top: 3em; padding-bottom: 3em;">
+        
+        <h1 style="font-size:2em; ">Règlement Général sur la Protection des Données</h1>
+        <div>&nbsp;</div>
+        <div class="slds-card" style="max-width: 90em;">
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Information relative à vos données personnelles</h2>
+                <p class="slds-p-vertical_x-small">
+                    Nous vous souhaitons la bienvenue sur votre Portail RH destiné à optimiser la gestion des Ressources Humaines internes, à
+                    faciliter vos démarches et vous permettre d’accéder directement à des informations qui vous concernent.
+                </p>
+                <p class="slds-p-vertical_x-small">
+                    Conformément aux dispositions du Règlement Général sur la Protection des Données personnelles (RGPD) du 24 avril 2016, afin
+                    de vous apporter une information complète sur les données personnelles vous concernant que nous sommes
+                    amenés à collecter et à utiliser au sein de ce système informatisé, nous vous invitons à lire attentivement
+                    les informations suivantes.
+                </p>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <a href="https://www.cnil.fr/fr/reglement-europeen-protection-donnees">https://www.cnil.fr/fr/reglement-europeen-protection-donnees</a>
+                    </div>
+                </div>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <a href="https://www.cnil.fr/fr/comprendre-le-reglement-europeen">https://www.cnil.fr/fr/comprendre-le-reglement-europeen</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Données indispensables à la gestion des Ressources Humaines</h2>
+                <p class="slds-p-vertical_x-small">
+                    Certaines données personnelles sont indispensables à l’exécution de nos obligations légales (articles 6c et 7.2b du RGPD),
+                    à celles relevant de votre contrat de travail (article 6b du RGPD) ou recueillies dans notre intérêt
+                    légitime (article 6f du RGPD) en vue d’assurer la gestion des Ressources Humaines. Ces données et
+                    informations sont les suivantes :
+                </p>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <td>Données</td>
+                            <td>Finalité</td>
+                            <td>Personnes ayant accès à ces données</td>
+                            <td>Durée de conservations</td>
+                        </tr> 
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!table1csv}" var="item">
+                        <tr>
+                            <!--<td><apex:outputText value="{!item.one}" escape="false"/></td>-->
+                            <td><apex:outputText value="{!item.one}" /></td>
+                            <td><apex:outputText value="{!item.two}" /></td>
+                            <td><apex:outputText value="{!item.three}" /></td>
+                            <td><apex:outputText value="{!item.four}" /></td>
+                        </tr>
+                        </apex:repeat>
+                    </tbody>
+                </table>
+                <p class="slds-p-vertical_x-small">
+                    Vous disposez d’un droit d’accès et de modification de ces données selon les modalités détaillées ci-après. En revanche vous
+                    ne pouvez obtenir leur suppression tant que nous sommes tenus de les conserver en vue de la finalité
+                    précisée ci-dessus. Dès lors que cette finalité n’est plus légitime ni légalement ni contractuellement
+                    justifiée, nous supprimons automatiquement les données vous concernant. Toutefois, dans le cas où cette
+                    suppression n’aurait pas été opérée, vous seriez en droit d’en demander la mise en œuvre effective.
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Données complémentaires</h2>
+                <p class="slds-p-vertical_x-small">
+                    Nous sommes par ailleurs amenés à conserver des données complémentaires vous concernant pour les finalités décrites ci-après :
+                </p>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <td>Données</td>
+                            <td>Finalité</td>
+                            <td>Personnes ayant accès à ces données</td>
+                            <td>Durée de conservation</td>
+                            <td>Conséquence d’un refus de stockage</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!table2csv}" var="item">
+                            <tr>
+                                <td><apex:outputText value="{!item.one}" /></td>
+                                <td><apex:outputText value="{!item.two}" /></td>
+                                <td><apex:outputText value="{!item.three}" /></td>
+                                <td><apex:outputText value="{!item.four}" /></td>
+                                <td><apex:outputText value="{!item.five}" /></td>
+                            </tr>
+                        </apex:repeat>
+                    </tbody>
+                </table>
+                <p class="slds-p-vertical_x-small">
+                    Dans le cas où vous accepteriez que nous collections et utilisions ces données, vous conserveriez à tous moments la possibilité
+                    de revenir sur votre autorisation et de solliciter la suppression de tout ou partie de ces données, ou
+                    leur modification, selon les modalités précisées ci-dessous.
+                </p>
+                <p class="slds-p-vertical_x-small">
+                    Les conséquences d’un refus de collecte et d’utilisation de ces informations s’appliqueront à compter de la suppression effective
+                    des données concernées.
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Opérations de « profilage » *</h2>
+                <p class="slds-p-vertical_x-small">
+                    Nous vous informons que nous pouvons être amenés à croiser différentes données vous concernant dans le cadre par exemple
+                    d’une recherche de profils spécifiques, sous réserve que vous nous autorisiez à y procéder :
+                </p>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <td>Données</td>
+                            <td>Finalité</td>
+                            <td>Personnes ayant accès</td>
+                            <td>Durée de conservation</td>
+                            <td>Conséquences d’un refus</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!table3csv}" var="item">
+                            <tr>
+                                <td><apex:outputText value="{!item.one}" /></td>
+                                <td><apex:outputText value="{!item.two}" /></td>
+                                <td><apex:outputText value="{!item.three}" /></td>
+                                <td><apex:outputText value="{!item.four}" /></td>
+                                <td><apex:outputText value="{!item.five}" /></td>
+                            </tr>
+                        </apex:repeat>
+                    </tbody>
+                </table>
+                <p class="slds-p-vertical_x-small">
+                    Vous disposez de la possibilité, à tous moments, de revenir sur votre choix
+                </p>
+                <p class="slds-p-vertical_x-small">
+                    * Le RGPD définit le profilage comme « toute forme de traitement automatisé de données à caractère personnel consistant à
+                    utiliser ces données à caractère personnel pour évaluer certains aspects personnels relatifs à une personne
+                    physique, notamment pour analyser ou prédire des éléments concernant le rendement au travail, la situation
+                    économique, la santé, les préférences personnelles, les intérêts, la fiabilité, le comportement, la localisation
+                    ou les déplacements de cette personne physique. »
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Exercice des droits d’accès, d’opposition, de rectification et portabilité</h2>
+                <p class="slds-p-vertical_x-small">
+                    Vous pouvez exercer vos droits de limitation au traitement de vos données, d’accès, d’opposition, de rectification et d’effacement
+                    de ces données (lorsque ces données ne sont plus nécessaires au regard de la finalité de leur collecte
+                    :
+                </p>
+                <ul class="slds-list_dotted">
+                    <li class="slds-item">
+                        auprès du responsable de la gestion des données personnelles qui peut être contacté aux coordonnées suivantes : {!word}
+                    </li>
+                    <li class="slds-item">
+                        ou bien directement depuis ce Portail RH dans l’onglet Vos demandes ci-dessous.
+                    </li>
+                </ul>
+                <p class="slds-p-vertical_x-small">
+                    Vos choix seront pris en compte dans les plus brefs délais et au plus tard dans le délai d’un mois suivant votre demande.
+                </p>
+                <p>
+                    A défaut de réponse dans ce délai ou dans le cas où vous souhaiteriez contester la réponse apportée, vous pourriez former
+                    un recours auprès de la CNIL (
+                    <a href="https://www.cnil.fr/">https://www.cnil.fr/</a>) ou auprès des tribunaux compétents.
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Vos demandes</h2>
+                <ul class="slds-list_dotted">
+                    <li class="slds-item">Les textes en vigeur confèrent à chaque propriétaire de ses données personnelles une possibilité d'actions.</li>
+                    <li class="slds-item">Vous pouvez par conséquent indiquer vos souhaits en cochant une ou plusieurs cases ci-dessous:
+                        <apex:form >
+                        <table>
+                            <tr>
+                                <td class="min-width">&bull;</td>
+                                <td class="min-width">Je demande à consulter mon dossier salarié</td>
+                                <td class="min-width">
+                                    <apex:commandButton action="{!handleClick1}" styleClass="slds-m-left_large" value="Enregistrer"/>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="min-width">&bull;</td>
+                                <td class="min-width">Je demande à rectifier mes données personnelles</td>
+                                <td class="min-width">
+                                    <apex:commandButton action="{!handleClick2}" styleClass="slds-m-left_large" value="Enregistrer"/>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="min-width">&bull;</td>
+                                <td class="min-width">Je demande à ne faire l'objet d'aucun profilage</td>
+                                <td class="min-width">
+                                    <apex:commandButton action="{!handleClick3}" styleClass="slds-m-left_large" value="Enregistrer"/>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="min-width">&bull;</td>
+                                <td class="min-width">Je demande l'effacement de certaines de mes données personnelles</td>
+                                <td class="min-width">
+                                    <apex:commandButton action="{!handleClick4}" styleClass="slds-m-left_large" value="Enregistrer"/>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </table>
+                        </apex:form>
+                    </li>
+                    <li class="slds-item">
+                        Vos souhaits peuvent être revus à tout moment, soit en utilisant ce formulaire, soit en contactant le responsable de la gestion des données personnelles de l'entreprise.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Hébergement et sécurité de vos données</h2>
+                <p class="slds-p-vertical_x-small">
+                    La technologie que nous utilisons pour gérer toutes les données RH est éditée par la société Crosstalent et repose sur l’architecture
+                    logicielle et serveur de la société Salesforce.
+                </p>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <a href="https://www.crosstalent.eu/fr/">https://www.crosstalent.eu/fr/</a>
+                    </div>
+                </div>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <a href="https://www.salesforce.com/">https://www.salesforce.com/</a>
+                    </div>
+                </div>
+                <p class="slds-p-vertical_small">
+                    Ces sociétés n’ont accès qu’aux données strictement nécessaires pour leur permettre d’assurer la maintenance et l’évolution
+                    logicielle de cette plateforme.
+                </p>
+                <p class="slds-p-vertical_small">
+                    Vos données sont stockées sur des serveurs situés au sein de l’Union Européenne répondant à des exigences importantes de
+                    sécurité. Vous pouvez prendre connaissance de ces mesures de sécurité en cliquant ici :
+                    <a
+                        href="https://trust.salesforce.com/fr/security/">https://trust.salesforce.com/fr/security/</a>
+                </p>
+                <p class="slds-p-vertical_small">
+                    Afin de participer à la sécurisation de vos données, nous vous invitons à garder vos identifiants personnels strictement
+                    secrets et à ne les communiquer à quelque personne que ce soit, y compris vos collègues et responsables
+                    sous aucun prétexte, et à nous informer en cas de perte et/ou de divulgation de vos identifiants.
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Portabilité des données</h2>
+                <p class="slds-p-vertical_small">
+                    Vous pouvez solliciter la portabilité des données vous concernant, à l’exception de celles comportant des informations à
+                    caractère confidentiel : organigramme, positionnement au sein de la grille des salaires, etc.
+                </p>
+                <p class="slds-p-vertical_small">
+                    Cette portabilité peut être sollicitée auprès du responsable de la gestion des données personnelles de l'entreprise.
+                </p>
+            </div>
+        </div>
+        
+    </div>
+</apex:page>

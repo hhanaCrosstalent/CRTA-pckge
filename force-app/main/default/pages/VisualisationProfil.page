@@ -1,0 +1,1180 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" controller="VisualisationProfilController" >
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <apex:form rendered="{!loggedContact != null}" id="form">
+            <!-- Etat-civil + coordonnées -->
+            <div id="civil" class="small-12 column info-block" data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('civil');">
+                              <i class="fa fa-user"></i>
+                              <span>{!$Label.Civil_status}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div class="row infos" data-foldable="true">
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                        <div class="ct-label small-12 column">
+                                            {!$ObjectType.Contact.fields.Salutation.Label} : 
+                                            <span class="ct-output">{!loggedContact.Salutation}</span>
+                                            <span class="ct-modify"><a href="#" data-reveal-id="salutation-modif"><i class="fa fa-edit"></i></a></span>
+                                        </div>
+                                    </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                        <div class="ct-label small-12 column">
+                                            {!$ObjectType.Contact.fields.Lastname.Label} : 
+                                            <span class="ct-output">{!loggedContact.LastName}</span>
+                                            <span class="ct-modify"><a href="#" data-reveal-id="lastname-modif"><i class="fa fa-edit"></i></a></span>
+                                        </div>
+                                    </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.Firstname.Label} : 
+                                              <span class="ct-output">{!loggedContact.Firstname}</span>
+                                              <span class="ct-modify"><a href="#" data-reveal-id="firstname-modif"><i class="fa fa-edit"></i></a></span>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.Birthdate.Label} : 
+                                                <span class="ct-output">
+                                                    <apex:outputField value="{!loggedContact.birthDate}" />
+                                                </span>
+                                          </div>
+                                    </div>
+                              </div>
+                         
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.Sexe__c.Label} : 
+                                                <span class="ct-output">{!loggedContact.Sexe__c}</span>
+                                                <span class="ct-modify"><a href="#" data-reveal-id="gender-modif"><i class="fa fa-edit"></i></a></span>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.Situation_familiale__c.Label} : 
+                                                <span class="ct-output">{!loggedContact.Situation_familiale__c}</span>
+                                                <span class="ct-modify"><a href="#" data-reveal-id="situation-modif"><i class="fa fa-edit"></i></a></span>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info end">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.Numero_de_ss__c.Label} : 
+                                              <span class="ct-output">{!loggedContact.Numero_de_ss__c}</span>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <!-- Coordonnées -->
+            <div id="address" class="small-12 column info-block" data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('address');">
+                              <i class="fa fa-envelope"></i>
+                              <span>{!$Label.Address_informations}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div class="row infos" data-foldable="true">
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.MailingAddress.Label} : 
+                                                <span class="ct-output">
+                                                    {!loggedContact.MailingStreet} <br></br>
+                                                    {!loggedContact.MailingPostalCode} {!loggedContact.MailingCity} <br></br>
+                                                    {!loggedContact.MailingCountry}
+                                                </span>
+                                                <span class="ct-modify"><a href="#" data-reveal-id="address-modif"><i class="fa fa-edit"></i></a></span>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.Phone.Label} : 
+                                                <span class="ct-output">{!loggedContact.phone}</span>
+                                                <span class="ct-modify"><a href="#" data-reveal-id="phone-modif"><i class="fa fa-edit"></i></a></span>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.MobilePhone.Label} : 
+                                                <span class="ct-output">{!loggedContact.MobilePhone}</span>
+                                                <span class="ct-modify"><a href="#" data-reveal-id="mobile-modif"><i class="fa fa-edit"></i></a></span>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info end">
+                                    <div class="row">
+                                          <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.Email.Label} : 
+                                                <span class="ct-output">{!loggedContact.Email}</span>
+                                                <span class="ct-modify"><a href="#" data-reveal-id="email-modif"><i class="fa fa-edit"></i></a></span>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <!-- Détails -->
+            <div id="details" class="small-12 column info-block" data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('details');">
+                          <i class="fa fa-search-plus"></i>
+                          <span>{!$Label.details}</span>
+                        </a>
+                  </h4>
+                  <div class="card"> 
+                        <div class="row infos" data-foldable="true">
+                             <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.Title.Label} : 
+                                               <span class="ct-output">{!loggedContact.Title}</span>
+                                         </div>
+                                   </div>
+                             </div>
+
+                             <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.CT_Service__c.Label} : 
+                                               <span class="ct-output">{!loggedContact.CT_Service__c}</span>
+                                         </div>
+                                   </div>
+                             </div>
+
+                             <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.CT_Matricule__c.Label} : 
+                                               <span class="ct-output">{!loggedContact.CT_Matricule__c}</span>
+                                         </div>
+                                   </div>
+                             </div>
+
+                             <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.CT_Date_of_entry_to_the_society__c.Label} : 
+                                               <span class="ct-output">
+                                                    <apex:outputField value="{!loggedContact.CT_Date_of_entry_to_the_society__c}" />
+                                               </span>
+                                         </div>
+                                   </div>
+                             </div>
+
+                             <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                                {!$Label.Reports_to} : 
+                                               <span class="ct-output">{!loggedContact.Superieur__c}</span>
+                                         </div>
+                                   </div>
+                             </div>
+
+                             <div class="small-6 large-4 xlarge-3 column info end">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                                {!$ObjectType.Contact.fields.responsable_rh__c.Label} : 
+                                               <span class="ct-output">{!hrManager}</span>
+                                         </div>
+                                   </div>
+                             </div>
+                        </div>
+                  </div>
+            </div>
+
+            <!-- Statut -->
+            <div id="status" class="small-12 column info-block" data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('status');">
+                              <i class="fa fa-info-circle"></i>
+                              <span>{!$Label.status}</span>
+                        </a>
+                  </h4>
+                  <div class="card"> 
+                        <div class="row infos" data-foldable="true">
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.conges_acquis_n_1__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.conges_acquis_n_1__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.conges_acquis_n__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.conges_acquis_n__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.repos_compensateurs_acquis__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.repos_compensateurs_acquis__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.conges_pris_n_1__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.conges_pris_n_1__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.conges_pris_n__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.conges_pris_n__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.repos_compensateurs_pris__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.repos_compensateurs_pris__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.conges_solde_n_1__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.conges_solde_n_1__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.conges_solde_n__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.conges_solde_n__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+
+                              <div class="small-6 large-4 xlarge-3 column info">
+                                   <div class="row">
+                                         <div class="ct-label small-12 column">
+                                              {!$ObjectType.Contact.fields.repos_compensateurs_solde__c.Label} : 
+                                             <span class="ct-output">{!loggedContact.repos_compensateurs_solde__c}</span>
+                                         </div>
+                                   </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <!-- Postes-->
+            <div id="positions" class="small-12 column tab-block" data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('positions');">
+                              <i class="fa fa-briefcase"></i>
+                              <span>{!$ObjectType.GS_Affectation_poste__c.LabelPlural}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div data-foldable="true">
+                              <div class="row header-table secondary-color" >
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.GS_Affectation_poste__c.fields.GS_Fiche_de_poste__c.Label}</span>
+                                    </div>
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.GS_Affectation_poste__c.fields.GS_Date_de_debut__c.Label}</span>
+                                    </div>
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.GS_Affectation_poste__c.fields.GS_Date_de_fin__c.Label}</span>
+                                    </div>
+                              </div>
+                              <div class="result-table">
+                                    <apex:repeat value="{!postes}" var="poste">
+                                          <a href="{!$Setup.crta__sirh__c.crta__Page_Poste__c}?id={!poste.GS_Fiche_de_poste__r.Id}" target="_blank">
+                                                <div class="row highlight-primary">
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!poste.GS_Fiche_de_poste__r.Name}" /></span>
+                                                      </div>
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!poste.GS_Date_de_debut__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!poste.GS_Date_de_fin__c}" /></span>
+                                                      </div>
+                                                </div>
+                                          </a>
+                                    </apex:repeat>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <!-- Entretiens-->
+            <apex:outputPanel layout="block" rendered="{!$CurrentPage.parameters.id != null && $Setup.sirh__c.showInterviews__c}" id="interviews" styleClass="small-12 large-6 column tab-block" html-data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.form.interviews}');">
+                              <i class="fa fa-comments-o"></i>
+                              <span>{!$ObjectType.EI_Entretien__c.LabelPlural}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div data-foldable="true">
+                              <div class="row header-table secondary-color">
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.EI_Entretien__c.fields.EI_Salarie_qui_fait_passer_l_entretien__c.Label}</span>
+                                    </div>
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.EI_Entretien__c.fields.EI_Date_de_l_entretien__c.Label}</span>
+                                    </div>
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.EI_Entretien__c.fields.EI_Statut__c.Label}</span>
+                                    </div>
+                              </div>
+                              <div class="result-table">
+                                    <apex:repeat value="{!entretiens}" var="entretien">
+                                          <a href="{!$Setup.crta__sirh__c.crta__Page_Entretien__c}?id={!entretien.Id}" target="_blank">
+                                                <div class="row highlight-primary">
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!entretien.Manager__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!entretien.EI_Date_de_l_entretien__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output">
+                                                            <apex:outputPanel layout="none" rendered="{!entretien.EI_Statut_value__c < 20}">
+                                                              <i class="fa fa-clock-o" title="{!entretien.EI_Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                            <apex:outputPanel layout="none" rendered="{!entretien.EI_Statut_value__c >= 20 && entretien.EI_Statut_value__c < 50}">
+                                                              <i class="fa fa-check-square-o green-font" title="{!entretien.EI_Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                            <apex:outputPanel layout="none" rendered="{!entretien.EI_Statut_value__c >= 50}">
+                                                              <i class="fa fa-times-circle red-font" title="{!entretien.EI_Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                          </span>
+                                                      </div>
+                                                </div>
+                                            </a>
+                                    </apex:repeat>
+                              </div>
+                        </div>
+                  </div>
+            </apex:outputPanel>
+
+            <!-- Timesheets-->
+            <apex:outputPanel layout="block" rendered="{!$CurrentPage.parameters.id != null && $Setup.sirh__c.showTimes__c}" id="week" styleClass="small-12 large-6 column tab-block" html-data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.week}');">
+                              <i class="fa fa-calendar"></i>
+                              <span>{!$ObjectType.Feuille_Temps_Hebdo__c.LabelPlural}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div data-foldable="true">
+                              <div class="row header-table secondary-color">
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Feuille_Temps_Hebdo__c.fields.Date_debut_semaine__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Feuille_Temps_Hebdo__c.fields.Date_de_fin__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Feuille_Temps_Hebdo__c.fields.Date_Validation_Manager__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Feuille_Temps_Hebdo__c.fields.Statut__c.Label}</span>
+                                    </div>
+                              </div>
+                              <div class="result-table">
+                                    <apex:repeat value="{!weeks}" var="week">
+                                          <a href="{!$Setup.crta__sirh__c.crta__Page_Semaine__c}?id={!week.id}" target="_blank">
+                                                <div class="row highlight-primary">
+                                                      <div class="small-3 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!week.Date_debut_semaine__c}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!week.Date_de_fin__c}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!week.Date_Validation_Manager__c}" /></span>
+                                                      </div>
+                                                      <div class="small-3 column">
+                                                          &nbsp;
+                                                          <span class="ct-output">
+                                                            <apex:outputPanel layout="none" rendered="{!week.Valeur_statut__c < 20}">
+                                                              <i class="fa fa-clock-o" title="{!week.Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                            <apex:outputPanel layout="none" rendered="{!week.Valeur_statut__c >= 20 && week.Valeur_statut__c < 90}">
+                                                              <i class="fa fa-check-square-o green-font" title="{!week.Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                            <apex:outputPanel layout="none" rendered="{!week.Valeur_statut__c >= 90}">
+                                                              <i class="fa fa-times-circle red-font" title="{!week.Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                          </span>
+                                                      </div>
+                                                </div>
+                                          </a>
+                                    </apex:repeat>
+                              </div>
+                        </div>
+                  </div>
+            </apex:outputPanel>
+
+            <!-- Formations-->
+            <apex:outputPanel layout="block" rendered="{!$Setup.sirh__c.showTrainings__c}" id="trainings" styleClass="small-12 large-6 column tab-block" html-data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('{!$Component.form.trainings}');">
+                              <i class="fa fa-graduation-cap"></i>
+                              <span>{!$ObjectType.Action_de_formation__c.LabelPlural}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div data-foldable="true">
+                              <div class="row header-table secondary-color">
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.Action_de_formation__c.fields.Intitule_de_la_formation__c.Label}</span>
+                                    </div>
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.Action_de_formation__c.fields.Type__c.Label}</span>
+                                    </div>
+                                    <div class="small-4 column">
+                                        <span>{!$ObjectType.Action_de_formation__c.fields.Statut__c.Label}</span>
+                                    </div>
+                              </div>
+                              <div class="result-table">
+                                    <apex:repeat value="{!trainingActions}" var="trainingAction">
+                                          <a href="{!$Setup.crta__sirh__c.crta__Page_Formation__c}?id={!trainingAction.Id}" target="_blank">
+                                                <div class="row highlight-primary">
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputField value="{!trainingAction.Intitule_de_la_formation__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output"><apex:outputText value="{!trainingAction.Type__c}" /></span>
+                                                      </div>
+                                                      <div class="small-4 column">
+                                                          &nbsp;
+                                                          <span class="ct-output">
+                                                            <apex:outputPanel layout="none" rendered="{!trainingAction.Valeur_statut__c < 50}">
+                                                              <i class="fa fa-clock-o" title="{!trainingAction.Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                            <apex:outputPanel layout="none" rendered="{!trainingAction.Valeur_statut__c >= 50 && trainingAction.Valeur_statut__c < 70}">
+                                                              <i class="fa fa-check-square-o green-font" title="{!trainingAction.Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                            <apex:outputPanel layout="none" rendered="{!trainingAction.Valeur_statut__c >= 70}">
+                                                              <i class="fa fa-times-circle red-font" title="{!trainingAction.Statut__c}"></i>
+                                                            </apex:outputPanel>
+                                                          </span>
+                                                      </div>
+                                                </div>
+                                          </a>
+                                    </apex:repeat>
+                              </div>
+                        </div>
+                  </div>
+            </apex:outputPanel>
+
+            <!-- Demande de formation-->
+            <div id="training-requests" class="small-12 large-6 column tab-block {!IF($Setup.crta__sirh__c.crta__showTrainingRequest__c, 'show', 'hide')} joyride-training-request" data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('training-requests');">
+                              <i class="fa fa-graduation-cap"></i>
+                              <span>{!$ObjectType.Demande_de_formation__c.LabelPlural}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div data-foldable="true">
+                              <div class="row header-table secondary-color">
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Demande_de_formation__c.fields.Nom_du_catalogue__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Demande_de_formation__c.fields.Date_de_la_session__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Demande_de_formation__c.fields.Type_de_formation__c.Label}</span>
+                                    </div>
+                                    <div class="small-1 column">
+                                        <span>{!$ObjectType.Demande_de_formation__c.fields.Statut__c.Label}</span>
+                                    </div>
+                                    <div class="small-2 column">
+                                        <span>{!$Label.Actions}</span>
+                                    </div>
+                              </div>
+                              <div class="result-table">
+                                <apex:repeat value="{!trainingRequests}" var="trainingRequest">
+                                  <div id="{!trainingRequest.Id}" class="row highlight-primary">
+                                        <div class="small-3 column">
+                                            &nbsp;
+                                            <span class="ct-output"><apex:outputField value="{!trainingRequest.Nom_du_catalogue__c}" /></span>
+                                        </div>
+                                        <div class="small-3 column">
+                                            &nbsp;
+                                            <span class="ct-output"><apex:outputField value="{!trainingRequest.Date_de_la_session__c}" /></span>
+                                        </div>
+                                        <div class="small-3 column">
+                                            &nbsp;
+                                            <span class="ct-output"><apex:outputField value="{!trainingRequest.Type_de_formation__c}" /></span>
+                                        </div>
+                                        <div class="small-1 column">
+                                            &nbsp;
+                                            <span class="ct-output">
+                                              <apex:outputPanel layout="none" rendered="{!trainingRequest.Valeur_statut__c < 30}">
+                                                <i class="fa fa-clock-o" title="{!trainingRequest.Statut__c}"></i>
+                                              </apex:outputPanel>
+                                              <apex:outputPanel layout="none" rendered="{!trainingRequest.Valeur_statut__c >= 30 && trainingRequest.Valeur_statut__c < 50}">
+                                                <i class="fa fa-check-square-o green-font" title="{!trainingRequest.Statut__c}"></i>
+                                              </apex:outputPanel>
+                                              <apex:outputPanel layout="none" rendered="{!trainingRequest.Valeur_statut__c >= 50}">
+                                                <i class="fa fa-times-circle red-font" title="{!trainingRequest.Statut__c}"></i>
+                                              </apex:outputPanel>
+                                            </span>
+                                        </div>
+                                        <div class="small-2 column">
+                                            &nbsp;
+                                            <apex:outputPanel layout="none" rendered="{!trainingRequest.Valeur_statut__c < 30 && $CurrentPage.parameters.id != null}">
+                                              <a href="#" onclick="event.preventDefault(); acceptTrainingRequest('{!trainingRequest.Id}', '')" class="green-font" title="{!$Label.Accept}"><i class="fa fa-check"></i></a><a href="#" onclick="event.preventDefault(); refuseTrainingRequest('{!trainingRequest.Id}', '')" class="red-font" title="{!$Label.Reject}"><i class="fa fa-times"></i></a>
+                                            </apex:outputPanel>
+                                            <apex:outputPanel layout="none" rendered="{!trainingRequest.Valeur_statut__c < 30 && $CurrentPage.parameters.id == null}">
+                                              <a href="#" onclick="event.preventDefault(); deleteTrainingRequest('{!trainingRequest.Id}')" class="red-font"><i class="fa fa-minus-circle"></i></a>
+                                            </apex:outputPanel>
+                                        </div>
+                                  </div>
+                                </apex:repeat>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <!-- Demande de congés -->
+            <div id="leave-requests" class="small-12 large-6 column tab-block {!IF($Setup.crta__sirh__c.crta__showLeave__c, 'show', 'hide')} joyride-leave-request" data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('leave-requests');">
+                              <i class="fa fa-ticket"></i>
+                              <span>{!$ObjectType.Demande_de_conges__c.LabelPlural}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div data-foldable="true">
+                              <div class="row header-table secondary-color">
+                                    <div class="small-3 medium-3 column">
+                                        <span>{!$ObjectType.Demande_de_conges__c.fields.Date_de_debut__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 medium-3 column">
+                                        <span>{!$ObjectType.Demande_de_conges__c.fields.Date_de_fin__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 medium-3 column">
+                                        <span>{!$ObjectType.Demande_de_conges__c.fields.Type__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 medium-1 column">
+                                        <span>{!$ObjectType.Demande_de_conges__c.fields.Statut__c.Label}</span>
+                                    </div>
+                                    <div class="hide-for-small medium-2 column">
+                                        <span>{!$Label.Actions}</span>
+                                    </div>
+                              </div>
+                              <div class="result-table">
+                                  <i class="fa fa-2x fa-spin fa-spinner"></i>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <!-- Demande de modification -->
+            <div id="modif-requests" class="small-12 large-6 column tab-block {!IF($Setup.crta__sirh__c.crta__showModifRequest__c, 'show', 'hide')} joyride-modif-request" data-fold="false">
+                  <h4 class="title secondary-font header">
+                        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('modif-requests');">
+                              <i class="fa fa-pencil-square-o"></i>
+                              <span>{!$ObjectType.Demande_de_modification__c.LabelPlural}</span>
+                        </a>
+                  </h4>
+                  <div class="card">
+                        <div data-foldable="true">
+                              <div class="row header-table secondary-color">
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Demande_de_modification__c.fields.Champ__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Demande_de_modification__c.fields.Ancienne_valeur__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Demande_de_modification__c.fields.Nouvelle_valeur__c.Label}</span>
+                                    </div>
+                                    <div class="small-3 column">
+                                        <span>{!$ObjectType.Demande_de_modification__c.fields.Statut__c.Label} </span>
+                                    </div>
+                              </div>
+                              <div class="result-table">
+                                  <i class="fa fa-2x fa-spin fa-spinner"></i>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+          
+            <!-- Salutation modal -->
+            <div id="salutation-modif" class="reveal-modal" data-reveal="true" data-field-name="{!$ObjectType.Contact.fields.Salutation.name}" data-field-label="{!$ObjectType.Contact.fields.Salutation.label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.salutation}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="mEval"/>
+                  <apex:inputField value="{!loggedContact.salutation}" />
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('salutation-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+            </div>
+                    
+             <!-- Lastname modal -->
+            <div id="lastname-modif" class="reveal-modal" data-reveal="true" data-field-name="{!$ObjectType.Contact.fields.Lastname.name}" data-field-label="{!$ObjectType.Contact.fields.Lastname.label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.lastname}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="lastname"/>
+                  <input type="text" name="lastname" value="" placeholder="" />
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('lastname-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+             </div>
+
+             <!-- firstname modal -->
+            <div id="firstname-modif" class="reveal-modal" data-reveal="true" data-field-name="{!$ObjectType.Contact.fields.firstname.name}" data-field-label="{!$ObjectType.Contact.fields.firstname.label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.firstname}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="lastname"/>
+                  <input type="text" name="lastname" value="" placeholder="" />
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('firstname-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+             </div>
+
+            <!-- gender modal -->
+            <div id="gender-modif" class="reveal-modal" data-reveal="true" data-field-name="{!$ObjectType.Contact.fields.sexe__c.name}" data-field-label="{!$ObjectType.Contact.fields.sexe__c.label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.sexe__c}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="gender"/>
+                  <apex:inputField value="{!loggedContact.Sexe__c}" />
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('gender-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+            </div>
+
+            <!-- situation modal -->
+            <div id="situation-modif" class="reveal-modal" data-reveal="true" data-field-name="{!$ObjectType.Contact.fields.Situation_familiale__c.name}" data-field-label="{!$ObjectType.Contact.fields.Situation_familiale__c.label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.Situation_familiale__c}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="situation"/>
+                  <textarea name="Situation"></textarea>
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('situation-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+            </div>
+
+            <!-- address modal -->
+            <div id="address-modif" class="reveal-modal" data-reveal="true" data-field-name="composite" data-field-label="{!$ObjectType.Contact.fields.MailingAddress.Label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.MailingStreet} {!loggedContact.MailingPostalCode} {!loggedContact.MailingCity} {!loggedContact.MailingCountry}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="address"/>
+                  <textarea name="address"></textarea>
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('address-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+            </div>
+
+            <!-- mobile modal -->
+            <div id="mobile-modif" class="reveal-modal" data-reveal="true" data-field-name="{!$ObjectType.Contact.fields.MobilePhone.name}" data-field-label="{!$ObjectType.Contact.fields.MobilePhone.label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.mobilephone}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="mobile"/>
+                  <input type="tel" name="mobile" value="" placeholder="" pattern="^((\+\d{1,3}(-| )?\(?\d\)?(-| )?\d{1,5})|(\(?\d{2,6}\)?))(-| )?(\d{3,4})(-| )?(\d{4})(( x| ext)\d{1,5}){0,1}$" />
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('mobile-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+            </div>
+
+            <!-- phone modal -->
+            <div id="phone-modif" class="reveal-modal" data-reveal="true" data-field-name="{!$ObjectType.Contact.fields.Phone.name}" data-field-label="{!$ObjectType.Contact.fields.Phone.label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.phone}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="phone"/>
+                  <input type="tel" name="phone" value="" placeholder="" pattern="^((\+\d{1,3}(-| )?\(?\d\)?(-| )?\d{1,5})|(\(?\d{2,6}\)?))(-| )?(\d{3,4})(-| )?(\d{4})(( x| ext)\d{1,5}){0,1}$" />
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('phone-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+            </div>
+
+            <!-- email modal -->
+            <div id="email-modif" class="reveal-modal" data-reveal="true" data-field-name="{!$ObjectType.Contact.fields.Email.name}" data-field-label="{!$ObjectType.Contact.fields.Email.label}">
+                  <h2>{!$Label.modification_request}</h2>
+                  <input type="hidden" name="oldValue" value="{!loggedContact.email}" />
+                  <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__new_value} :" for="email"/>
+                  <input type="email" name="email" value="" placeholder=""/>
+
+                  <a href="#" class="outline button green modal-dismiss hide-for-print" onclick="createModif('email-modif')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+                  <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+            </div>
+
+            <apex:outputPanel layout="block" rendered="{!$Setup.sirh__c.showLeave__c}">
+                  <!-- Modal leave request -->
+                  <div id="leave-edit" class="row reveal-modal leave-modal" data-reveal="true">
+                        <h3 class="small-12 title">{!$Label.update_leave}</h3>
+
+                        <div class="small-12">
+                              <div class="row">
+                                    <div class="small-12 medium-4 column">
+                                          <label>{!$ObjectType.Demande_de_conges__c.fields.Date_de_debut__c.Label}<i class="fa fa-info-circle help-icon" title="{!$Label.Leave_placeholder_start}"></i><input type="datetime-local" name="start" value="" class="start-select datetimepicker" required="required"/></label>
+                                    </div>
+                                    <div class="small-12 medium-4 column">
+                                          <label>{!$ObjectType.Demande_de_conges__c.fields.Type__c.Label}
+                                              <apex:selectList id="type-select" value="{!selectedLeaveType}" size="1" styleClass="type-select">
+                                                  <apex:selectOptions value="{!leaveTypes}"></apex:selectOptions>
+                                              </apex:selectList>
+                                          </label>
+                                    </div>
+                                    <div class="small-12 medium-4 column">
+                                          <label>{!$ObjectType.Demande_de_conges__c.fields.Date_de_fin__c.Label}<i class="fa fa-info-circle help-icon" title="{!$Label.Leave_placeholder_end}"></i><input type="datetime-local" name="end" value="" class="end-select datetimepicker" required="required"/></label>
+                                    </div>
+                              </div>
+                        </div>
+
+                        <input type="hidden" name="id-select" value="" class="id-select" />
+
+                        <a href="#" class="outline button green hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); updateLeave();"><i class="fa fa-save"></i> {!$Label.update}</a>
+                        <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+                  </div>
+
+                  <!-- Modal leave request date -->
+                  <div id="leave-edit-date" class="row reveal-modal leave-modal" data-reveal="true">
+                        <h3 class="title">{!$Label.update_leave}</h3>
+
+                        <div class="small-12 medium-4 column">
+                              <div class="row collapse">
+                                    <div class="small-6 column">
+                                          <label>{!$Label.Start_date}<input type="date" name="start" value="" class="start-select-date datepicker" required="required"/></label>
+                                    </div>
+                                    <div class="small-6 column">
+                                          <label>{!$ObjectType.Demande_de_conges__c.fields.Periode__c.Label}
+                                                <apex:selectList id="start-period-select-date" value="{!selectedLeavePeriod}" size="1" styleClass="start-period-select-date">
+                                                      <apex:selectOptions value="{!leavePeriods}"></apex:selectOptions>
+                                                </apex:selectList>
+                                          </label>
+                                    </div>
+                              </div>
+                        </div>
+
+                        <div class="small-12 medium-4 column">
+                              <div class="row">
+                                    <div class="small-12 column">
+                                          <label>{!$ObjectType.Demande_de_conges__c.fields.Type__c.Label}
+                                                <apex:selectList id="type-select-date" value="{!selectedLeaveType}" size="1" styleClass="type-select-date">
+                                                      <apex:selectOptions value="{!leaveTypes}"></apex:selectOptions>
+                                                </apex:selectList>
+                                          </label>
+                                    </div>
+                              </div>
+                        </div>
+
+
+                        <div class="small-12 medium-4 column">
+                              <div class="row collapse">
+                                    <div class="small-6 column">
+                                          <label>{!$Label.End_date}<input type="date" name="start" value="" class="end-select-date datepicker" required="required"/></label>
+                                    </div>
+                                    <div class="small-6 column">
+                                          <label>{!$ObjectType.Demande_de_conges__c.fields.Periode_de_fin__c.Label}
+                                                <apex:selectList id="end-period-select-date" value="{!selectedLeavePeriod}" size="1" styleClass="end-period-select-date">
+                                                      <apex:selectOptions value="{!leavePeriods}"></apex:selectOptions>
+                                                </apex:selectList>
+                                          </label>
+                                    </div>
+                              </div>
+                        </div>
+
+                        <input type="hidden" name="id-select-date" value="" class="id-select-date" />
+
+                        <a href="#" class="outline button green hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); updateLeaveDate();"><i class="fa fa-save"></i> {!$Label.update}</a>
+                        <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+                  </div>
+            </apex:outputPanel>
+      </apex:form>
+      <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  
+                  //Retrieving leave requests
+                  var leaves = sforce.apex.execute(NSD+'LeaveRepository', 'getAllByContact', {
+                        contactId: '{!loggedContact.Id}'
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#leave-requests .result-table').html('');
+                              var format = "{!IF((BEGINS(loggedContact.Categorie_professionnelle__c, $Setup.crta__timesheet__c.crta__dateModalActivationName__c) || $Setup.crta__timesheet__c.crta__useDateLeaveModal__c), 'L', 'L LT')}";
+
+                              jQuery(result).each(function(index, el) {
+                                    var startDate = moment(jQuery(this).attr(NSU+'Date_de_debut__c'));
+                                    var endDate = moment(jQuery(this).attr(NSU+'Date_de_fin__c'));
+                                    var fStartDate = startDate.format(format);
+                                    var fEndDate = endDate.format(format);
+                                    if(format == 'L') {
+                                          if(jQuery(this).attr(NSU+'Periode__c')) fStartDate += ' '+jQuery(this).attr(NSU+'Periode__c');
+                                          if(jQuery(this).attr(NSU+'Periode_de_fin__c')) fEndDate += ' '+jQuery(this).attr(NSU+'Periode_de_fin__c');
+                                    }
+                                    var today = moment();
+                                    var statusIcon = 'fa-clock-o';
+                                    if(jQuery(this).attr(NSU+'Valeur_statut__c') >= 30 && jQuery(this).attr(NSU+'Valeur_statut__c') < 50) statusIcon = 'fa-check-square-o green-font';
+                                    if(jQuery(this).attr(NSU+'Valeur_statut__c') >= 50) statusIcon = 'fa-ban red-font';
+                                    if(jQuery(this).attr(NSU+'Valeur_statut__c') < 50 && startDate >= today) {
+                                        var s = '<div id="'+jQuery(this).attr('Id')+'" class="row highlight-primary" data-start-period="'+jQuery(this).attr(NSU+'Periode__c')+'" data-end-period="'+jQuery(this).attr(NSU+'Periode_de_fin__c')
+                                              + '"><div class="small-3 medium-3 column start-date">'+fStartDate+'</div><div class="small-3 medium-3 column end-date">'+fEndDate+'</div><div class="small-3 medium-3 column type">'
+                                              + jQuery(this).attr(NSU+'Type__c')+'</div><div class="small-3 medium-1 column" title="'+jQuery(this).attr(NSU+'Statut__c')+'"><i class="fa '+statusIcon
+                                              + '"></i></div><div class="hide-for-small medium-2 column"><a href="#" onclick="event.preventDefault(); editLeave(\''
+                                              + jQuery(this).attr('Id')+'\');"><i class="fa fa-edit"></i></a><a href="#" onclick="event.preventDefault(); deleteLeave(\''+jQuery(this).attr('Id')
+                                              + '\');"><i class="fa fa-minus-circle red-font"></i></a></div></div>';
+                                          jQuery('#leave-requests .result-table').append(s);
+                                    } else {
+                                          jQuery('#leave-requests .result-table').append('<div id="'+jQuery(this).attr('Id')+'" class="row highlight-primary"><div class="small-3 medium-3 column start-date">'+fStartDate+'</div><div class="small-3 medium-3 column end-date">'+fEndDate+'</div><div class="small-3 medium-3 column type">'+jQuery(this).attr(NSU+'Type__c')+'</div><div class="small-3 medium-1 column" title="'+jQuery(this).attr(NSU+'Statut__c')+'"><i class="fa '+statusIcon+'"></i></div><div class="hide-for-small medium-2 column"></div></div>');
+                                    }
+                              });
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  });
+
+                  //Retrieving modification requests
+                  var modifs = sforce.apex.execute(NSD+'ModificationRepository', 'getAllByContact', {
+                        contactId: '{!loggedContact.Id}'
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#modif-requests .result-table').html('');
+                              jQuery(result).each(function(index, el) {
+                                    var statusIcon = 'fa-clock-o';
+                                    var oldValue  = '&nbsp;';
+                                    if(jQuery(this).attr(NSU+'Ancienne_valeur__c')) oldValue = jQuery(this).attr(NSU+'Ancienne_valeur__c');
+                                    if(jQuery(this).attr(NSU+'Valeur_statut__c') >= 30 && jQuery(this).attr(NSU+'Valeur_statut__c') < 50) statusIcon = 'fa-check-square-o green-font';
+                                    if(jQuery(this).attr(NSU+'Valeur_statut__c') >= 50 && jQuery(this).attr(NSU+'Valeur_statut__c') < 70) statusIcon = 'fa-ban red-font';
+                                    if(jQuery(this).attr(NSU+'Valeur_statut__c') >= 70) statusIcon = 'fa-history';
+                                    jQuery('#modif-requests .result-table').append('<div id="'+jQuery(this).attr('Id')+'" class="row highlight-primary"><div class="small-3 column">'+jQuery(this).attr(NSU+'Champ__c')+'</div><div class="small-3 column">'+oldValue+'</div><div class="small-3 column">'+jQuery(this).attr(NSU+'Nouvelle_valeur__c')+'</div><div class="small-3 column" title="'+jQuery(this).attr(NSU+'Statut__c')+'"><i class="fa '+statusIcon+'"></i></div></div>');
+                              });
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  });
+            });
+      
+            function createModif(id) {
+                  jQuery('#'+id+' .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  var label = document.getElementById(id).getAttribute('data-field-label');
+                  var name = document.getElementById(id).getAttribute('data-field-name');
+                  var oldValue = document.getElementById(id).getElementsByTagName('input')[0];
+                  var newValue = document.getElementById(id).getElementsByTagName('select')[0];
+                  if(!newValue) newValue = document.getElementById(id).getElementsByTagName('input')[1];
+                  if(!newValue) newValue = document.getElementById(id).getElementsByTagName('textarea')[0];
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'ModificationManager', 'createModification', {
+                        oldValue: oldValue.value,
+                        newValue: newValue.value,
+                        fieldLabel: label,
+                        fieldName: name,
+                        contactId: '{!loggedContact.id}'
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    window.location.reload();
+                              } else {
+                                    console.log(result);
+                                    jQuery('#'+id).foundation('reveal', 'close');
+                                    jQuery('#'+id+' .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#'+id).foundation('reveal', 'close');
+                              jQuery('#'+id+' .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  });
+            }
+
+            function deleteLeave(id) {
+                  var toDelete = confirm('{!$Label.Delete_leave}');
+                  if (toDelete) {
+                        jQuery('#leave-requests .result-table #'+id+' i.fa-minus-circle').removeClass('fa-minus-circle').addClass('fa-spin fa-spinner');
+                        sforce.connection.sessionId = '{!$Api.Session_ID}';
+                        var result = sforce.apex.execute(NSD+'LeaveManager', 'deleteLeave', {
+                              leaveId: id
+                        }, {
+                              onSuccess: function (result) {
+                                    if (result == 'success') {
+                                          jQuery('#leave-requests .result-table #'+id).fadeOut();
+                                    } else {
+                                          console.log(event);
+                                          jQuery('#leave-requests .result-table #'+id+' i.fa-spin').removeClass('fa-spin fa-spinner').addClass('fa-minus-circle');
+                                          jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                          jQuery(document).foundation('alert', 'reflow');
+                                    };
+                            },
+                            onFailure: function (error) {
+                                  console.log(error);
+                                    jQuery('#leave-requests .result-table #'+id+' i.fa-spin').removeClass('fa-spin fa-spinner').addClass('fa-minus-circle');
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                              }
+                        });
+                  };
+            }
+
+            function deleteTrainingRequest(id) {
+              var toDelete = confirm('{!$Label.Delete_training_request}');
+              if (toDelete) {
+                jQuery('#training-requests .result-table #'+id+' i.fa-minus-circle').removeClass('fa-minus-circle').addClass('fa-spin fa-spinner');
+                sforce.connection.sessionId = '{!$Api.Session_ID}';
+                var result = sforce.apex.execute(NSD+'TrainingRequestManager', 'deleteTrainingRequest', {
+                      requestId: id
+                }, {
+                  onSuccess: function (result) {
+                    if (result == 'success') {
+                      jQuery('#training-requests .result-table #'+id).fadeOut();
+                    } else {
+                      console.log(event);
+                      jQuery('#training-requests .result-table #'+id+' i.fa-spin').removeClass('fa-spin fa-spinner').addClass('fa-minus-circle');
+                      jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                      jQuery(document).foundation('alert', 'reflow');
+                    };
+                },
+                onFailure: function (error) {
+                  console.log(error);
+                    jQuery('#training-requests .result-table #'+id+' i.fa-spin').removeClass('fa-spin fa-spinner').addClass('fa-minus-circle');
+                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                    jQuery(document).foundation('alert', 'reflow');
+                  }
+                });
+              };
+            }
+
+            function editLeave (id) {
+                  var format = "{!IF((BEGINS(loggedContact.Categorie_professionnelle__c, $Setup.crta__timesheet__c.crta__dateModalActivationName__c) || $Setup.crta__timesheet__c.crta__useDateLeaveModal__c), 'L', 'L LT')}";
+                  var startDate = moment(jQuery('#leave-requests .result-table #'+id+' .start-date').html(), format);
+                  var endDate = moment(jQuery('#leave-requests .result-table #'+id+' .end-date').html(), format);
+                  var type = jQuery('#leave-requests .result-table #'+id+' .type').html();
+
+                  if(format == 'L') {
+                        var startPeriod = jQuery('#leave-requests .result-table #'+id).attr('data-start-period');
+                        var endPeriod = jQuery('#leave-requests .result-table #'+id).attr('data-end-period');
+                        jQuery('#leave-edit-date .id-select-date').val(id);
+                        if (!Modernizr.inputtypes.date) {
+                              jQuery('#leave-edit-date .start-select-date').val(startDate.format('L'));
+                              jQuery('#leave-edit-date .end-select-date').val(endDate.format('L'));
+                              rome.find(jQuery('#leave-edit-date .start-select-date').get(0)).setValue(startDate.format('DD/MM/YYYY'));
+                              rome.find(jQuery('#leave-edit-date .end-select-date').get(0)).setValue(endDate.format('DD/MM/YYYY'));
+                        } else {
+                              jQuery('#leave-edit-date .start-select-date').val(startDate.format('YYYY-MM-DD'));
+                              jQuery('#leave-edit-date .end-select-date').val(endDate.format('YYYY-MM-DD'));
+                        }
+                        jQuery('#leave-edit-date .type-select-date option').each(function(index, el) {
+                              if(jQuery(this).html() == type) jQuery(this).attr('selected', 'selected');
+                        });
+                        jQuery('#leave-edit-date .start-period-select-date option').each(function(index, el) {
+                              if(jQuery(this).val() == startPeriod) jQuery(this).attr('selected', 'selected');
+                        });
+                        jQuery('#leave-edit-date .end-period-select-date option').each(function(index, el) {
+                             if(jQuery(this).val() == endPeriod) jQuery(this).attr('selected', 'selected');
+                        });
+                        jQuery('#leave-edit-date').foundation('reveal', 'open');
+                  } else {
+                        jQuery('#leave-edit .id-select').val(id);
+                        if (!Modernizr.inputtypes.datetime && !Modernizr.inputtypes['datetime-local']) {
+                              jQuery('#leave-edit .start-select').val(startDate.format('L HH:mm'));
+                              jQuery('#leave-edit .end-select').val(endDate.format('L HH:mm'));
+                              rome.find(jQuery('#leave-edit .start-select').get(0)).setValue(startDate.format('DD/MM/YYYY[T]HH:mm'));
+                              rome.find(jQuery('#leave-edit .end-select').get(0)).setValue(endDate.format('DD/MM/YYYY[T]HH:mm'));
+                        } else {
+                              jQuery('#leave-edit .start-select').val(startDate.format('YYYY-MM-DD[T]HH:mm'));
+                              jQuery('#leave-edit .end-select').val(endDate.format('YYYY-MM-DD[T]HH:mm'));
+                        }
+                        jQuery('#leave-edit .type-select option').each(function(index, el) {
+                              if(jQuery(this).html() == type) jQuery(this).attr('selected', 'selected');
+                        });
+                        jQuery('#leave-edit').foundation('reveal', 'open');
+                  }
+            }
+
+            function updateLeave () {
+                  jQuery('#leave-edit .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  var start;
+                  var end;
+                  if (!Modernizr.inputtypes.datetime) {
+                        start = moment(jQuery('#leave-edit .start-select')[0].value, 'DD/MM/YYYY HH:mm').utc().format('YYYY-MM-DD[T]HH:mm:ss');
+                        end = moment(jQuery('#leave-edit .end-select')[0].value, 'DD/MM/YYYY HH:mm').utc().format('YYYY-MM-DD[T]HH:mm:ss');
+                  } else {
+                        start = moment(jQuery('#leave-edit .start-select')[0].value, 'YYYY-MM-DD[T]HH:mm:ss').utc().format('YYYY-MM-DD[T]HH:mm:ss');
+                        end = moment(jQuery('#leave-edit .start-select')[0].value, 'YYYY-MM-DD[T]HH:mm:ss').utc().format('YYYY-MM-DD[T]HH:mm:ss');
+                  }
+                  var type = jQuery('#leave-edit .type-select')[0];
+                  var label = type.options[type.selectedIndex].text;
+                  var id = jQuery('#leave-edit .id-select')[0];
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'LeaveManager', 'editWithTime', {
+                        startDatetime: start,
+                        endDatetime: end,
+                        leaveTypeString: type.value,
+                        leaveTypeLabel: label,
+                        leaveId: id.value
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    window.location.reload();
+                              } else {
+                                    console.log(result);
+                                    jQuery('#leave-edit').foundation('reveal', 'close');
+                                    jQuery('#leave-edit .green.button').html('<i class="fa fa-save"></i> {!$Label.update}');
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&times;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#leave-edit').foundation('reveal', 'close');
+                              jQuery('#leave-edit .green.button').html('<i class="fa fa-save"></i> {!$Label.update}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  });
+            }
+
+            function updateLeaveDate () {
+                  jQuery('#leave-edit-date .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  var id = jQuery('#leave-edit-date .id-select-date')[0];
+                  var start;
+                  var end;
+                  if (!Modernizr.inputtypes.date) {
+                        start = moment(jQuery('#leave-edit-date .start-select-date')[0].value, 'DD/MM/YYYY').utc().format('YYYY-MM-DD');
+                        end = moment(jQuery('#leave-edit-date .end-select-date')[0].value, 'DD/MM/YYYY').utc().format('YYYY-MM-DD');
+                  } else {
+                        start = moment(jQuery('#leave-edit-date .start-select-date')[0].value, 'YYYY-MM-DD').utc().format('YYYY-MM-DD');
+                        end = moment(jQuery('#leave-edit-date .start-select-date')[0].value, 'YYYY-MM-DD').utc().format('YYYY-MM-DD');
+                  }
+                  var type = jQuery('#leave-edit-date .type-select-date')[0];
+                  var label = type.options[type.selectedIndex].text;
+                  var startPeriod = jQuery('#leave-edit-date .start-period-select-date')[0];
+                  var endPeriod = jQuery('#leave-edit-date .end-period-select-date')[0];
+                  
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'LeaveManager', 'editWithoutTime', {
+                        startDate: start,
+                        startPeriod: startPeriod.value,
+                        endDate: end,
+                        endPeriod: endPeriod.value,
+                        leaveTypeString: type.value,
+                        leaveTypeLabel: label,
+                        leaveId: id.value
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    window.location.reload();
+                              } else {
+                                    console.log(result);
+                                    jQuery('#leave-edit-date').foundation('reveal', 'close');
+                                    jQuery('#leave-edit-date .green.button').html('<i class="fa fa-save"></i> {!$Label.update}');
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&times;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#leave-edit-date').foundation('reveal', 'close');
+                              jQuery('#leave-edit-date .green.button').html('<i class="fa fa-save"></i> {!$Label.update}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  });
+            }
+
+            function startIntro(){
+                  var intro = introJs();
+                  intro.setOptions({
+                        nextLabel: "{!$Label.SI_Joyride_button_next}",
+                        prevLabel: "{!$Label.SI_Joyride_button_previous}",
+                        doneLabel: "{!$Label.SI_Joyride_button_end}",
+                        skipLabel: "{!$Label.SI_Joyride_button_skip}",
+                        exitOnEsc: true,
+                        exitOnOverlayClick: true,
+                        showStepNumbers: false,
+                        keyboardNavigation: true,
+                        steps: [
+                              { 
+                                intro: "{!$Label.SI_Joyride_profile_step}"
+                              },
+                              {
+                                element: jQuery('.joyride-leave-request')[0],
+                                intro: "{!$Label.SI_Joyride_leave_request_step}",
+                                position: 'right'
+                              },
+                              {
+                                element: jQuery('.joyride-modif-request')[0],
+                                intro: "{!$Label.SI_Joyride_modif_request_step}",
+                                position: 'left'
+                              }
+                        ]
+                  });
+                  intro.start().setOption('doneLabel', '{!$Label.SI_Joyride_button_next_page}').oncomplete(function() {
+                        window.location.href = '<apex:outputText value="{!$Setup.sirh__c.Page_Timeline__c}"/>?multipage=true';
+                  });
+            }
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

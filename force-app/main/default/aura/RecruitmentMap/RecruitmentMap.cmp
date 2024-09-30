@@ -1,0 +1,168 @@
+<aura:component controller="RecruitmentMapController" description="Map based on Google's API" access="global" 
+                implements="force:appHostable,flexipage:availableForAllPageTypes">
+    <!-- @author: Felix van Hove -->
+    <!-- TODO: the selection of filters should be configurable -->
+
+    <!-- map stuff -->
+    <aura:attribute name="vfHost" type="String" default="" />
+    <aura:attribute name="mapKey" type="String" default="AIzaSyAvTEugX7SGkSAl8gqOjUAKztQNVB0Ouw0" access="global"/>
+    <!-- see design -->
+    <aura:attribute name="mapOptions" type="Object" default='{"zoom": 7}' />
+    <aura:attribute name="mapOptionsCenter" type="Object" />
+    <aura:attribute name="mapData" type="Object[]" />
+    <aura:attribute name="loadMap" type="Boolean" default="false" />
+    <aura:attribute name="lcHost" type="String" />
+
+    <!-- translations of object and field names -->
+    <aura:attribute name="translate" type="Map" />
+
+    <!-- search criteria: scope -->
+    <aura:attribute name="distance" type="Integer" default="50" access="global"/>
+    <!-- see design -->
+    <aura:attribute name="address" type="String" default="Paris, FR" access="global"/>
+    <!-- see design -->
+
+    <!-- search criteria: picklists-->
+    <aura:attribute name="contactTypes" type="List" />
+    <aura:attribute name="managementLevels" type="List" />
+    <aura:attribute name="programs" type="List" />
+    <aura:attribute name="situations" type="List" />
+    <aura:attribute name="industries" type="List" />
+    <aura:attribute name="workAreas" type="List" />
+    <aura:attribute name="categories" type="List" />
+
+    <!-- search results -->
+    <aura:attribute name="contacts" type="Contact[]" />
+    <aura:attribute name="jobPostings" type="Offre_d_emploi__c[]" />
+
+    <!-- search criteria: key words -->
+    <aura:attribute name="searchText" type="String" />
+
+    <!-- table -->
+    <aura:attribute name="columnsContact1" type="List" />
+    <aura:attribute name="columnscrta__Offre_d_emploi__c1" type="List" />
+    <aura:attribute name="sortedByContact" type="String" />
+    <aura:attribute name="sortedByJobPosting" type="String" />
+    <aura:attribute name="sortedDirectionContact" type="String" />
+    <aura:attribute name="sortedDirectionJobPosting" type="String" />
+
+    <!-- columns in tables -->
+    <aura:attribute name="columnsContact" type="String" default="LastName,FirstName,crta__CT_Management_level__c,crta__CT_Support__c,crta__CT_Situation__c" access="global"/> <!-- see design -->
+    <aura:attribute name="columnscrta__Offre_d_emploi__c" type="String" default="" access="global"/> <!-- see design -->
+
+    <!-- holding container for chosen search criteria -->
+    <aura:attribute name="contact" type="Contact" default="{sobjectType: 'Contact'}" />
+    <aura:attribute name="jobPosting" type="Offre_d_emploi__c" default="{sobjectType: 'Offre_d_emploi__c', crta__CT_Scope__c: false}" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <article class="slds-card">
+
+        <ul class="slds-list_horizontal">
+            <li>
+                <ul>
+                    <li class="slds-p-around_medium">
+                        <h3 id="searchAreaHeading" class="slds-text-heading_small slds-accordion__summary-heading">
+                            {!$Label.c.Search_area}
+                        </h3>
+                        <div>
+                            <lightning:input label="{!$Label.c.Lieu}" name="address" value="{!v.address}" onchange="{!c.submitInput}" />
+                            <lightning:input label="{!$Label.c.Distance}" name="distance" type="number" value="{!v.distance}" onchange="{!c.submitInput}"
+                            />
+                        </div>
+                    </li>
+                </ul>
+                <lightning:accordion aura:id="accordion" activeSectionName="A" class="slds-p-around_xx-small">
+                    <lightning:accordionSection name="A" label="&nbsp;Recherche par catégorie">
+                        <h3>{!$Label.c.Candidats}</h3>
+                        <lightning:select aura:id="selectedContactType" name="selectedContactType" label="{!$Label.c.Contact_type}" required="false"
+                            onchange="{!c.submit}">
+                            <aura:iteration items="{!v.contactTypes}" var="contactType">
+                                <option value="{!contactType}" text="{!contactType}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                        <lightning:select value="{!v.contact.crta__CT_Management_level__c}" label="{!v.translate.Contact.crta__CT_Management_level__c}"
+                            required="false" onchange="{!c.submit}">
+                            <aura:iteration items="{!v.managementLevels}" var="managementLevel">
+                                <option value="{!managementLevel}" text="{!managementLevel}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                        <lightning:select value="{!v.contact.crta__CT_Support__c}" label="{!v.translate.Contact.crta__CT_Support__c}" required="false"
+                            onchange="{!c.submit}">
+                            <aura:iteration items="{!v.programs}" var="program">
+                                <option value="{!program}" text="{!program}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                        <lightning:select value="{!v.contact.crta__CT_Situation__c}" label="{!v.translate.Contact.crta__CT_Situation__c}" required="false"
+                            onchange="{!c.submit}">
+                            <aura:iteration items="{!v.situations}" var="situation">
+                                <option value="{!situation.value}" text="{!situation.text}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                        <h3 class="slds-m-top_small">{!$Label.c.Job_offers}</h3>
+                        <lightning:select value="{!v.jobPosting.crta__CT_Industry_of_activities__c}" label="{!v.translate.crta__Offre_d_emploi__c.crta__CT_Industry_of_activities__c}"
+                            required="false" onchange="{!c.submit}">
+                            <aura:iteration items="{!v.industries}" var="industry">
+                                <option value="{!industry}" text="{!industry}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                        <lightning:select value="{!v.jobPosting.crta__Filiere__c}" label="{!v.translate.crta__Offre_d_emploi__c.crta__Filiere__c}"
+                            required="false" onchange="{!c.submit}">
+                            <aura:iteration items="{!v.workAreas}" var="workArea">
+                                <option value="{!workArea}" text="{!workArea}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                        <lightning:select value="{!v.jobPosting.crta__Categorie__c}" label="{!v.translate.crta__Offre_d_emploi__c.crta__Categorie__c}"
+                            required="false" onchange="{!c.submit}">
+                            <aura:iteration items="{!v.categories}" var="category">
+                                <option value="{!category}" text="{!category}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                        <lightning:input type="toggle" label="{!v.translate.crta__Offre_d_emploi__c.crta__CT_Scope__c}" checked="{!v.jobPosting.crta__CT_Scope__c}"
+                            class="slds-m-top_small" onchange="{!c.submit}" />
+                    </lightning:accordionSection>
+                    <lightning:accordionSection name="B" label="&nbsp;Recherche des mots-clés">
+                        <div class="slds-grid">
+                            <lightning:input label="Mot-clé" name="searchText" value="{!v.searchText}" class="slds-col slds-size_3-of-4" />
+                            <lightning:buttonIcon iconName="utility:search" variant="brand" onclick="{!c.submitText}" alternativeText="Rechercher" class="slds-m-left_small slds-col slds-size_1-of-4 bottom-align"
+                            />
+                        </div>
+                    </lightning:accordionSection>
+                </lightning:accordion>
+            </li>
+            <li>
+                <ul class="slds-accordeon">
+                    <li class="slds-accordion__list-item">
+                        <section class="slds-accordion__section slds-is-open">
+                            <div aria-hidden="false" class="slds-accordion__content">
+                                <iframe aura:id="vfFrame" src="{!'/apex/crta__RecruitmentMap?lcHost=' + v.lcHost}" />
+                            </div>
+                        </section>
+                    </li>
+                    <li aura:id="contacts" class="{!v.columnsContact==null || v.columnsContact==''?'slds-hidden':'slds-p-vertical_medium'}">
+                        <h3 class="slds-m-left_small slds-m-bottom_x-small slds-text-heading_small">
+                            {!v.translate.Contact.Label}
+                            <lightning:buttonIcon iconName="utility:download" variant="bare" alternativeText="Download CSV" class="slds-m-left_small" onclick="{!c.downloadContacts}"/>
+                        </h3>
+                        <div class="table-width slds-m-left_small">
+                            <lightning:datatable data="{!v.contacts}" keyField="Id" columns="{!v.columnsContact1}" onsort="{!c.sortContacts}" hideCheckboxColumn="true"
+                                sortedBy="{!v.sortedByContact}" sortedDirection="{!v.sortedDirectionContact}" />
+                        </div>
+                    </li>
+                    <li aura:id="jobPostings" class="{!v.columnscrta__Offre_d_emploi__c==null || v.columnscrta__Offre_d_emploi__c=='' ?'slds-hidden':'slds-p-vertical_medium'}">
+                        <h3 class="slds-m-left_small slds-m-bottom_x-small slds-text-heading_small">
+                            {!v.translate.crta__Offre_d_emploi__c.Label}
+                            <lightning:buttonIcon iconName="utility:download" variant="bare" alternativeText="Download CSV" class="slds-m-left_small"
+                                onclick="{!c.downloadJobPostings}" />
+                        </h3>
+                        <div class="table-width slds-m-left_small">
+                            <lightning:datatable data="{!v.jobPostings}" keyField="Id" columns="{!v.columnscrta__Offre_d_emploi__c1}" onsort="{!c.sortJobPostings}"
+                                hideCheckboxColumn="true" sortedBy="{!v.sortedByJobPosting}" sortedDirection="{!v.sortedDirectionJobPosting}"
+                            />
+                        </div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </article>
+</aura:component>

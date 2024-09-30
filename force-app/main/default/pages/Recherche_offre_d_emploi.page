@@ -1,0 +1,191 @@
+<apex:page controller="OESearchController" sidebar="false">
+
+<style>
+.big{
+    border-bottom-left-radius:5px;
+    border-bottom-right-radius:5px;
+    overflow:hidden;
+    margin:-11px 0px 0px;
+    border: solid 1px #1797c0; border-top:0px;
+    background:#f8f8f8;
+    padding-bottom:20px
+}
+
+.pageblock_left{
+    border: solid 1px #f8f8f8; border-left:0px; border-top:0px;
+    margin:20px 10px 10px -3px;
+    border-top-right-radius:20px; 
+    border-bottom-right-radius:20px; 
+    overflow:hidden;
+    padding:10px 10px 10px 0px;
+    transition: all 0.5sec;-webkit-transition: all 0.5s;
+}
+
+.pageblock_right{
+    margin: 20px -3px 10px 40px;
+    border-top-left-radius:20px;
+    border-bottom-left-radius:20px;
+    overflow:hidden;
+    padding:10px 0px 0px 10px;
+    transition: all 0.5sec;-webkit-transition: all 0.5s;
+}
+.pageblock_bottom{
+    box-shadow:-1px 1px 5px 1px black;
+    margin-left:15%; margin-right:-3px; margin-top:20px;
+    padding:10px 0px 10px 15px;
+    border-top-left-radius:20px;
+    border-bottom-left-radius:20px;
+    background:#1797c0;
+}
+</style>
+
+  <apex:form >
+<div class="big">
+  <apex:pageMessages id="errors" />
+ 
+  <apex:pageBlock title="{!$Label.crta__offer_search_title}" mode="edit">
+  <apex:outputText value="{!$Label.crta__offer_search_database_count}">
+    <apex:param value="{!OECount}" />
+  </apex:outputText>  
+ 
+  <table width="100%" border="0" >
+    <tr>  
+      <td width="200" valign="top"> 
+      <div class="pageblock_left">
+      <apex:pageBlock title="{!$Label.crta__offer_search_selection}" mode="edit" id="criteria">
+ 
+      <script type="text/javascript">
+        function doSearch() {
+          searchServer(
+            document.getElementById("date1").value,
+            document.getElementById("intitule_mission").value,
+            document.getElementById("departement").value,
+            document.getElementById("{!$Component.secteur_d_activite}").options[document.getElementById("{!$Component.secteur_d_activite}").selectedIndex].value
+            );
+        }
+      </script> 
+ 
+      <apex:actionFunction name="searchServer" action="{!runSearch}" rerender="results,debug,errors">
+          <apex:param name="date1" value="" />
+          <apex:param name="intitule_mission" value="" />
+          <apex:param name="departement" value="" />
+          <apex:param name="secteur_d_activite" value="" />
+      </apex:actionFunction>
+ 
+      <table cellpadding="2" cellspacing="2">
+        <tr>
+          <td style="font-weight:bold;">{!$ObjectType.Offre_d_emploi__c.fields.CT_Date__c.Label} <br/>
+          <input type="date" id="date1" onchange="doSearch();"/>
+          </td>
+        </tr>
+        <tr>
+          <td style="font-weight:bold;">{!$ObjectType.Offre_d_emploi__c.fields.CT_Description__c.Label}<br/>
+          <input type="text" id="intitule_mission" onkeyup="doSearch();"/>
+          </td>
+        </tr>
+        <tr>
+          <td style="font-weight:bold;">{!$ObjectType.Offre_d_emploi__c.fields.CT_Department__c.Label}  <br/>
+          <input type="text" id="departement" onkeyup="doSearch();"/>
+          </td>
+        </tr>
+        <tr>
+        <td style="font-weight:bold;">{!$ObjectType.Offre_d_emploi__c.fields.CT_Support__c.Label}<br/>
+            <apex:selectList id="secteur_d_activite" value="{!selectedSecteur}" size="1" styleClass="secteur_d_activite" onchange="doSearch();">
+                <apex:selectOptions value="{!secteur_d_activite}"></apex:selectOptions>
+            </apex:selectList>
+          </td>
+       </tr>
+     </table>
+ 
+      </apex:pageBlock>
+    </div>
+    </td>
+    <td valign="top">
+     <div class="pageblock_right">
+    <apex:pageBlock mode="edit" id="results">
+ 
+        <apex:pageBlockTable value="{!offre_emplois}" var="offre_emploi" rows="20">
+ 
+            <apex:column >
+                <apex:facet name="header">
+                    <apex:commandLink value="{!$ObjectType.Offre_d_emploi__c.fields.name.Label}" action="{!toggleSort}" rerender="results,debug">
+                        <apex:param name="sortField" value="name" assignTo="{!sortField}"/>
+                    </apex:commandLink>
+                </apex:facet>
+                <apex:outputLink value="/{!offre_emploi.id}" >{!offre_emploi.name}</apex:outputLink>
+            </apex:column>
+ 
+            <apex:column >
+                <apex:facet name="header">
+                    <apex:commandLink value="{!$ObjectType.Offre_d_emploi__c.fields.CT_Date__c.Label}" action="{!toggleSort}" rerender="results,debug">
+                        <apex:param name="sortField" value="date__c" assignTo="{!sortField}"/>
+                    </apex:commandLink>
+                </apex:facet>
+                <apex:outputField value="{!offre_emploi.CT_Date__c}"/>
+            </apex:column>
+ 
+            <apex:column >
+                <apex:facet name="header">
+                    <apex:commandLink value="{!$ObjectType.Offre_d_emploi__c.fields.CT_Description__c.Label}" action="{!toggleSort}" rerender="results,debug">
+                        <apex:param name="sortField" value="Intitul__c" assignTo="{!sortField}"/>
+                    </apex:commandLink>
+                </apex:facet>
+                <apex:outputField value="{!offre_emploi.CT_Description__c}"/>
+            </apex:column>
+
+            <apex:column >
+                <apex:facet name="header">
+                    <apex:commandLink value="{!$ObjectType.Offre_d_emploi__c.fields.CT_Support__c.Label}" action="{!toggleSort}" rerender="results,debug">
+                        <apex:param name="sortField" value="prestation__c" assignTo="{!sortField}"/>
+                    </apex:commandLink>
+                </apex:facet>
+                <apex:outputField value="{!offre_emploi.CT_Support__c}"/>  &nbsp; <apex:outputField value="{!offre_emploi.CT_Duration__c}"/>
+            </apex:column>
+
+
+            <apex:column >
+                <apex:facet name="header">
+                    <apex:commandLink value="{!$ObjectType.Offre_d_emploi__c.fields.CT_Department__c.Label}" action="{!toggleSort}" rerender="results,debug">
+                        <apex:param name="sortField" value="D_partement__c" assignTo="{!sortField}"/>
+                    </apex:commandLink>
+                </apex:facet>
+                <apex:outputField value="{!offre_emploi.CT_Department__c}"/>
+            </apex:column>
+
+
+            <apex:column >
+                <apex:facet name="header">
+                    <apex:commandLink value="{!$ObjectType.Offre_d_emploi__c.fields.CT_City__c.Label}" action="{!toggleSort}" rerender="results,debug">
+                        <apex:param name="sortField" value="Ville__c" assignTo="{!sortField}"/>
+                    </apex:commandLink>
+                </apex:facet>
+                <apex:outputField value="{!offre_emploi.CT_City__c}"/>
+            </apex:column>
+
+        </apex:pageBlockTable>
+        <apex:outputText value="{!$Label.crta__offer_search_result_count}">
+          <apex:param value="{!Total_size}" />
+          <apex:param value="{!pagenumber}" />
+          <apex:param value="{!totalpages}" />
+        </apex:outputText>
+    </apex:pageBlock>
+    </div> 
+    <div class="pageblock_bottom">
+   <apex:panelGrid columns="5">
+           <apex:commandButton action="{!URLFOR($Action.Offre_d_emploi__c.New)}" value="{!$Label.crta__offer_search_button_new}" rendered="{!not(BEGINS($Profile.Name,'Customer'))}" />
+           <apex:commandButton action="{!first}" value="{!$Label.crta__offer_search_button_first}" />
+           <apex:commandButton action="{!previous}" value="{!$Label.crta__offer_search_button_previous}" disabled="{!disableNext}" />
+           <apex:commandButton action="{!next}" value="{!$Label.crta__offer_search_button_next}" disabled="{!disableNext}" />
+           <apex:commandButton action="{!last}" value="{!$Label.crta__offer_search_button_last}" />
+   </apex:panelGrid>
+    </div> 
+ 
+    </td>
+  </tr>
+  </table>
+
+  </apex:pageBlock>
+  </div>
+ 
+  </apex:form>
+</apex:page>

@@ -1,0 +1,168 @@
+<apex:page showHeader="true" sidebar="false" cache="false" controller="offerGeolocationController" docType="html-5.0">
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+        <script>
+            var map;
+            var geocoder;
+            var position;
+            
+            function initialize() {
+                 geocoder = new google.maps.Geocoder();
+                 //set the map options in the format that V3 of googlemaps expects
+                 var mapOptions = {
+                    zoom: 7,
+                    //center: new google.maps.LatLng(32.5206608,-86.80249),
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    streetViewControl: false
+                 };
+                 // attach our map to the map div
+                 map = new google.maps.Map(document.getElementById('map'),mapOptions);
+                 codeAddress() ;
+                 <apex:repeat value="{!matchedContacts}" var="Contact">      
+                      showAddress("{!JSENCODE(Contact.Name)}", "{!JSENCODE(Contact.Name)}  <a href='../{!Contact.id}' target='_blank'>Details</a><br> ", "{!Contact.Location__Latitude__s}", "{!Contact.Location__Longitude__s}", "blue");
+                  </apex:repeat>     
+
+                  <apex:repeat value="{!matchedOffers}" var="OE">      
+                      showAddress("{!JSENCODE(OE.Name)}", "{!JSENCODE(OE.Name)}  <a href='../{!OE.ID}' target='_blank'>Details</a><br>", "{!OE.Location__Latitude__s}", "{!OE.Location__Longitude__s}", "green");
+                  </apex:repeat>     
+            }    
+
+             function showAddress(title, content, Lat, Long, color) {
+                 // convert our raw values to the format that google expects
+                 //window.alert('show Address');                                 
+                 var latlng = new google.maps.LatLng(parseFloat(Lat), parseFloat(Long));
+                 if (latlng != null) {
+                        // create an info window            
+                        var infowindow = new google.maps.InfoWindow({
+                            content: content
+                        });
+                                                
+                        // Create a marker on the map                   
+                        var marker = new google.maps.Marker({
+                            position: latlng,
+                            icon: "https://maps.google.com/mapfiles/ms/micons/" + color +  ".png",
+                            map: map,
+                            title: title                        
+                        });
+
+                       //google.maps.event.addDomListener(window, 'load', initialize);
+
+                       // Add an event to the marker so the info window will appear when it is clicked
+                       google.maps.event.addListener(marker, 'click', function() {
+                            infowindow.open(map,marker);
+                       });
+
+                } // check for null latlng due an error parsing
+
+            } // end show address          
+
+            function codeAddress() {
+                 var adresse = document.getElementById('{!$Component.sidebarForm.positionBlock.positionBlockSection.address}').value;
+                 geocoder.geocode( { 'address': adresse}, function(results, status) {
+                      if (status == google.maps.GeocoderStatus.OK) {
+                          map.setCenter(results[0].geometry.location);
+                           var marker = new google.maps.Marker({
+                                map: map,
+                                position: results[0].geometry.location
+                           })
+                           document.getElementById('{!$Component.sidebarForm.positionBlock.positionBlockSection.position}').value = results[0].geometry.location;
+                      } /*else {
+                           alert('Geocode was not successful for the following reason: ' + status);
+                      }*/
+                 });
+            }           
+            google.maps.event.addDomListener(window, 'load', initialize);
+        </script>
+
+        <style type="text/css" media="screen">
+            .sidebar { height: 800px; width: 24%; float: left;}
+            .results { height: 800px; width: 74%; float: right;}
+            .results .table { height: 150px; overflow: auto; margin-bottom: 10px;}
+            .results .map { height: 650px;}
+            input, select { margin-bottom: 10px;}
+            body .bPageBlock  { margin-bottom: 0; }
+            body .secondaryPalette.bPageBlock { border-radius: 0; }
+        </style>
+
+        <apex:form >
+            <div class="sidebar">
+                <apex:pageBlock tabStyle="Contact" id="positionBlock" mode="detail">
+                    <apex:pageBlockSection columns="1" collapsible="true" title="{!$Label.crta__search_area}" id="positionBlockSection">
+                        <apex:input id="address" label="{!$Label.crta__lieu}: " type="text" value="{!location}" />
+                        <apex:input label="{!$Label.crta__distance}: " type="number" value="{!distance}" />
+                            <apex:inputHidden id="position" value="{!position}" />
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1" collapsible="true" title="{!$Label.crta__candidats}">
+                        <apex:selectList label="{!$Label.crta__contact_type}: " value="{!selectedType}" size="1" title="Type">
+                            <apex:selectOptions value="{!contactTypes}"></apex:selectOptions>
+                        </apex:selectList>
+                        <apex:inputField label="{!$ObjectType.Contact.fields.CT_Management_level__c.Label}: " value="{!mockContact.CT_Management_level__c}" />
+                        <apex:inputField label="{!$ObjectType.Contact.fields.CT_Support__c.Label}: " value="{!mockContact.CT_Support__c}" />
+                        <apex:inputField label="{!$ObjectType.Contact.fields.CT_Situation__c.Label}: " value="{!mockContact.CT_Situation__c}" />
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1" collapsible="true" title="{!$Label.crta__job_offers}">
+                        <apex:selectList label="{!$ObjectType.Offre_d_emploi__c.fields.CT_Industry_of_activities__c.Label}:" value="{!selectedIndustry}" size="1" title="Type">
+                            <apex:selectOptions value="{!offerIndustries}"></apex:selectOptions>
+                        </apex:selectList>
+                        <apex:inputField label="{!$ObjectType.Offre_d_emploi__c.fields.Filiere__c.Label}: " value="{!mockOffer.Filiere__c}" />
+                        <apex:inputField label="{!$ObjectType.Offre_d_emploi__c.fields.Categorie__c.Label}: " value="{!mockOffer.Categorie__c}" />
+                        <apex:inputField label="{!$ObjectType.Offre_d_emploi__c.fields.CT_Scope__c.Label}: " value="{!mockOffer.CT_Scope__c}" />
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1" collapsible="true" title="{!$Label.crta__search}">
+                        <apex:input label="{!$Label.crta__search}" type="search" value="{!searchText}" />
+                        <apex:commandButton action="{!search}" value="Valider" />
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+            </div>
+            <div class="results">
+                <div class="table">
+                    <apex:pageBlock tabStyle="Contact" mode="edit" id="results">
+                        <apex:pageBlockTable value="{!matchedContacts}" var="cList" > 
+                            <apex:column >
+                                <apex:facet name="header">
+                                    <apex:commandLink value="{!$ObjectType.Contact.fields.LastName.Label}" action="{!toggleSort}" rerender="results">
+                                        <apex:param name="sortField" value="lastname" assignTo="{!sortField}"/>
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputLink value="/{!cList.id}" >{!cList.LastName}</apex:outputLink>
+                            </apex:column> 
+                            <apex:column >
+                                <apex:facet name="header">
+                                    <apex:commandLink value="{!$ObjectType.Contact.fields.FirstName.Label}" action="{!toggleSort}" rerender="results">
+                                        <apex:param name="sortField" value="firstname" assignTo="{!sortField}"/>
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputField value="{!cList.firstname}"/>
+                            </apex:column> 
+                            <apex:column >
+                                <apex:facet name="header">
+                                    <apex:commandLink value="{!$ObjectType.Contact.fields.CT_Management_level__c.Label}" action="{!toggleSort}" rerender="results">
+                                    <apex:param name="sortField" value="CT_Management_level__c" assignTo="{!sortField}"/>
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputField value="{!cList.CT_Management_level__c}"/>
+                            </apex:column>
+                
+                            <apex:column >
+                                <apex:facet name="header">
+                                <apex:commandLink value="{!$ObjectType.Contact.fields.CT_Support__c.Label}" action="{!toggleSort}" rerender="results">
+                                        <apex:param name="sortField" value="CT_Support__c" assignTo="{!sortField}"/>
+                                    </apex:commandLink>
+                                </apex:facet>
+                            <apex:outputField value="{!cList.CT_Support__c}"/>
+                            </apex:column>
+                
+                            <apex:column >
+                                <apex:facet name="header">
+                                    <apex:commandLink value="{!$ObjectType.Contact.fields.CT_Situation__c.Label}" action="{!toggleSort}" rerender="results">
+                                        <apex:param name="sortField" value="CT_Situation__c" assignTo="{!sortField}"/>
+                                    </apex:commandLink>
+                                </apex:facet>
+                            <apex:outputField value="{!cList.CT_Situation__c}"/>
+                            </apex:column>
+                        </apex:pageBlockTable>            
+                    </apex:pageBlock>
+                </div>
+                <div id="map" class="map"></div>
+            </div>
+        </apex:form>
+</apex:page>

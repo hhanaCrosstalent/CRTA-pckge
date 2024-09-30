@@ -1,0 +1,15 @@
+<aura:documentation>
+	<aura:description>
+		<p>
+			The <code>c:GDPRReadiness</code> component displays information and provides functionality required by the
+			EU General Data Protection Regulation (French: Règlement général sur la protection des données). The user
+			can read the text and indicate an interest in four different types of actions. If the user does so, this is
+			written to a dedicated database table (Salesforce custom object <code>GDPR</code>). It is up to a System
+			Administrator or responsible person of the company to create a report based on this database table or 
+			extract relevant users and actions in any other way from it. (No e-mails are sent.)
+		</p>
+	</aura:description>
+	<aura:example name="GDPRReadinessExample" ref="c:GDPRReadinessExample" label="Using the c:GDPRReadiness component">
+		(to be provided)
+	</aura:example>
+</aura:documentation>

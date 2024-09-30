@@ -1,0 +1,4 @@
+<design:component>
+        <design:attribute name="filter" label="Filter" 
+                          default=" crta__Component_Name__c = 'CustomLink' and crta__Sub_Tab__c = null and crta__Tab__c = null "/>	
+</design:component>

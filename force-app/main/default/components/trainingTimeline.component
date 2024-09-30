@@ -1,0 +1,39 @@
+<apex:component layout="block">
+      <apex:attribute name="formation" description="Wanted training" type="Formation__c" required="true" />
+
+      <li id="{!formation.id}" class="timeline-block {!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c < 40, 'pending', '')} {!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c >= 40 && formation.FO_statut_value__c < 50, 'current', '')} {!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c >= 50, 'confirmed', '')}" data-type="training">
+            <div class="tlcontent">
+                  <div class="tltype training">
+                        <i title="{!$ObjectType.Formation__c.Label}" class="fa fa-graduation-cap"></i> 
+                        <a href="#">
+                              <apex:outputText value="{!$Label.crta__timeline_training_title}">
+                                <apex:param value="{!formation.FO_Nom_de_la_formation__c}"/>
+                                <apex:param value="{!formation.FO_Catalogue_de_formation__r.FO_organisme_de_formation__r.Name}"/>
+                              </apex:outputText>
+                        </a>
+                        <time class="tltime" datetime="{!formation.CT_Start_date__c}">
+                              <span>
+                                    <i title="{!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c < 40, $Label.pending_training, '')} {!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c >= 40 && formation.FO_statut_value__c < 50, $Label.current_training, '')} {!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c >= 50, $Label.Finished_training, '')}" class="fa {!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c < 40, 'fa-clock-o', '')} {!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c >= 40 && formation.FO_statut_value__c < 50, 'fa-edit', '')} {!IF(formation.FO_statut_value__c != null && formation.FO_statut_value__c >= 50, 'fa-check-circle-o', '')}"></i>
+                                <apex:outputField value="{!formation.CT_Start_date__c}" />
+                              </span>
+                        </time>
+                  </div>
+                  <div class="tllabel">
+                        <div class="row tldetails">
+                              <apex:outputPanel styleClass="small-12 medium-6 column">
+                                  <span class="ct-label">{!$ObjectType.Formation__c.fields.FO_Type__c.Label}</span>&nbsp;: <span class="ct-output">{!formation.FO_Type__c}</span> 
+                              </apex:outputPanel>
+                              <apex:outputPanel styleClass="small-12 medium-6 column">
+                                  <span class="ct-label">{!$ObjectType.Formation__c.fields.FO_Statut__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!formation.FO_Statut__c}" /></span>
+                              </apex:outputPanel>
+                              <apex:outputPanel rendered="{!IF(formation.FO_Catalogue_de_formation__r.FO_Duree__c != null, true, false)}" styleClass="small-12 medium-6 column">
+                                  <span class="ct-label">{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Duree__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!formation.FO_Catalogue_de_formation__r.FO_Duree__c}" /></span>
+                              </apex:outputPanel>
+                              <apex:outputPanel rendered="{!IF(formation.FO_Catalogue_de_formation__r.FO_Lieu__c != null, true, false)}" styleClass="small-12 medium-6 column">
+                                  <span class="ct-label">{!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Lieu__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!formation.FO_Catalogue_de_formation__r.FO_Lieu__c}" /></span>
+                              </apex:outputPanel>
+                        </div>
+                  </div>
+            </div>
+      </li>
+</apex:component>

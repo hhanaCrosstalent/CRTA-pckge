@@ -1,0 +1,4 @@
+<design:component label="ProfilePictureDisplay">
+<design:attribute name="message" label="Message"/>
+<design:attribute name="AfficherLaPhoto" label="Afficher la photo de profil du portail" description="Cocher cette case permet d'afficher la même photo de profil que dans le portail du contact"/>
+</design:component>

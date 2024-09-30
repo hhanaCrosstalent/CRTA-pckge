@@ -1,0 +1,9 @@
+.modal-background {    
+    background: radial-gradient(#b6b6b6, transparent);
+}
+.btn-style {
+    text-align: end;
+    padding-right: 2%;
+        margin-bottom: 1%;
+
+}

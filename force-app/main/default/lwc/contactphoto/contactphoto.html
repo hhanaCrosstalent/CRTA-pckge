@@ -1,0 +1,26 @@
+<template>
+    <template if:true={content}>
+        <div class="slds-grid">
+            <div class="slds-col right-content"> <!-- slds-size_1-of-8 w-10 -->
+                <template if:true={content.url}>
+                    <lightning-avatar class="contact-photo"
+                        variant="circle"
+                        src={content.url}
+                        alternative-text={content.name}
+                        size="x-small"
+                    ></lightning-avatar>
+                </template>
+                <template if:false={content.url}>
+                        <lightning-avatar  
+                         class="contact-photo"
+                         variant="circle" initials={content.initials}
+                         alternative-text={content.name}  size="x-small"
+                         ></lightning-avatar>
+                </template>
+            </div>
+            <div class="slds-col left-content" >
+                <span>{content.name}</span>
+            </div>
+        </div>
+    </template>
+</template>

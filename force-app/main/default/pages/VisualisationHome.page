@@ -1,0 +1,250 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" controller="VisualisationHomeController" >
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <div id="news" class="news joyride-article small-12 large-6 column" data-fold="false">
+            <h4 class="title secondary-font header">
+                  <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('news');">
+                        <i class="fa fa-newspaper-o"></i>
+                        <span>{!$ObjectType.Article__c.LabelPlural}</span>
+                  </a>
+            </h4>
+            <div class="card">
+                  <div data-foldable="true">
+                        <apex:repeat value="{!posts}" var="post">
+                              <apex:variable value="{!IF(post.Attachments.size > 0, URLFOR($Action.Attachment.Download, post.Attachments[0].Id), '')}" var="attachment" />
+                              <article>
+                                    <div class="content">
+                                          <h3 class="title {!IF(attachment != '', 'image', '')}" style="{!IF(attachment != '',  'background:url('+attachment+')', '')}; color:{!post.Couleur_du_titre__c}">{!post.Name}</h3>
+                                          <apex:outputField styleClass="text" value="{!post.Texte__c}"/>
+                                    </div>
+                                    <footer>
+                                          <apex:outputPanel rendered="{!$Setup.News__c.showDate__c}"><time>{!$ObjectType.Article__c.fields.Date_de_publication__c.Label}&nbsp;:&nbsp;<apex:outputField value="{!post.Date_de_publication__c}"/></time></apex:outputPanel> <apex:outputPanel rendered="{!$Setup.News__c.showAuthor__c}"> {!$Label.crta__by} {!post.owner.name}</apex:outputPanel>
+                                          <apex:outputPanel rendered="{!$Setup.News__c.showCategories__c}"> / {!$Label.crta__categories} : {!post.Categories__c}</apex:outputPanel>
+                                    </footer>
+                              </article>
+                        </apex:repeat>
+                  </div>
+            </div>
+      </div>
+
+      <div class="small-12 large-6 column">
+            <div id="fullcalendar" class="custom-cal joyride-calendar"></div>
+      </div>
+
+      <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/fullcalendar.min.js')}" />
+      <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/lang-all.js')}" />
+      <script  type="text/javascript">
+            function startIntro(){
+                  var intro = introJs();
+                  intro.setOptions({
+                        nextLabel: "{!$Label.SI_Joyride_button_next}",
+                        prevLabel: "{!$Label.SI_Joyride_button_previous}",
+                        doneLabel: "{!$Label.SI_Joyride_button_end}",
+                        skipLabel: "{!$Label.SI_Joyride_button_skip}",
+                        exitOnEsc: true,
+                        exitOnOverlayClick: true,
+                        showStepNumbers: false,
+                        keyboardNavigation: true,
+                        disableInteraction: true,
+                        steps: [
+                          { 
+                            intro: "{!$Label.SI_Joyride_first_step}"
+                          },
+                          {
+                            element: jQuery('.joyride-sidebar-menu')[0],
+                            intro: "{!$Label.SI_Joyride_sidebar_menu_step}",
+                            position: 'right'
+                          },
+                          {!IF($Setup.crta__sirh__c.crta__useAvatars__c,'{element: document.getElementById("joyride-topbar-avatar"),intro: "'+$Label.SI_Joyride_topbar_avatar_step+'",position: "bottom-right-aligned"},','')}
+                          {
+                            element: document.getElementById('joyride-topbar-alert'),
+                            intro: "{!$Label.SI_Joyride_topbar_alert_step}",
+                            position: 'bottom-right-aligned'
+                          },
+                          {
+                            element: document.getElementById('joyride-topbar-menu'),
+                            intro: "{!$Label.SI_Joyride_topbar_menu_step}",
+                            position: 'bottom-right-aligned'
+                          },
+                          {
+                            element: jQuery('.joyride-article')[0],
+                            intro: "{!$Label.SI_Joyride_article_step}",
+                            position: 'right'
+                          },
+                          {
+                            element: jQuery('.joyride-notification')[0],
+                            intro: "{!$Label.SI_Joyride_notification_step}",
+                            position: 'left'
+                          },
+                          {
+                            element: jQuery('.joyride-calendar')[0],
+                            intro: "{!$Label.SI_Joyride_calendar_step}",
+                            position: 'left'
+                          }
+                        ]
+                  });
+                  intro.start().setOption('doneLabel', '{!$Label.SI_Joyride_button_next_page}').oncomplete(function() {
+                        window.location.href = '<apex:outputText value="{!JSENCODE($Setup.sirh__c.Page_Profil__c)}"/>?multipage=true';
+                  });
+            }
+
+            jQuery(document).ready(function() {
+                  jQuery('article').on('click', '.title', function(event) {
+                        event.preventDefault();
+                        var article = jQuery(this).parents('article');
+                        var content = jQuery(this).parents('article').children('.content');
+                        var table = jQuery(this).parents('article').children('.content').children('span').children('table');
+                        if (article.css('max-height') == '165px') {
+                              table.css('overflow', 'overflow');
+                              table.css('max-height', 'none');
+                              article.css('overflow', 'overflow');
+                              article.css('max-height', 'none');
+                              content.css('overflow', 'overflow');
+                              content.css('max-height', 'none');
+                        } else{
+                              table.css('overflow', 'hidden');
+                              table.css('max-height', '100px');
+                              article.css('overflow', 'hidden');
+                              article.css('max-height', '165px');
+                              content.css('overflow', 'hidden');
+                              content.css('max-height', '150px');
+                        };
+                  });
+
+                  jQuery('#fullcalendar').fullCalendar({
+                        lang: '{!locale}',
+                        header: {
+                          left:   'prev',
+                          center: 'title',
+                          right:  'next'
+                        },
+                        eventSources: [
+                              { //Training registrations
+                                    events: function(start, end, timezone, callback) {
+                                          sforce.connection.sessionId = '{!$Api.Session_ID}';
+                                          var result = sforce.apex.execute(NSD+'TrainingRegistrationRepository', 'getAllActiveByContactBetweenDates', {
+                                                contactId: '{!contactId}',
+                                                startDate: start.utc().toISOString(),
+                                                endDate: end.utc().toISOString()
+                                          }, {
+                                                onSuccess: function (result) {
+                                                      var events = [];
+                                                      jQuery.each(result, function(index, val) {
+                                                            events.push({
+                                                                  start: val[NSU+'FO_Date_et_heure_de_debut__c'],
+                                                                  end: val[NSU+'FO_Date_et_heure_de_fin__c'],
+                                                                  title: '<i class="fa fa-graduation-cap"></i>',
+                                                                  description: '{!$ObjectType.Formation__c.Label} '+val[NSU+'FO_Nom_de_la_formation__c'],
+                                                                  url: '<apex:outputText value="{!JSENCODE($Setup.sirh__c.Page_Formation__c)}"/>?id='+val[NSU+'Action_de_formation__c'],
+                                                                  className: 'training-event'
+                                                            });
+                                                      });
+                                                      callback(events);
+                                                }, 
+                                                onFailure: function (error) {
+                                                      console.log(error);
+                                                }
+                                          }); 
+                                    }
+                              },
+                              { //Constraints
+                                    events: function(start, end, timezone, callback) {
+                                          sforce.connection.sessionId = '{!$Api.Session_ID}';
+                                          var result = sforce.apex.execute(NSD+'ConstraintRepository', 'getAllByContactBetweenDates', {
+                                                contactId: '{!contactId}',
+                                                startDate: start.toISOString(),
+                                                endDate: end.toISOString()
+                                          }, {
+                                                onSuccess: function (result) {
+                                                      var events = [];
+                                                      jQuery.each(result, function(index, val) {
+                                                            events.push({
+                                                                  start: val[NSU+'Date_de_debut__c'],
+                                                                  end: moment(val[NSU+'Date_de_fin__c']).add(1, 'days'),
+                                                                  title: '<i class="fa fa-chain"></i> '+val[NSU+'Motif__c'],
+                                                                  description: '{!$ObjectType.Astreinte__c.Label} '+val[NSU+'Motif__c'],
+                                                                  url: '<apex:outputText value="{!JSENCODE($Setup.sirh__c.Page_Semaine__c)}"/>',
+                                                                  className: 'constraint-event'
+                                                            });
+                                                      });
+                                                      callback(events);
+                                                }, 
+                                                onFailure: function (error) {
+                                                      console.log(error);
+                                                }
+                                          }); 
+                                    }
+                              },
+                              { //Leave requests
+                                    events: function(start, end, timezone, callback) {
+                                          sforce.connection.sessionId = '{!$Api.Session_ID}';
+                                          var result = sforce.apex.execute(NSD+'LeaveRepository', 'getAllByContactBetweenDate', {
+                                                contactId: '{!contactId}',
+                                                startDate: start.toISOString(),
+                                                endDate: end.toISOString()
+                                          }, {
+                                                onSuccess: function (result) {
+                                                      var events = [];
+                                                      jQuery.each(result, function(index, val) {
+                                                            events.push({
+                                                                  start: moment(val[NSU+'Date_de_debut__c']),
+                                                                  end: moment(val[NSU+'Date_de_fin__c']),
+                                                                  title: '<i class="fa fa-ticket"></i> '+val[NSU+'Type__c'],
+                                                                  description: moment(jQuery(this).attr(NSU+'Date_de_debut__c')).format('L LT')+'<->'+moment(jQuery(this).attr(NSU+'Date_de_fin__c')).format('L LT'),
+                                                                  url: '<apex:outputText value="{!JSENCODE($Setup.sirh__c.Page_Profil__c)}"/>',
+                                                                  className: 'leave-event'
+                                                            });
+                                                      });
+                                                      callback(events);
+                                                }, 
+                                                onFailure: function (error) {
+                                                      console.log(error);
+                                                }
+                                          }); 
+                                    }
+                              },
+                              {
+                                    events: function(start, end, timezone, callback) {
+                                          Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationHomeController.getCalendarEvents}', start, end, '{!contactId}', function(result, event) {
+                                                if (event.status) {
+                                                      var events = [];
+                                                      jQuery.each(result, function(index, val) {
+                                                            jQuery.each(val, function(index2, val2) {
+                                                                  switch(index) {
+                                                                        case 'interview':
+                                                                            var start = jQuery(this).attr(NSU+'EI_Date_de_l_entretien__c');
+                                                                            var end = jQuery(this).attr(NSU+'EI_Date_de_l_entretien__c');
+                                                                            var title = '<i class="fa fa-comments-o"></i>';
+                                                                            var description =  '{!$ObjectType.EI_Entretien__c.Label} {!$Label.crta__by} '+jQuery(this).attr(NSU+'EI_Salarie_qui_fait_passer_l_entretien__r').Name;
+                                                                            var url = '<apex:outputText value="{!JSENCODE($Setup.sirh__c.Page_Entretien__c)}"/>?id='+jQuery(this).attr('Id');
+                                                                        break;
+                                                                  }
+                                                                  if(index == 'interview') {
+                                                                        events.push({
+                                                                              title: title,
+                                                                              start: start,
+                                                                              end: end,
+                                                                              className: index,
+                                                                              description: description,
+                                                                              url: url
+                                                                        });
+                                                                  }
+                                                            });
+                                                      });
+                                                      callback(events);
+                                                }
+                                          },
+                                          {escape: true});
+                                    }
+                              }
+                        ],
+                        eventAfterRender: function( event, element, view ) { 
+                              element.find('.fc-title').html(event.title); 
+                              element.find('.fc-content').attr('title', event.description); 
+                        }
+                  });
+            });
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

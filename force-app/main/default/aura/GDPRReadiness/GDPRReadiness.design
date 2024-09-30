@@ -1,0 +1,9 @@
+<design:component >
+    <design:attribute name="table1" label="Tableau 1 en CSV" max="100000" description="Le CSV doit avoir 4 colonnes (&#34;,&#34; comme séparateur de colonne, &#34;|&#34; comme séparateur de ligne). Les caractères spéciaux
+    doivent être encodé en HTML."/>
+    <design:attribute name="table2" label="Tableau 2 en CSV" max="100000" description="Le CSV doit avoir 5 colonnes (&#34;,&#34; comme séparateur de colonne, &#34;|&#34; comme séparateur de ligne). Les
+    caractères spéciaux doivent être encodé en HTML."/>
+    <design:attribute name="table3" label="Tableau 3 en CSV" max="100000" description="Le CSV doit avoir 5 colonnes (&#34;,&#34; comme séparateur de colonne, &#34;|&#34; comme séparateur de ligne). Les
+    caractères spéciaux doivent être encodé en HTML."/>
+    <design:attribute name="word" label="Coordonnées du responsable" description="Coordonnées du responsable de la gestion des données personnelles" />
+</design:component>

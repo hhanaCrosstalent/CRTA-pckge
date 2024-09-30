@@ -1,0 +1,401 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" controller="VisualisationEquipeController" cache="true">
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <div id="team" class="row">
+            <apex:repeat value="{!employees}" var="employee">
+                  <div class="team-block small-12 medium-12 large-6 column" data-user="{!employee.Id}">
+                        <div class="avatar hide-for-small medium-3 large-2 column">
+                              <apex:outputPanel layout="inline" rendered="{!!employee.Attachments.empty && $Setup.sirh__c.useAvatars__c}"><a href="{!$Setup.crta__sirh__c.crta__Page_Profil__c}?id={!employee.id}"><img alt="{!employee.Name}" title="{!$Label.SI_Alttext_avatar}" src="/servlet/servlet.FileDownload?file={!employee.Attachments[0].Id}" /></a></apex:outputPanel>
+                              <apex:outputPanel layout="inline" rendered="{!employee.Attachments.empty || !$Setup.sirh__c.useAvatars__c}"><a href="{!$Setup.crta__sirh__c.crta__Page_Profil__c}?id={!employee.id}"><img alt="{!employee.Name}" title="{!$Label.SI_Alttext_avatar}" src="{!URLFOR($Resource.avatar_blank)}" /></a></apex:outputPanel>
+                        </div>
+                        <div class="small-12 medium-9 large-10 column">
+                              <div class="small-9 column info-block">
+                                    <h4 class="title secondary-font header">
+                                          <a class="secondary-font" href="{!$Setup.sirh__c.Page_Profil__c}?id={!employee.id}">{!employee.Name}</a>
+                                    </h4>
+                                    <div class="card">
+                                          <div class="row infos">
+                                                <div class="small-12 column info">
+                                                     <div class="row">
+                                                           <div class="ct-label small-12 column">
+                                                                  {!$ObjectType.Contact.fields.Title.Label} : 
+                                                                  <span class="ct-output">{!employee.Title}</span>
+                                                           </div>
+                                                     </div>
+                                                </div>
+
+                                                <div class="small-12 column info">
+                                                      <div class="row">
+                                                            <div class="ct-label small-12 column">
+                                                                  {!$ObjectType.Contact.fields.CT_Service__c.Label} : 
+                                                                  <span class="ct-output">{!employee.CT_Service__c}</span>
+                                                            </div>
+                                                      </div>
+                                                </div>
+
+                                                <div class="small-12 column info">
+                                                      <div class="row">
+                                                            <div class="ct-label small-12 column">
+                                                                  {!$ObjectType.Contact.fields.CT_Matricule__c.Label} : 
+                                                                  <span class="ct-output">{!employee.CT_Matricule__c}</span>
+                                                            </div>
+                                                      </div>
+                                                </div>
+
+                                                <div class="small-12 column info">
+                                                       <div class="row">
+                                                            <div class="ct-label small-12 column">
+                                                                  {!$ObjectType.Contact.fields.CT_Date_of_entry_to_the_society__c.Label} : 
+                                                                 <span class="ct-output"><apex:outputField value="{!employee.CT_Date_of_entry_to_the_society__c}" /></span>
+                                                            </div>
+                                                       </div>
+                                                </div>
+                                          </div>
+                                    </div>
+                              </div>
+                              <div class="small-3 column activity-block">
+                                    <h4 class="title secondary-font header">
+                                          <i class="fa fa-code-fork"></i>
+                                    </h4>
+                                    <div class="card">
+                                          <div class="row infos">
+                                                <apex:outputPanel layout="block" rendered="{!$Setup.sirh__c.showTrainings__c}" styleClass="small-12 column info training-activity">
+                                                      <div class="row">
+                                                            <div class="ct-label small-12 column">
+                                                                  <a href="#" onclick="event.preventDefault(); loadTrainings('{!employee.Id}', '{!JSENCODE(employee.Name)}')">
+                                                                        <i class="fa fa-graduation-cap training-font" title="{!$ObjectType.Action_de_formation__c.LabelPlural}"></i>
+                                                                        <span class="ct-output">{!employee.Actions_de_formation__r.size}</span>
+                                                                  </a>
+                                                            </div>
+                                                      </div>
+                                                </apex:outputPanel>
+
+                                                <apex:outputPanel layout="block" rendered="{!$Setup.sirh__c.showInterviews__c}" styleClass="small-12 column info in-reviews-activity">
+                                                      <div class="row">
+                                                            <div class="ct-label small-12 column">
+                                                                  <a href="#" onclick="event.preventDefault(); loadInReviews('{!employee.Id}', '{!JSENCODE(employee.Name)}')">
+                                                                        <i class="fa fa-comments interview-font" title="{!$Label.SI_Label_review_done}"></i>
+                                                                        <span class="ct-output">{!employee.Entretiens_passes__r.size}</span>
+                                                                  </a>
+                                                            </div>
+                                                      </div>
+                                                </apex:outputPanel>
+
+                                                <apex:outputPanel layout="block" rendered="{!$Setup.sirh__c.showInterviews__c}" styleClass="small-12 column info out-reviews-activity">
+                                                      <div class="row">
+                                                            <div class="ct-label small-12 column">
+                                                                  <a href="#" onclick="event.preventDefault(); loadOutReviews('{!employee.Id}', '{!JSENCODE(employee.Name)}')">
+                                                                        <i class="fa fa-comments-o conducted-font" title="{!$Label.SI_Label_review_conducted}"></i>
+                                                                        <span class="ct-output">{!employee.Entretiens_diriges__r.size}</span>
+                                                                  </a>
+                                                            </div>
+                                                      </div>
+                                                </apex:outputPanel>
+
+                                                <apex:outputPanel layout="block" rendered="{!$Setup.sirh__c.showTimes__c}" styleClass="small-12 column info week-activity">
+                                                      <div class="row">
+                                                            <div class="ct-label small-12 column">
+                                                                  <a href="#" onclick="event.preventDefault(); loadWeeks('{!employee.Id}', '{!JSENCODE(employee.Name)}')">
+                                                                        <i class="fa fa-calendar week-font" title="{!$ObjectType.Feuille_Temps_Hebdo__c.LabelPlural}"></i>
+                                                                        <span class="ct-output">{!employee.Feuilles_de_temps__r.size}</span>
+                                                                  </a>
+                                                            </div>
+                                                      </div>
+                                                </apex:outputPanel>
+
+                                                <apex:outputPanel layout="block" rendered="{!$Setup.sirh__c.showLeave__c}" styleClass="small-12 column info leave-activity">
+                                                      <div class="row">
+                                                            <div class="ct-label small-12 column">
+                                                                  <a href="#" onclick="event.preventDefault(); loadLeaves('{!employee.Id}', '{!JSENCODE(employee.Name)}', '{!JSENCODE(employee.Categorie_professionnelle__c)}')">
+                                                                        <i class="fa fa-ticket leave-font" title="{!$ObjectType.Demande_de_conges__c.LabelPlural}"></i>
+                                                                        <span class="ct-output">{!employee.Demandes_de_conges__r.size}</span>
+                                                                  </a>
+                                                            </div>
+                                                      </div>
+                                                </apex:outputPanel>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </apex:repeat>
+      </div>
+
+      <div id="leaves" class="row team-modal reveal-modal medium leave-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$ObjectType.Demande_de_conges__c.LabelPlural} - <span></span></h3>
+
+            <ul class="no-bullet leaves-list">
+            </ul>
+
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <div id="weeks" class="row team-modal reveal-modal medium week-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$ObjectType.Feuille_Temps_Hebdo__c.LabelPlural} - <span></span></h3>
+
+            <ul class="no-bullet weeks-list">
+            </ul>
+
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <div id="trainings" class="row team-modal reveal-modal medium training-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$ObjectType.Action_de_formation__c.LabelPlural} - <span></span></h3>
+
+            <ul class="no-bullet trainings-list">
+            </ul>
+
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <div id="in-reviews" class="row team-modal reveal-modal medium review-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$Label.SI_Label_review_done} - <span></span></h3>
+
+            <ul class="no-bullet reviews-list">
+            </ul>
+
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <div id="out-reviews" class="row team-modal reveal-modal medium review-modal" data-reveal="true">
+            <h3 class="small-12 title">{!$Label.SI_Label_review_conducted} - <span></span></h3>
+
+            <ul class="no-bullet reviews-list">
+            </ul>
+
+            <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+      </div>
+
+      <script type="text/javascript">
+            function acceptTeamLeave(Id) {
+                  jQuery('#'+Id+' .green.button').html('<i class="fa fa-spinner fa-spin"></i>');
+                  jQuery('#'+Id+' .red.button').hide();
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'LeaveManager', 'acceptLeave', {
+                        leaveId: Id
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    jQuery('#'+Id+' .end').html('<i class="fa fa-check-circle green-font"></i>');
+                              } else {
+                                    console.log(result);
+                                    jQuery('#leaves').foundation('reveal', 'close');
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                              }
+                        }, 
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#leaves').foundation('reveal', 'close');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  }); 
+            }
+
+            function refuseTeamLeave(Id) {
+                  jQuery('#'+Id+' .red.button').html('<i class="fa fa-spinner fa-spin"></i>');
+                  jQuery('#'+Id+' .green.button').hide();
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'LeaveManager', 'rejectLeave', {
+                        leaveId: Id
+                  }, {
+                        onSuccess: function (result) {
+                              if (result == 'success') {
+                                    jQuery('#'+Id+' .end').html('<i class="fa fa-times-circle red-font"></i>');
+                              } else {
+                                    console.log(result);
+                                    jQuery('#leaves').foundation('reveal', 'close');
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                              }
+                        }, 
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#leaves').foundation('reveal', 'close');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  }); 
+            }
+            
+            function loadLeaves (Id, Name, category) {
+                  jQuery('.team-block[data-user="'+Id+'"] .leave-activity a i').removeClass('fa-ticket').addClass('fa-spin fa-spinner');
+                  jQuery('#leaves .title span').html(Name);
+                  var isDate = RegExp('^' + '<apex:outputText value="{!JSENCODE($Setup.timesheet__c.dateModalActivationName__c)}"/>').test(category);
+                  var format = (isDate) ? 'L' : 'L LT';
+                  
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'LeaveRepository', 'getAllByContact', {
+                        contactId: Id
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#leaves ul.leaves-list').html('');
+                              jQuery.each(result, function(index, val) {
+                                    var end = '';
+                                    if(val[NSU+'Valeur_statut__c'] < 30 && val[NSU+'Validation_manager__c'] == "true") {
+                                          end = '<a href="#" onclick="event.preventDefault(); acceptTeamLeave(\''+val.Id+'\')" class="tiny button green">{!$Label.Accept}</a><a href="#" onclick="event.preventDefault(); refuseTeamLeave(\''+val.Id+'\')" class="tiny button red">{!$Label.Reject}</a>';
+                                    } else if (val[NSU+'Valeur_statut__c'] < 30) {
+                                          end = '<i class="fa fa-clock-o" title="'+val[NSU+'Statut__c']+'"></i>'; 
+                                    } else if (val[NSU+'Valeur_statut__c'] < 50) {
+                                          end = '<i class="fa fa-check-circle green-font" title="'+val[NSU+'Texte_statut__c']+'"></i>';
+                                    } else {
+                                          end = '<i class="fa fa-times-circle red-font" title="'+val[NSU+'Statut__c']+'"></i>';
+                                    }
+                                    var startDate = moment(val[NSU+'Date_de_debut__c']);
+                                    var endDate = moment(val[NSU+'Date_de_fin__c']);
+                                    var fStartDate = startDate.format(format);
+                                    var fEndDate = endDate.format(format);
+                                    if(format == 'L') {
+                                          if(val[NSU+'Periode__c']) fStartDate += ' '+val[NSU+'Periode__c'];
+                                          if(val[NSU+'Periode_de_fin__c']) fEndDate += ' '+val[NSU+'Periode_de_fin__c'];
+                                    }
+                                    jQuery('#leaves ul.leaves-list').append('<li id="'+val.Id+'"><span class="end">'+end+'</span>'+fStartDate+' - '+fEndDate+' - '+val[NSU+'Type__c']+'</li><span class="clear"></span>');
+                              });
+                              jQuery('#leaves').foundation('reveal', 'open');
+                              jQuery('.team-block[data-user="'+Id+'"] .leave-activity a i').removeClass('fa-spin fa-spinner').addClass('fa-ticket');
+                        }, 
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  }); 
+            }
+
+            function loadTrainings (Id, Name) {
+                  jQuery('.team-block[data-user="'+Id+'"] .training-activity a i').removeClass('fa-graduation-cap').addClass('fa-spin fa-spinner');
+                  jQuery('#trainings .title span').html(Name);
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'TrainingActionRepository', 'getAllByContact', {
+                        contactId: Id
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#trainings ul.trainings-list').html('');
+                              jQuery.each(result, function(index, val) {
+                                    var end = '';
+                                    if (val[NSU+'Valeur_statut__c'] < 90) {
+                                          end = '<i class="fa fa-clock-o red-font" title="'+val[NSU+'Statut__c']+'"></i>';
+                                    } else {
+                                          end = '<i class="fa fa-check-circle green-font" title="'+val[NSU+'Statut__c']+'"></i>';
+                                    }
+                                    var startDate = moment(val[NSU+'Date_et_heure_de_debut__c']);
+                                    var endDate = moment(val[NSU+'Date_et_heure_de_fin__c']);
+                                    jQuery('#trainings ul.trainings-list').append('<li id="'+val.Id+'"><a href="{!$Setup.crta__sirh__c.crta__Page_Formation__c}?id='+val.Id+'"><span class="end">'+end+'</span>'+val[NSU+'Intitule_de_la_formation__c']+' - '+startDate.format('L LT')+' - '+endDate.format('L LT')+' - '+val[NSU+'Type__c']+'</a></li><span class="clear"></span>');
+                              });
+                              jQuery('#trainings').foundation('reveal', 'open');
+                              jQuery('.team-block[data-user="'+Id+'"] .training-activity a i').addClass('fa-graduation-cap').removeClass('fa-spin fa-spinner');
+                        }, 
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('.team-block[data-user="'+Id+'"] .training-activity a i').addClass('fa-graduation-cap').removeClass('fa-spin fa-spinner');
+                        }
+                  }); 
+            }
+
+            function loadWeeks (Id, Name) {
+                  jQuery('.team-block[data-user="'+Id+'"] .week-activity a i').removeClass('fa-calendar').addClass('fa-spin fa-spinner');
+                  jQuery('#weeks .title span').html(Name);
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'TimesheetRepository', 'getAllByContact', {
+                        contactId: Id
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#weeks ul.weeks-list').html('');
+                              jQuery.each(result, function(index, val) {
+                                    var end = '';
+                                    if (val[NSU+'Valeur_statut__c'] < 90) {
+                                      end = '<i class="fa fa-clock-o red-font" title="'+val[NSU+'Statut__c']+'"></i>';
+                                    } else {
+                                      end = '<i class="fa fa-check-circle green-font" title="'+val[NSU+'Statut__c']+'"></i>';
+                                    }
+                                    var startDate = moment(val[NSU+'Date_debut_semaine__c']);
+                                    var endDate = moment(val[NSU+'Date_de_fin__c']);
+                                    jQuery('#weeks ul.weeks-list').append('<li id="'+val.Id+'"><a href="{!$Setup.crta__sirh__c.crta__Page_Semaine__c}?id='+val.Id+'"><span class="end">'+end+'</span>'+startDate.format('L')+' <--> '+endDate.format('L')+'</a></li><span class="clear"></span>');
+                              });
+                              jQuery('#weeks').foundation('reveal', 'open');
+                              jQuery('.team-block[data-user="'+Id+'"] .week-activity a i').addClass('fa-calendar').removeClass('fa-spin fa-spinner');
+                        }, 
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+error+'</span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('.team-block[data-user="'+Id+'"] .week-activity a i').addClass('fa-calendar').removeClass('fa-spin fa-spinner');
+                        }
+                  }); 
+            }
+
+            function loadInReviews (Id, Name) {
+                  jQuery('.team-block[data-user="'+Id+'"] .in-reviews-activity a i').removeClass('fa-comments').addClass('fa-spin fa-spinner');
+                  jQuery('#in-reviews .title span').html(Name);
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'InterviewRepository', 'getAllByEmployee', {
+                        contactId: Id
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#in-reviews ul.reviews-list').html('');
+                              jQuery.each(result, function(index, val) {
+                                    var end = '';
+                                    if (val[NSU+'EI_Statut_value__c'] < 40) {
+                                          end = '<i class="fa fa-clock-o red-font" title="'+val[NSU+'EI_Statut__c']+'"></i>';
+                                    } else if (val[NSU+'EI_Statut_value__c'] < 50) {
+                                          end = '<i class="fa fa-clock-o green-font" title="'+val[NSU+'EI_Statut__c']+'"></i>';
+                                    } else {
+                                          end = '<i class="fa fa-check-circle green-font" title="'+val[NSU+'EI_Statut_texte__c']+'"></i>';
+                                    }
+                                    var startDate = moment(val[NSU+'EI_Date_de_l_entretien__c']);
+                                    var place = val[NSU+'EI_Lieu__c'] ? val[NSU+'EI_Lieu__c'] : '';
+                                    jQuery('#in-reviews ul.reviews-list').append('<li id="'+val.Id+'"><a href="{!$Setup.crta__sirh__c.crta__Page_Entretien__c}?id='+val.Id+'"><span class="end">'+end+'</span>'+val[NSU+'Nom_du_manager__c']+' - '+startDate.format('L LT')+' - '+place+' - '+val[NSU+'Nom_du_modele__c']+'</a></li><span class="clear"></span>');
+                              });
+                              jQuery('#in-reviews').foundation('reveal', 'open');
+                              jQuery('.team-block[data-user="'+Id+'"] .in-reviews-activity a i').addClass('fa-comments').removeClass('fa-spin fa-spinner');
+                        }, 
+                        onFailure: function (error) {
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('.team-block[data-user="'+Id+'"] .in-reviews-activity a i').addClass('fa-comments').removeClass('fa-spin fa-spinner');
+                        }
+                  }); 
+            }
+
+            function loadOutReviews (Id, Name) {
+                  jQuery('.team-block[data-user="'+Id+'"] .out-reviews-activity a i').removeClass('fa-comments-o').addClass('fa-spin fa-spinner');
+                  jQuery('#out-reviews .title span').html(Name);
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var result = sforce.apex.execute(NSD+'InterviewRepository', 'getAllByManager', {
+                        contactId: Id
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#out-reviews ul.reviews-list').html('');
+                              jQuery.each(result, function(index, val) {
+                                    var end = '';
+                                    if (val[NSU+'EI_Statut_value__c'] < 40) {
+                                      end = '<i class="fa fa-clock-o red-font" title="'+val[NSU+'EI_Statut__c']+'"></i>';
+                                    } else if (val[NSU+'EI_Statut_value__c'] < 50) {
+                                      end = '<i class="fa fa-clock-o green-font" title="'+val[NSU+'EI_Statut__c']+'"></i>';
+                                    } else {
+                                      end = '<i class="fa fa-check-circle green-font" title="'+val[NSU+'EI_Statut_texte__c']+'"></i>';
+                                    }
+                                    var startDate = moment(val[NSU+'EI_Date_de_l_entretien__c']);
+                                    var place = val[NSU+'EI_Lieu__c'] ? val[NSU+'EI_Lieu__c'] : '';
+                                    jQuery('#out-reviews ul.reviews-list').append('<li id="'+val.Id+'"><a href="{!$Setup.crta__sirh__c.crta__Page_Entretien__c}?id='+val.Id+'"><span class="end">'+end+'</span>'+val[NSU+'Nom_du_collaborateur__c']+' - '+startDate.format('L LT')+' - '+place+' - '+val[NSU+'Nom_du_modele__c']+'</a></li><span class="clear"></span>');
+                              });
+                              jQuery('#out-reviews').foundation('reveal', 'open');
+                              jQuery('.team-block[data-user="'+Id+'"] .out-reviews-activity a i').addClass('fa-comments-o').removeClass('fa-spin fa-spinner');
+                        }, 
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              jQuery('.team-block[data-user="'+Id+'"] .out-reviews-activity a i').addClass('fa-comments-o').removeClass('fa-spin fa-spinner');
+                        }
+                  }); 
+            }
+            
+      function startIntro() {}
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

@@ -1,0 +1,11 @@
+<template>
+
+
+
+
+       <template for:each={cmpList} for:item="cmp" for:index="index">TTT {cmp.label}
+        <lightning-tab  label={cmp.label}  id={cmp.identifier} key={cmp.identifier} onactive={handleActive}>
+            <lwc:component lwc:is={componentConstructor} lwc:spread={childProps}></lwc:component>
+        </lightning-tab>
+    </template>
+</template>

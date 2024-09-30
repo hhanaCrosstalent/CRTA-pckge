@@ -1,0 +1,243 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 19/12/2018 (CreatedDate)
+-->
+<aura:component implements="flexipage:availableForAllPageTypes" controller="LibraryController" access="global">
+    <aura:attribute name="isOnboardingReadOnly" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="currentUser" type="sObject" access="private"/>
+    <aura:attribute name="publicParentFolder" type="List" access="private"/>
+    <aura:attribute name="publicParentFolderInit" type="List" access="private"/>
+    <aura:attribute name="publicChildFolder" type="List" access="private"/>
+    <aura:attribute name="allFiles" type="List" access="private"/>
+    <aura:attribute name="isUploadFiles" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isPrivate" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="isSearching" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isExpanded" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="contactId" type="String" access="private"/>
+    <aura:attribute name="tagsList" type="List" access="private"/>
+    <aura:attribute name="displayTagsFilter" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="displayTags" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="displayHeaderBanner" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="headerBanner" type="String" default="LibraryBanner" access="global"/>
+    <aura:attribute name="headerBannerLink" type="String" access="private"/>
+    <aura:attribute name="confirmDeleteModal" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="filetoDeleteId" type="String" access="private"/>
+    <aura:handler name="sampleComponentEvent" event="c:compEvent" action="{!c.handleComponentEvent}"/>
+
+    <aura:attribute name="fileName" type="String" access="private"/>
+    <aura:attribute name="fieldName" type="String" access="private"/>
+    <aura:attribute name="fieldLabel" type="String" access="private"/>
+    <aura:attribute name="message" type="String" access="private"/>
+    <aura:attribute name="allFileTypes" type="List" access="private"/>
+    <aura:attribute name="fileTypes" type="List" access="private"/>
+    <aura:attribute name="fileTypeSelected" type="String" access="private"/>
+    <aura:attribute name="folders" type="List" access="private"/>
+    <aura:attribute name="fileFolderSelected" type="String" access="private"/>
+    <aura:attribute name="fileId" type="String" access="private"/>
+    <aura:attribute name="fileTags" type="List" access="private"/>
+    <aura:attribute name="fileTagsSelected" type="List" access="private"/>
+
+
+    <aura:attribute name="isMail" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="publicGroup" type="String" access="private"/>
+    <aura:attribute name="emailTemplate" type="String" access="private"/>
+    <aura:attribute name="labelFileType" type="String" access="private"/>
+    <aura:attribute name="activeTagColor" type="String" default="#0047BB" access="global"/>
+    <aura:attribute name="accountsAllowed" type="String" default="Deprecated" access="global"/>
+    <aura:attribute name="displayLanguageFilter" type="String" default="Deprecated" access="global"/>
+    
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="private" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!-- <aura:method name="deleteFile" action="{!c.deleteFile}" description="Delete file">
+        <aura:attribute name="contentDocumentId" type="String" />
+    </aura:method> -->
+    <aura:method name="openConfirmModal" action="{!c.openConfirmModal}" description="Delete file">
+        <aura:attribute name="contentDocumentId" type="String" />
+    </aura:method>
+
+    <lightning:card title="{!(v.isPrivate?$Label.c.Label_Tree_Private:$Label.c.Label_Tree_Public)}"
+        iconName="custom:custom13">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner alternativeText="Loading" size="medium" />
+        </aura:if>
+        <aura:if isTrue="{!!v.isPrivate &amp;&amp; v.displayHeaderBanner}">
+            <img src="{!v.headerBannerLink}" />
+        </aura:if>
+        <aura:set attribute="actions">
+            <aura:if isTrue="{!v.isPrivate}">
+                <aura:if isTrue="{!$Browser.isPhone}">
+                <lightning:buttonIcon  iconName="utility:file"   alternativeText="{!$Label.c.Upload_Files}" class="slds-m-left_xx-small" title="{!$Label.c.Upload_Files}" onclick="{!c.openModalFiles}" disabled="{!v.isOnboardingReadOnly}"></lightning:buttonIcon>
+                    <aura:set attribute="else">
+                  <lightning:button label="{!$Label.c.Upload_Files}" onclick="{!c.openModalFiles}" disabled="{!v.isOnboardingReadOnly}"/>
+                    </aura:set>
+                </aura:if>
+                </aura:if>
+        </aura:set>
+        <aura:if isTrue="{!v.displayTagsFilter}">
+            <div class="slds-m-bottom_small slds-p-horizontal_small slds-form-element__label">
+                {!$Label.c.Filter_by_Tags}
+            </div>
+            <div class="slds-m-bottom_small slds-p-horizontal_small" id="tag_search" style="{!'--active-tag-color:'+ v.activeTagColor + ';'}">
+                <lightning:badge label="{!$Label.c.All}" title="{!$Label.c.All}" onclick="{!c.handleTags}"
+                    aura:id="tag-all" class="tag-active" />
+                <aura:iteration items="{!v.tagsList}" var="tag">
+                    <lightning:badge label="{!tag}" title="{!tag}" onclick="{!c.handleTags}" aura:id="tag" id="tag" />
+                </aura:iteration>
+            </div>
+        </aura:if>
+        <div class="slds-grid slds-wrap slds-m-bottom_small slds-p-horizontal_small">
+            <lightning:input aria-controls="tree-id" aura:id="enter-search" name="enter-search"
+                label="{!$Label.c.Search_Key_Word}" isLoading="{!v.isSearching}" onchange="{!c.handleSearch}"
+                type="search" class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-right_small" />
+        </div>
+        <aura:if isTrue="{!v.publicParentFolderInit.length > 0}">
+            <aura:if isTrue="{!v.publicParentFolder.length > 0}">
+                <div class="slds-tree_container">
+                    <ul aria-labelledby="treeheading" class="slds-tree" role="tree" id="tree-id">
+                        <aura:iteration items="{!v.publicParentFolder}" var="node">
+                            <c:TreeNodeLibrary node="{!node}" aura:id="myTree" parent="{!this}"/>
+                        </aura:iteration>
+                    </ul>
+                </div>
+                <aura:set attribute="else">
+                    <div class="slds-illustration slds-illustration_small">
+                        <div class="slds-text-longform">
+                            <h3 class="slds-text-heading_medium">{!$Label.c.Results}</h3>
+                            <p class="slds-text-body_regular">{!$Label.c.No_Result_Found}</p>
+                        </div>
+                    </div>
+                </aura:set>
+            </aura:if>
+            <aura:set attribute="else">
+                <div class="slds-illustration slds-illustration_small">
+                    <div class="slds-text-longform">
+                        <h3 class="slds-text-heading_medium">{!$Label.c.No_data}</h3>
+                    </div>
+                </div>
+            </aura:set>
+        </aura:if>
+    </lightning:card>
+
+    <!-- MODAL FILES -->
+    <aura:if isTrue="{!v.isUploadFiles}">
+        <div class="edit-files-modal" style="height: 640px;position: absolute;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-files-content" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <aura:if isTrue="{!v.fileTypes.length == 0}">
+                        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                            <span class="slds-assistive-text">error</span>
+                            <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small">
+                                <lightning:icon iconName="utility:error" alternativeText="Error" variant="inverse" size="small" />
+                            </span>
+                            <h2 class="slds-text-color_inverse">
+                                {!$Label.c.No_Files_Type}
+                            </h2>
+                        </div>
+                    </aura:if>
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.File}
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-files-content">
+                        <div class="slds-text-align_center slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-1 slds-p-bottom_medium">
+                                <lightning:select name="picklist" value="{!v.fileTypeSelected}"
+                                    label="{!$Label.c.Choose_File_Type}" aura:id="picklistFiles"
+                                    disabled="{!v.fileTypes.length == 0}">
+                                    <aura:iteration items="{!v.fileTypes}" var="options">
+                                        <option value="{!options.crta__API_Name__c}"
+                                            data-template="{!options.crta__Email_Template_API_Name__c}"
+                                            data-mail="{!options.crta__Send_Mail__c}"
+                                            data-publicgroup="{!options.crta__Public_Group__c}">
+                                                {!options.MasterLabel}
+                                                <aura:if isTrue="{!options.crta__Required__c}">
+                                                    <span>&nbsp;*</span>
+                                                </aura:if>
+                                        </option>
+                                    </aura:iteration>
+                                    <aura:if isTrue="{!v.fileTypes.length == 0}">
+                                        <option value=''>- {!$Label.c.None} -</option>
+                                    </aura:if>
+                                </lightning:select>
+                                <lightning:helptext
+                                    class="helpText"
+                                    content="{!'* ' + $Label.c.Required_Files}" />
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-p-bottom_medium">
+                                <lightning:select name="picklist" value="{!v.fileFolderSelected}"
+                                    label="{!$Label.c.Choose_Folder}" aura:id="picklistFoldersFiles"
+                                    onchange="{!c.onSelectFolder}" disabled="{!v.folders.length == 0}">
+                                    <aura:iteration items="{!v.folders}" var="options">
+                                        <option value="{!options.Id}">{!options.Name}
+                                        </option>
+                                    </aura:iteration>
+                                    <aura:if isTrue="{!v.folders.length == 0}">
+                                        <option value=''>- {!$Label.c.None} -</option>
+                                    </aura:if>
+                                </lightning:select>
+                            </div>
+                            <aura:if isTrue="{!v.displayTags}">
+                                <div class="slds-col slds-size_1-of-1 slds-p-bottom_medium">
+                                    <lightning:dualListbox name="fileTags"
+                                        label= "{!$Label.c.Choose_File_Tag}"
+                                        sourceLabel="{!$Label.c.Available}"
+                                        selectedLabel="{!$Label.c.Selected}"
+                                        options="{!v.fileTags}"
+                                        value="{!v.fileTagsSelected}"/>
+                                </div>
+                            </aura:if>
+
+                            <div class="slds-col slds-size_1-of-1 slds-p-bottom_medium">
+                                <lightning:fileUpload name="fileUploader" 
+                                    recordId="{!v.fileFolderSelected}"
+                                    onuploadfinished="{!c.handleUploadFinished}"
+                                    label="{!$Label.c.Upload_Files}"
+                                                    
+                                                     disabled="{!v.fileTypes.length == 0 }"
+                                                      />
+                                <div class="slds-text-body_small slds-text-color_weak">{!v.message}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <button class="slds-button slds-button_neutral"
+                            onclick="{!c.closeModal}">{!$Label.c.Close}</button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+
+    <!-- MODAL CONFIRMATION SUPPRESSION  -->
+    <aura:if isTrue="{!v.confirmDeleteModal}">
+        <div class="edit-modal" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-content" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <div class="slds-is-relative">
+                        <header class="slds-modal__header">
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                {!$Label.c.Delete}
+                            </h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="modal-content">
+                           {!$Label.c.Confim_Deletion_File}
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <button class="slds-button slds-button_neutral"
+                                onclick="{!c.closeConfirmModal}">{!$Label.c.Action_cancel}</button>
+                            <button class="slds-button slds-button_brand" onclick="{!c.deleteFile}"
+                                disabled="{!v.buttonDisabled}">{!$Label.c.Delete}</button>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open">
+            </div>
+        </div>
+    </aura:if>
+</aura:component>

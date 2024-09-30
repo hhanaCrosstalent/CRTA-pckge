@@ -1,0 +1,18 @@
+.chart-style {
+    max-width: 650px !important;
+    max-height: 690px !important;
+}
+.percent-style {
+        padding-left: 15%;
+}
+.text-content {
+    margin-top: -4px;
+}
+.percent-value {
+font-weight: 600;
+    color: gray;
+}
+.card-style {
+        --slds-c-card-text-color: var(--background);
+        --lwc-fontSize5: 13px;
+}

@@ -1,0 +1,8 @@
+<aura:documentation>
+	<aura:description>
+		<p>
+			The <code>crta:Hierarchy</code> component visualises in a simple way reporting hierarchies inside of the company. It also 
+			allows to modify them. All this is based on the ReportsTo field of the Contact.
+		</p>
+	</aura:description>
+</aura:documentation>

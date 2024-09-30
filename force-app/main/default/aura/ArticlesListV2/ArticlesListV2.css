@@ -1,0 +1,84 @@
+.THIS .slds-card__header {
+    margin: 0;
+    padding: 0;
+}
+
+.THIS .slds-card__footer {
+    margin: 0;
+    padding: 0;
+}
+
+.THIS .slds-card__body {
+    margin: 0;
+}
+
+.THIS .myArticleDesc {
+    text-align: initial;
+}
+
+.THIS .mySeparator {
+    background-color: #dddbda;
+    height: 1px;
+    width: 80%;
+}
+
+.THIS .MyDate {
+    text-transform: capitalize;
+}
+
+.THIS .articleImg{
+    /*height: 300px;*/
+    height: 250px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.THIS .ct-text-color {
+    color : var(--text-color);
+}
+
+.THIS .article-list-container {
+    max-height: 20rem;
+    overflow: auto;
+}
+
+
+.THIS .article-name {
+    width: 96%;
+    /* height: 40px; */
+    /* display: inline-table; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+        
+        .THIS       .clickable {
+            cursor: pointer;
+    }
+
+  .THIS   .header-style{
+    border-bottom: 1px solid #eadddd;
+    padding-bottom: 1%;
+    }
+
+ .THIS    .chevron {
+        /*margin-right: 5%;*/
+    margin-right: 26px;
+    font-size: 18px;
+    color: #a39a9a;
+    }
+        
+        .THIS .title-card {
+            color: #0047bb;
+                font-weight: 700;
+            
+            margin-bottom: 8%;
+    width: 85%;
+    }
+        
+.THIS .content-style {
+    padding-left: 19px; padding-right: 19px;
+        }

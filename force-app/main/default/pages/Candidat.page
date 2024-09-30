@@ -1,0 +1,97 @@
+<apex:page controller="CandidatsController" sidebar="true" showHeader="true" action="{!onloadfunction}">
+    <apex:form >
+        <apex:pageBlock title="{!$Label.crta__candidats}">
+         
+          <apex:commandButton action="{!URLFOR($Action.Contact.NewContact)}" value="{!$Label.crta__cr_ation_candidat}" /> 
+
+          <apex:outputLabel value="{!$Label.crta__compte} : "/>           
+          <apex:selectList value="{!filterIdClient}" size="1">
+              <apex:actionSupport event="onchange" action="{!processRequests}"  rerender="candidats_table"/>
+              <apex:selectOptions value="{!client}"/>
+           </apex:selectList>
+
+          <apex:outputLabel value="{!$Label.crta__contrat} : "/>           
+          <apex:selectList value="{!filterContrat}" size="1">
+              <apex:actionSupport event="onchange" action="{!processRequests}"  rerender="candidats_table"/>
+              <apex:selectOptions value="{!contract}"/>
+          </apex:selectList>
+
+          <apex:outputLabel value="{!$Label.crta__lieu} : "/>           
+          <apex:selectList value="{!filterLieu}" size="1">
+              <apex:actionSupport event="onchange" action="{!processRequests}"  rerender="candidats_table"/>
+              <apex:selectOptions value="{!place}"/>
+          </apex:selectList>
+        
+          <apex:outputLabel value="{!$Label.crta__consultant} : "/>           
+          <apex:selectList value="{!filterIdConsultant}" size="1">
+              <apex:actionSupport event="onchange" action="{!processRequests}"  rerender="candidats_table"/>
+              <apex:selectOptions value="{!consultant}"/>
+          </apex:selectList>
+   
+          <apex:outputLabel value="{!$Label.crta__situation} : "/>
+
+          <apex:selectList value="{!filterIdSituation}" size="1">
+              <apex:actionSupport event="onchange" action="{!processRequests}"  rerender="candidats_table"/>
+              <apex:selectOptions value="{!items}"/>
+           </apex:selectList>
+           
+           <apex:pageBlock id="candidats_table" >
+                <apex:pageBlockTable value="{!results}" var="c" rows="50"  >
+                    <apex:column >
+                       <apex:facet name="header">
+                               <apex:commandLink value="{!$Label.crta__name}" action="{!toggleSort}" rerender="candidats_table">
+                                    <apex:param name="sortField" value="lastname" assignTo="{!sortField}"/>
+                               </apex:commandLink>
+                        </apex:facet>
+                        <a target="_parent" href="/{!c.id}">{!c.name}</a>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                               <apex:commandLink value="{!$Label.crta__compte}" action="{!toggleSort}" rerender="candidats_table">
+                                    <apex:param name="sortField" value="account.name" assignTo="{!sortField}"/>
+                               </apex:commandLink>
+                        </apex:facet>                       
+                        <a target="_parent" href="/{!c.accountid}">{!c.account.name}</a>
+                    </apex:column>
+                    <apex:column value="{!c.CT_Support__c}">
+                        <apex:facet name="header">
+                               <apex:commandLink value="{!$Label.crta__prestation}" action="{!toggleSort}" rerender="candidats_table">
+                                    <apex:param name="sortField" value="CT_Support__c" assignTo="{!sortField}"/>
+                               </apex:commandLink>
+                        </apex:facet>                       
+                    </apex:column>
+                    <apex:column value="{!c.Texte_situation__c}">
+                        <apex:facet name="header">
+                               <apex:commandLink value="Situation" action="{!toggleSort}" rerender="candidats_table">
+                                    <apex:param name="sortField" value="Texte_situation__c" assignTo="{!sortField}"/>
+                               </apex:commandLink>
+                        </apex:facet>                       
+                    </apex:column>
+                    <apex:column value="{!c.CreatedDate}">
+                       <apex:facet name="header">
+                               <apex:commandLink value="{!$Label.crta__date_de_cr_ation}" action="{!toggleSort}" rerender="candidats_table">
+                                    <apex:param name="sortField" value="createddate" assignTo="{!sortField}"/>
+                               </apex:commandLink>
+                        </apex:facet>                       
+                     </apex:column>
+                    <apex:column value="{!c.ownerid}">
+                       <apex:facet name="header">
+                               <apex:commandLink value="Consultant" action="{!toggleSort}" rerender="candidats_table">
+                                    <apex:param name="sortField" value="ownerid" assignTo="{!sortField}"/>
+                               </apex:commandLink>
+                        </apex:facet>                       
+                     </apex:column>
+
+                </apex:pageBlockTable>
+                 {!Total_size} {!$Label.crta__candidat_s_correspond_ent_votre_recherche} ({!$Label.crta__page} : {!pagenumber} / {!TotalPages} )
+            </apex:pageBlock>
+           
+            <apex:panelGrid columns="5">
+                <apex:commandButton action="{!first}" value="{!$Label.crta__d_but}" />
+                <apex:commandButton action="{!previous}" value="{!$Label.crta__previous}" disabled="{!disableNext}" />
+                <apex:commandButton action="{!next}" value="{!$Label.crta__next}" disabled="{!disableNext}" />
+                <apex:commandButton action="{!last}" value="{!$Label.crta__fin}" />
+            </apex:panelGrid>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

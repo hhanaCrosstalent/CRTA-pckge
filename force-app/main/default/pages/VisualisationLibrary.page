@@ -1,0 +1,126 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" controller="VisualisationLibraryController" >
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <div id="docutheque" class="small-12 large-6 column" data-fold="false">
+            <h4 class="title secondary-font header">
+                  <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('docutheque');">
+                        <i class="fa fa-folder-open-o"></i>
+                        <span>{!$Label.Library_public_folders}</span>
+                  </a>
+            </h4>
+            <div class="card">
+                  <div data-foldable="true">
+                        <ul class="roots no-bullet">
+                              <apex:repeat value="{!publicRoots}" var="publicRoot">
+                                    <li class="dossier root public" id="{!publicRoot.Id}"><span>{!publicRoot.Name}</span>
+                                          <ul class="no-bullet">
+                                                <apex:repeat value="{!publicRoot.AttachedContentDocuments}" var="content">
+                                                      <li class="fichier"><apex:outputLink target="_blank" title="{!content.ContentDocument.Title}" styleClass="fichier" value="/sfc/servlet.shepherd/version/download/{!content.ContentDocument.LatestPublishedVersionId}"><i class="fa fa-file-o"></i> {!content.ContentDocument.Title}</apex:outputLink></li>
+                                                </apex:repeat>
+                                                <apex:repeat value="{!publicRoot.Attachments}" var="attachment">
+                                                      <li class="fichier"><apex:outputLink target="_blank" title="{!Attachment.Name}" styleClass="fichier" value="{!URLFOR($Action.Attachment.Download, Attachment.Id)}"><i class="fa fa-file-o"></i> {!attachment.Name}</apex:outputLink></li>
+                                                </apex:repeat>
+                                          </ul>
+                                    </li>
+                              </apex:repeat>
+                        </ul>
+                  </div>
+            </div>
+      </div>
+      <div id="userFiles" class="small-12 large-6 column" data-fold="false">
+            <h4 class="title secondary-font header">
+                  <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('userFiles');">
+                        <i class="fa fa-folder-open"></i>
+                        <span>{!$Label.Library_personal_folders}</span>
+                  </a>
+            </h4>
+            <div class="card">
+                  <div data-foldable="true">
+                        <ul class="roots no-bullet">
+                              <apex:repeat value="{!privateRoots}" var="privateRoot">
+                                    <li class="dossier root private" id="{!privateRoot.Id}"><span>{!privateRoot.Name}</span>
+                                          <ul class="no-bullet">
+                                                <apex:repeat value="{!privateRoot.AttachedContentDocuments}" var="content">
+                                                      <li class="fichier"><apex:outputLink target="_blank" title="{!content.ContentDocument.Title}" styleClass="fichier" value="/sfc/servlet.shepherd/version/download/{!content.ContentDocument.LatestPublishedVersionId}"><i class="fa fa-file-o"></i> {!content.ContentDocument.Title}</apex:outputLink></li>
+                                                </apex:repeat>
+                                                <apex:repeat value="{!privateRoot.Attachments}" var="attachment">
+                                                      <li class="fichier"><apex:outputLink target="_blank" title="{!Attachment.Name}" styleClass="fichier" value="{!URLFOR($Action.Attachment.Download, Attachment.Id)}"><i class="fa fa-file-o"></i> {!attachment.Name}</apex:outputLink></li>
+                                                </apex:repeat>
+                                          </ul>
+                                    </li>
+                              </apex:repeat>
+                        </ul>
+                  </div>
+            </div>
+      </div>
+      <script type="text/javascript">
+            '{!$Label.crta__library}';
+            
+            jQuery('.roots').on('click', '.dossier:not(.expanded):not(.folded)', function(event) {
+                  event.preventDefault();
+                  var id = jQuery(this).attr('id');
+                  var isPublic = jQuery(this).hasClass('public');
+                  if(isPublic) {
+                        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationLibraryController.getPublicChildren}', id, function(result, event) {
+                              if(event.status) {
+                                    jQuery(result).each(function(index, folder) {
+                                          jQuery('#'+id+' ul').append('<li class="dossier public" id="'+folder.Id+'"><span>'+folder.Name+'</span><ul class="no-bullet">');
+                                          if(folder.AttachedContentDocuments) {
+                                                jQuery(folder.AttachedContentDocuments).each(function(index, file) {
+                                                      var attach = ' <a href="https://'+document.domain+'/sfc/servlet.shepherd/version/download/'+file.ContentDocument.LatestPublishedVersionId+'" target="_blank" title="'+file.ContentDocument.Title+'" class=""><i class="fa fa-file-o"></i> '+file.ContentDocument.Title+'</a>';
+                                                      jQuery('#'+folder.Id+' ul').append('<li class="fichier">'+attach+'</li>');
+                                                });
+                                          }
+                                          if(folder.Attachments) {
+                                                jQuery(folder.Attachments).each(function(index, file) {
+                                                      var attach = ' <a href="https://'+document.domain+'//servlet/servlet.FileDownload?file='+file.Id+'" target="_blank" title="'+file.Name+'" class="fichier"><i class="fa fa-file-o"></i> '+file.Name+'</a>';
+                                                      jQuery('#'+folder.Id+' ul').append('<li class="fichier">'+attach+'</li>');
+                                                });
+                                          }
+                                          jQuery('#'+id+' ul').append('</ul>');
+                                    });
+                              } else {
+                              }
+                        }, {escape: true});
+                  } else {
+                        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationLibraryController.getPrivateChildren}', id, '{!contactId}', function(result, event) {
+                              if (event.status) {
+                                    jQuery(result).each(function(index, folder) {
+                                          jQuery('#'+id+' ul').append('<li class="dossier private" id="'+folder.Id+'"><span>'+folder.Name+'</span><ul class="no-bullet">');
+                                          if(folder.AttachedContentDocuments) {
+                                                jQuery(folder.AttachedContentDocuments).each(function(index, file) {
+                                                      var attach = ' <a href="https://'+document.domain+'/sfc/servlet.shepherd/version/download/'+file.ContentDocument.LatestPublishedVersionId+'" target="_blank" title="'+file.ContentDocument.Title+'" class=""><i class="fa fa-file-o"></i> '+file.ContentDocument.Title+'</a>';
+                                                      jQuery('#'+folder.Id+' ul').append('<li class="fichier">'+attach+'</li>');
+                                                });
+                                          }
+                                          if(folder.Attachments) {
+                                                jQuery(folder.Attachments).each(function(index, file) {
+                                                      var attach = ' <a href="https://'+document.domain+'//servlet/servlet.FileDownload?file='+file.Id+'" target="_blank" title="'+file.Name+'" class="fichier"><i class="fa fa-file-o"></i> '+file.Name+'</a>';
+                                                      jQuery('#'+folder.Id+' ul').append('<li class="fichier">'+attach+'</li>');
+                                                });
+                                          }
+                                          jQuery('#'+id+' ul').append('</ul>');
+                                    });
+                              } else {
+                              }
+                        }, {escape: true});
+
+                  }
+                  jQuery(this).addClass('expanded');
+            });
+            jQuery('.roots').on('click', '.dossier.expanded span', function(event) {
+                  event.preventDefault();
+                  jQuery(this).parent().children('ul').hide();
+                  jQuery(this).parent().removeClass('expanded').addClass('folded');
+            });
+             jQuery('.roots').on('click', '.dossier.folded span', function(event) {
+                  event.preventDefault();
+                  jQuery(this).parent().children('ul').show();
+                  jQuery(this).parent().removeClass('folded').addClass('expanded');
+            });
+            function startIntro() {}
+      </script>
+    
+</apex:define>
+</apex:composition>
+</apex:page>

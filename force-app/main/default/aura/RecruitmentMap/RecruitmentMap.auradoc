@@ -1,0 +1,20 @@
+<aura:documentation>
+	<aura:description>
+		<p>
+			The <code>crta:RecruitmentMap</code> component displays recruitment related data on a map: Contacts 
+            and Job Postings. In order to display them, 
+            their geographic coordinates, <code>crta__Location__Latitude__s</code> and 
+            <code>crta__Location__Longitude__s</code>, need to be populated (e.g. by a trigger or by a nightly batch).
+		</p>
+		<h4>Configuration of Google's map service</h4>
+		<p>
+			The map implementation of this component is based on Google's map API. Google's map service requires a key 
+            provided by Google. This key, the center of the map and the map radius can be configured.
+		</p>
+		<h4>Configuration of result set</h4>
+		<p>
+			There are two types of objects displayed beneath the map: A list of Contacts and a list of Job Postings. 
+            The columns of the output can be configured by a comma separated list.
+		</p>
+	</aura:description>
+</aura:documentation>

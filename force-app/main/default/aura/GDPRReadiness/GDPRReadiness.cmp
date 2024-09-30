@@ -1,0 +1,359 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global"
+    controller="GDPRReadinessController">
+
+    <aura:attribute name="table1" type="String" default="" />
+    <aura:attribute name="table2" type="String" default="" />
+    <aura:attribute name="table3" type="String" default="" />
+    <aura:attribute name="word" type="String" default="" />
+
+    <aura:attribute name="table1csv" type="List" />
+    <aura:attribute name="table2csv" type="List" />
+    <aura:attribute name="table3csv" type="List" />
+
+    <aura:attribute name="isClose" type="Boolean" default="true" access="private" />
+
+
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div>
+        <div class="slds-card">
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Information relative à vos données personnelles</h2>
+                <p class="slds-p-vertical_x-small">
+                    Nous vous souhaitons la bienvenue sur votre Portail RH destiné à optimiser la gestion des Ressources
+                    Humaines internes, à
+                    faciliter vos démarches et vous permettre d’accéder directement à des informations qui vous
+                    concernent.
+                </p>
+                <p class="slds-p-vertical_x-small">
+                    Conformément aux dispositions du Règlement Général sur la Protection des Données personnelles (RGPD)
+                    du 24 avril 2016, afin
+                    de vous apporter une information complète sur les données personnelles vous concernant que nous
+                    sommes
+                    amenés à collecter et à utiliser au sein de ce système informatisé, nous vous invitons à lire
+                    attentivement
+                    les informations suivantes.
+                </p>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <a href="http://www.rgpd-2018.eu/" target="_blank">http://www.rgpd-2018.eu/</a>
+                    </div>
+                </div>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <a href="https://www.cnil.fr/fr/comprendre-le-reglement-europeen"
+                            target="_blank">https://www.cnil.fr/fr/comprendre-le-reglement-europeen</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Données indispensables à la gestion des Ressources Humaines</h2>
+                <p class="slds-p-vertical_x-small">
+                    Certaines données personnelles sont indispensables à l’exécution de nos obligations légales
+                    (articles 6c et 7.2b du RGPD),
+                    à celles relevant de votre contrat de travail (article 6b du RGPD) ou recueillies dans notre intérêt
+                    légitime (article 6f du RGPD) en vue d’assurer la gestion des Ressources Humaines. Ces données et
+                    informations sont les suivantes :
+                </p>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <td>Données</td>
+                            <td>Finalité</td>
+                            <td>Personnes ayant accès à ces données</td>
+                            <td>Durée de conservations</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.table1csv}" var="item">
+                            <tr>
+                                <td>
+                                    <aura:unescapedHtml value="{!item.one}" />
+                                </td>
+                                <td>{!item.two}</td>
+                                <td>{!item.three}</td>
+                                <td>{!item.four}</td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+                <p class="slds-p-vertical_x-small">
+                    Vous disposez d’un droit d’accès et de modification de ces données selon les modalités détaillées
+                    ci-après. En revanche vous
+                    ne pouvez obtenir leur suppression tant que nous sommes tenus de les conserver en vue de la finalité
+                    précisée ci-dessus. Dès lors que cette finalité n’est plus légitime ni légalement ni
+                    contractuellement
+                    justifiée, nous supprimons automatiquement les données vous concernant. Toutefois, dans le cas où
+                    cette
+                    suppression n’aurait pas été opérée, vous seriez en droit d’en demander la mise en œuvre effective.
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Données complémentaires</h2>
+                <p class="slds-p-vertical_x-small">
+                    Nous sommes par ailleurs amenés à conserver des données complémentaires vous concernant pour les
+                    finalités décrites ci-après :
+                </p>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <td>Données</td>
+                            <td>Finalité</td>
+                            <td>Personnes ayant accès à ces données</td>
+                            <td>Durée de conservation</td>
+                            <td>Conséquence d’un refus de stockage</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.table2csv}" var="item">
+                            <tr>
+                                <td>{!item.one}</td>
+                                <td>{!item.two}</td>
+                                <td>{!item.three}</td>
+                                <td>{!item.four}</td>
+                                <td>{!item.five}</td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+                <p class="slds-p-vertical_x-small">
+                    Dans le cas où vous accepteriez que nous collections et utilisions ces données, vous conserveriez à
+                    tous moments la possibilité
+                    de revenir sur votre autorisation et de solliciter la suppression de tout ou partie de ces données,
+                    ou
+                    leur modification, selon les modalités précisées ci-dessous.
+                </p>
+                <p class="slds-p-vertical_x-small">
+                    Les conséquences d’un refus de collecte et d’utilisation de ces informations s’appliqueront à
+                    compter de la suppression effective
+                    des données concernées.
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Opérations de « profilage » *</h2>
+                <p class="slds-p-vertical_x-small">
+                    Nous vous informons que nous pouvons être amenés à croiser différentes données vous concernant dans
+                    le cadre par exemple
+                    d’une recherche de profils spécifiques, sous réserve que vous nous autorisiez à y procéder :
+                </p>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <td>Données</td>
+                            <td>Finalité</td>
+                            <td>Personnes ayant accès</td>
+                            <td>Durée de conservation</td>
+                            <td>Conséquences d’un refus</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.table3csv}" var="item">
+                            <tr>
+                                <td>{!item.one}</td>
+                                <td>{!item.two}</td>
+                                <td>{!item.three}</td>
+                                <td>{!item.four}</td>
+                                <td>{!item.five}</td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+                <p class="slds-p-vertical_x-small">
+                    Vous disposez de la possibilité, à tous moments, de revenir sur votre choix
+                </p>
+                <p class="slds-p-vertical_x-small">
+                    * Le RGPD définit le profilage comme « toute forme de traitement automatisé de données à caractère
+                    personnel consistant à
+                    utiliser ces données à caractère personnel pour évaluer certains aspects personnels relatifs à une
+                    personne
+                    physique, notamment pour analyser ou prédire des éléments concernant le rendement au travail, la
+                    situation
+                    économique, la santé, les préférences personnelles, les intérêts, la fiabilité, le comportement, la
+                    localisation
+                    ou les déplacements de cette personne physique. »
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Exercice des droits d’accès, d’opposition, de rectification et
+                    portabilité</h2>
+                <p class="slds-p-vertical_x-small">
+                    Vous pouvez exercer vos droits de limitation au traitement de vos données, d’accès, d’opposition, de
+                    rectification et d’effacement
+                    de ces données (lorsque ces données ne sont plus nécessaires au regard de la finalité de leur
+                    collecte
+                    :
+                </p>
+                <ul class="slds-list_dotted">
+                    <li class="slds-item">
+                        auprès du responsable de la gestion des données personnelles qui peut être contacté aux
+                        coordonnées suivantes : {!v.word}
+                    </li>
+                    <li class="slds-item">
+                        ou bien directement depuis ce Portail RH dans l’onglet Vos demandes ci-dessous.
+                    </li>
+                </ul>
+                <p class="slds-p-vertical_x-small">
+                    Vos choix seront pris en compte dans les plus brefs délais et au plus tard dans le délai d’un mois
+                    suivant votre demande.
+                </p>
+                <p>
+                    A défaut de réponse dans ce délai ou dans le cas où vous souhaiteriez contester la réponse apportée,
+                    vous pourriez former
+                    un recours auprès de la CNIL (
+                    <a href="https://www.cnil.fr/" target="_blank">https://www.cnil.fr/</a>) ou auprès des tribunaux
+                    compétents.
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Hébergement et sécurité de vos données</h2>
+                <p class="slds-p-vertical_x-small">
+                    La technologie que nous utilisons pour gérer toutes les données RH est éditée par la société
+                    Crosstalent et repose sur l’architecture
+                    logicielle et serveur de la société Salesforce.
+                </p>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <a href="https://www.crosstalent.eu/fr/" target="_blank">https://www.crosstalent.eu/fr/</a>
+                    </div>
+                </div>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <a href="https://www.salesforce.com/" target="_blank">https://www.salesforce.com/</a>
+                    </div>
+                </div>
+                <p class="slds-p-vertical_small">
+                    Ces sociétés n’ont accès qu’aux données strictement nécessaires pour leur permettre d’assurer la
+                    maintenance et l’évolution
+                    logicielle de cette plateforme.
+                </p>
+                <p class="slds-p-vertical_small">
+                    Vos données sont stockées sur des serveurs situés au sein de l’Union Européenne répondant à des
+                    exigences importantes de
+                    sécurité. Vous pouvez prendre connaissance de ces mesures de sécurité en cliquant ici :
+                    <a href="https://trust.salesforce.com/fr/security/"
+                        target="_blank">https://trust.salesforce.com/fr/security/</a>
+                </p>
+                <p class="slds-p-vertical_small">
+                    Afin de participer à la sécurisation de vos données, nous vous invitons à garder vos identifiants
+                    personnels strictement
+                    secrets et à ne les communiquer à quelque personne que ce soit, y compris vos collègues et
+                    responsables
+                    sous aucun prétexte, et à nous informer en cas de perte et/ou de divulgation de vos identifiants.
+                </p>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <h2 class="slds-text-heading_large">Portabilité des données</h2>
+                <p class="slds-p-vertical_small">
+                    Vous pouvez solliciter la portabilité des données vous concernant, à l’exception de celles
+                    comportant des informations à
+                    caractère confidentiel : organigramme, positionnement au sein de la grille des salaires, etc.
+                </p>
+                <p class="slds-p-vertical_small">
+                    Cette portabilité peut être sollicitée auprès du responsable de la gestion des données personnelles
+                    de l'entreprise.
+                </p>
+            </div>
+        </div>
+        <!-- slds-card -->
+        <div class="slds-docked_container">
+            <section class="slds-docked-composer slds-grid slds-grid_vertical slds-is-closed" role="dialog"
+                aria-labelledby="dialog-heading-id-1" aria-describedby="dialog-content-id-1" aura:id="panel">
+                <header class="slds-docked-composer__header slds-grid slds-shrink-none" aria-live="assertive"
+                    onclick="{!c.togglePanel}">
+                    <div class="slds-media slds-media_center slds-no-space">
+                        <div class="slds-media__figure slds-m-right_x-small">
+                            <span class="slds-icon_container">
+                                <lightning:icon iconName="utility:edit_form" size="x-small" />
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <h2 class="slds-truncate" id="dialog-heading-id-1" title="{!v.performanceReviewTitle}">
+                                <b>Effectuez vos demandes</b>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="slds-col_bump-left slds-shrink-none">
+                        <aura:if isTrue="{!v.isClose}">
+                            <button class="slds-button slds-button_icon slds-button_icon" title="Expand Composer">
+                                <lightning:icon iconName="utility:expand_alt" size="x-small" />
+                                <span class="slds-assistive-text">Expand Composer Panel</span>
+                            </button>
+                            <aura:set attribute="else">
+                                <button class="slds-button slds-button_icon slds-button_icon" title="Close">
+                                    <lightning:icon iconName="utility:close" size="x-small" />
+                                    <span class="slds-assistive-text">Close Composer Panel</span>
+                                </button>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </header>
+                <div class="slds-docked-composer__body" id="dialog-content-id-1">
+                    <div class="slds-m-top_small">
+                        <ul class="slds-list_dotted">
+                            <li class="slds-item">Les textes en vigeur confèrent à chaque propriétaire de ses données
+                                personnelles une possibilité d'actions.</li>
+                            <li class="slds-item">Vous pouvez par conséquent indiquer vos souhaits en cochant une ou
+                                plusieurs cases ci-dessous:
+                                <table>
+                                    <tr>
+                                        <td class="min-width">&bull;</td>
+                                        <td class="min-width">Je demande à consulter mon dossier salarié</td>
+                                        <td class="min-width">
+                                            <lightning:buttonIcon aura:id="1" iconName="utility:check" variant="brand"
+                                                class="slds-m-right_medium slds-m-top_x-small"
+                                                onclick="{!c.handleClick}" />
+                                        </td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="min-width">&bull;</td>
+                                        <td class="min-width">Je demande à rectifier mes données personnelles</td>
+                                        <td class="min-width">
+                                            <lightning:buttonIcon aura:id="2" iconName="utility:check" variant="brand"
+                                                class="slds-m-right_medium slds-m-top_x-small"
+                                                onclick="{!c.handleClick}" />
+                                        </td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="min-width">&bull;</td>
+                                        <td class="min-width">Je demande à ne faire l'objet d'aucun profilage</td>
+                                        <td class="min-width">
+                                            <lightning:buttonIcon aura:id="3" iconName="utility:check" variant="brand"
+                                                class="slds-m-right_medium slds-m-top_x-small"
+                                                onclick="{!c.handleClick}" />
+                                        </td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="min-width" style="vertical-align: baseline">&bull;</td>
+                                        <td class="min-width">Je demande l'effacement de certaines de mes données
+                                            personnelles</td>
+                                        <td class="min-width">
+                                            <lightning:buttonIcon aura:id="4" iconName="utility:check" variant="brand"
+                                                class="slds-m-right_medium slds-m-top_x-small"
+                                                onclick="{!c.handleClick}" />
+                                        </td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                </table>
+                            </li>
+                            <li class="slds-item">
+                                Vos souhaits peuvent être revus à tout moment, soit en utilisant ce formulaire, soit en
+                                contactant le responsable de la gestion des données personnelles de l'entreprise.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <!-- surrounding -->
+</aura:component>

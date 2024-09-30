@@ -1,0 +1,101 @@
+<apex:page sidebar="false" showHeader="false" controller="bdu_rapportController">
+<apex:composition template="BDU_template">
+<apex:define name="body">
+      <apex:form >
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU1__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU1__c.Label} : " />
+            <apex:inputField rendered="{!$Setup.showOptions__c.showBU1__c}" value="{!mockContent.CT_BU1__c}" />
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU2__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU2__c.Label} : " />
+            <apex:inputField rendered="{!$Setup.showOptions__c.showBU2__c}" value="{!mockContent.CT_BU2__c}" />
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU3__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU3__c.Label} : " />
+            <apex:inputField rendered="{!$Setup.showOptions__c.showBU3__c}" value="{!mockContent.CT_BU3__c}" />
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU4__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU4__c.Label} : " />
+            <apex:inputField rendered="{!$Setup.showOptions__c.showBU4__c}" value="{!mockContent.CT_BU4__c}" />
+            <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU5__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU5__c.Label} : " />
+            <apex:inputField rendered="{!$Setup.showOptions__c.showBU5__c}" value="{!mockContent.CT_BU5__c}" />
+
+            <apex:commandButton rendered="{!IF($Setup.showOptions__c.showBU1__c, true, false)}" action="{!changeEntity}" value=" Valider"/>
+      </apex:form>
+      <ul class="annual accordion">
+            <apex:repeat value="{!listAnnees}" var="categorie">
+                  <li class="menu-item">
+                        <a class="year Cocon" href="#" style=" text-shadow:0px 0px 0px black;">{!categorie}<span style="margin-left:20px;">&#x25B6;</span></a>
+                        <ul class="sub-menu">
+                              <apex:repeat value="{!donnees[categorie]}" var="rapportId">
+                              <apex:variable value="{!rapports[rapportId]}" var="rapport"/>
+                                    <li class="{!IF(AND(rapport.CT_confidentialityDate__c != null, rapport.CT_confidentialityDate__c >= TODAY(), rapport.CT_isConfidential__c), 'confidentiel', '')}">
+                                          <span class="w75">{!IF(AND(rapport.CT_confidentialityDate__c != null, rapport.CT_confidentialityDate__c >= TODAY(), rapport.CT_isConfidential__c), "Confidentiel jusqu'au "+TEXT(DAY(rapport.CT_confidentialityDate__c))+'/'+TEXT(MONTH(rapport.CT_confidentialityDate__c))+'/'+TEXT(YEAR(rapport.CT_confidentialityDate__c))+' - ', '')} {!rapport.name}</span>
+
+                                         <span class="w25">
+                                                <apex:outputLink rendered="{!IF(rapport.CT_URL__C != '', true, false)}" styleClass="url" value="http://{!rapport.CT_URL__c}" target="_blank">
+                                                      <apex:image url="{!URLFOR($Resource.Icone_link)}"  style="float:right;" width="25" />
+                                                </apex:outputLink>
+                                                <apex:repeat value="{!rapport.attachments}" var="a">
+                                                      <apex:outputLink rendered="{!a.ContentType != 'application/pdf'}" target="_blank" title="{!a.Name}" styleClass="document" value="{!URLFOR($Action.Attachment.Download, a.Id)}">
+                                                          <apex:image url="{!URLFOR($Resource.Icone_file)}" style="float:right; margin-right:10px;" width="23" />
+                                                      </apex:outputLink>
+                                                      <apex:outputLink rendered="{!a.ContentType == 'application/pdf'}" target="_blank" title="{!a.Name}" styleClass="document" value="{!URLFOR($Page.attachmentViewer, null, [id=a.Id])}">
+                                                          <apex:image url="{!URLFOR($Resource.Icone_download)}" style="float:right; margin-right:10px;" width="23" />
+                                                      </apex:outputLink>
+                                                </apex:repeat>
+                                                <apex:repeat value="{!rapport.AttachedContentDocuments}" var="acd">
+                                                      <apex:outputLink rendered="{!rapport.Autoriser_le_telechargement__c}" target="_blank" title="{!acd.ContentDocument.Title}" styleClass="document" value="/sfc/servlet.shepherd/version/download/{!acd.ContentDocument.LatestPublishedVersionId}">
+                                                            <apex:image url="{!URLFOR($Resource.Icone_file)}" style="float:right; margin-right:10px;" width="23" />
+                                                      </apex:outputLink>
+                                                      <apex:outputLink target="_blank" title="{!acd.ContentDocument.Title}" styleClass="document" value="{!URLFOR($Page.attachmentViewer, null, [id=acd.ContentDocument.LatestPublishedVersionId, isFile=true])}">
+                                                            <apex:image url="{!URLFOR($Resource.Icone_download)}" style="float:right; margin-right:10px;" width="23" />
+                                                      </apex:outputLink>
+                                                </apex:repeat>
+                                          </span>
+                                    </li>
+                              </apex:repeat>
+                        </ul>
+                  </li>
+            </apex:repeat>
+      </ul>
+
+      <script type="text/javascript">
+            function startIntro(){
+                  var intro = introJs();
+                  intro.setOptions({
+                    nextLabel: "{!$Label.crta__si_joyride_button_next}",
+                    prevLabel: "{!$Label.crta__si_joyride_button_previous}",
+                    doneLabel: "{!$Label.crta__si_joyride_button_end}",
+                    skipLabel: "{!$Label.crta__si_joyride_button_skip}",
+                    exitOnEsc: true,
+                    exitOnOverlayClick: true,
+                    showStepNumbers: false,
+                    keyboardNavigation: true,
+                    steps: [
+                      {
+                        intro: "{!$Label.crta__bdu_joyride_rapport_step}"
+                      }
+                    ]
+                  });
+                  intro.start().oncomplete(function() {
+                Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.bdu_rapportController.finishJoyride}',
+                    function(result, event) {
+                        if(result == null || result == 'null') {
+                            console.log(event);
+                        } else if(result != 'success') {
+                            console.log(result);
+                        }
+                    },
+                    {escape: true}
+                );
+                  }).onexit(function() {
+                Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.bdu_rapportController.finishJoyride}',
+                    function(result, event) {
+                        if(result == null || result == 'null') {
+                            console.log(event);
+                        } else if(result != 'success') {
+                            console.log(result);
+                        }
+                    },
+                    {escape: true}
+                );
+                  });
+            }
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

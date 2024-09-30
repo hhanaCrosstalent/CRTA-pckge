@@ -1,0 +1,70 @@
+<apex:page sidebar="false" showHeader="false" controller="bdu_searchController">
+        <apex:composition template="BDU_template">
+                <apex:define name="body">
+                        <apex:form >
+                                <div align="center">
+                                        <apex:messages />
+                                        <apex:inputText value="{!searchInput}"/>
+                                        <apex:commandButton action="{!search}" value="Rechercher"/>
+                                </div>
+                        </apex:form>
+                        <!--
+                        <br/>
+                        <apex:pageBlock title="BDU Indicateur ({!indicateurList.size})" rendered="{!indicateurList != null && indicateurList.size > 0}">
+                                <apex:pageBlockTable value="{!indicateurList}" var="e">
+                                        <apex:column headerValue="Chapitre" value="{!e.CT_BDU_Domaine__r.CT_BDU_chapitre__r.name}"/>
+                                        <apex:column headerValue="Domaine" value="{!e.CT_BDU_Domaine__r.name}"/>
+                                        <apex:column headerValue="Libellé">
+                                                <apex:outputLink value="{!URLFOR($Page.bdu_searchResult, null, [idindic=e.id, ch=LEFT(e.CT_Domaine__c, 15)])}" target="_new">{!e.CT_Libelle__c}</apex:outputLink>
+                                        </apex:column>
+                                        <apex:column headerValue="Description" value="{!e.CT_Description__c}"/>
+                                </apex:pageBlockTable>
+                        </apex:pageBlock>
+                        -->
+                        <apex:pageBlock title="BDU Valeur ({!valuesList.size})" rendered="{!valuesList != null && valuesList.size > 0}">
+                                <apex:pageBlockTable value="{!valuesList}" var="e">
+                                        <apex:column headerValue="Indicateur" value="{!e.CT_BDU_Indicateur__r.name}"/>
+                                        <apex:column headerValue="Nom">
+                                            <apex:outputLink value="{!URLFOR($Page.bdu_searchResult, null, [idval=e.id, ch=e.CT_BDU_Indicateur__r.CT_Domaine__c])}" target="_new">{!e.Name}</apex:outputLink>
+                                        </apex:column>
+                                        <apex:column headerValue="Année" value="{!e.CT_Annee__c}"/>
+                                        <apex:column headerValue="{!$ObjectType.BDU_Valeur__c.fields.CT_Trimestre__c.Label}" value="{!e.CT_Trimestre__c}"/>
+                                        <apex:column headerValue="{!$ObjectType.BDU_Valeur__c.fields.CT_Mois__c.Label}" value="{!e.CT_Mois__c}"/>
+                                        <apex:column headerValue="BU" value="{!e.CT_BU__c}"/>
+                                </apex:pageBlockTable>
+                        </apex:pageBlock>
+
+                        <apex:pageBlock title="BDU Contenu ({!contentList.size})" rendered="{!contentList != null && contentList.size > 0}">
+                                <apex:pageBlockTable value="{!contentList}" var="e">
+                                        <apex:column headerValue="Nom" value="{!e.Name}" />
+                                        <apex:column headerValue="Type de donnée" value="{!e.CT_Type_de_donnee__c}"/>
+                                        <apex:column headerValue="Année" value="{!e.CT_Annee__c}" />
+                                        <apex:column headerValue="Catégorie" value="{!e.CT_Categorie__c}" />
+                                        <apex:column headerValue="Lien" >
+                                                <apex:outputLink value="{!e.CT_URL__c}" rendered="{!IF(e.CT_URL__c != null, true, false)}" target="_blank">{!e.CT_URL__c}</apex:outputLink>
+                                        </apex:column>
+                                        <apex:column headerValue="Document" >
+                                                <apex:repeat value="{!e.Attachments}" var="a">
+                                                      <apex:outputLink target="_blank" title="{!a.Name}" styleClass="document"
+                                                                value="{!URLFOR($Action.Attachment.Download, a.Id)}">
+                                                            <apex:image url="{!URLFOR($Resource.Icone_file)}" style="float:right; margin-right:10px;" width="23" />
+                                                      </apex:outputLink>
+                                                </apex:repeat>
+                                                <apex:repeat value="{!e.AttachedContentDocuments}" var="acd">
+                                                      <apex:outputLink target="_blank" title="{!acd.ContentDocument.Title}" styleClass="document"
+                                                                value="{!URLFOR($Page.attachmentViewer, null, [id=acd.ContentDocument.LatestPublishedVersionId, isFile=true])}">
+                                                            <apex:image url="{!URLFOR($Resource.Icone_download)}" style="float:right; margin-right:10px;" width="23" />
+                                                      </apex:outputLink>
+                                                </apex:repeat>
+                                        </apex:column>
+                                </apex:pageBlockTable>
+                        </apex:pageBlock>
+
+                        <apex:pageBlock title="Résultats" rendered="{!IF(nbElements=0,true,false)}">
+                                <div align="center">
+                                        <i> Aucun élément trouvé pour <b>"{!searchInput}"</b></i>
+                                </div>
+                        </apex:pageBlock>
+                </apex:define>
+        </apex:composition>
+</apex:page>

@@ -1,0 +1,111 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 06/02/2019 (CreatedDate)
+-->
+<aura:component
+    implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+    controller="TeamContainerController" access="global">
+    <aura:attribute name="recordTypes" type="String" default="Salarie" access="global" />
+    <aura:attribute name="brandColor" type="String" default="#0047BB" access="global" />
+    <aura:attribute name="showTeamVisualisation" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showAttachmentLevel" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showSearchEmployee" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showPerfomanceReviews" type="Boolean" default="false" access="global" />
+    <aura:attribute name="showCompensationReview" type="Boolean" default="false" access="global" />
+    <aura:attribute name="showTalentReview" type="Boolean" default="false" access="global" />
+    <aura:attribute name="showLeave" type="Boolean" default="false" access="global" />
+
+    <!-- Standard interview module component -->
+    <aura:attribute name="interviewsComponent" type="Aura.Component" access="private" />
+
+    <!-- Standard compensation review module component -->
+    <aura:attribute name="compensationReviewsComponent" type="Aura.Component" access="private" />
+
+    <!-- Standard training module component -->
+    <aura:attribute name="trainingsComponent" type="Aura.Component" access="private" />
+
+    <!-- Standard talent review module component -->
+    <aura:attribute name="talentReviewsComponent" type="Aura.Component" access="private" />
+    <aura:attribute name="potentialPositionsComponent" type="Aura.Component" access="private" />
+    <aura:attribute name="nineBoxComponent" type="Aura.Component" access="private" />
+
+    <!-- Standard leave module component -->
+    <aura:attribute name="leavesComponent" type="Aura.Component" access="private" />
+    <aura:attribute name="leavesAPMComponent" type="Aura.Component" access="private" />
+
+    <!-- Standard recruitment module component -->
+    <aura:attribute name="recruitmentComponent" type="Aura.Component" access="private" />
+
+    <!-- Standard training module parameters -->
+    <aura:attribute name="showCreateTrainingRequests" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showCreateTrainingParticipations" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showMyTeamLastTrainings" type="Boolean" default="true" access="global" />
+    <aura:attribute name="trainingRequestCatalogsPageLength" type="Integer" default="5" access="global" />
+    <aura:attribute name="catalogIsPrintable" type="Boolean" default="true" access="global" />
+    <aura:attribute name="canChooseASpecificSession" type="Boolean" default="true" access="global" />
+    <aura:attribute name="trainingParticipationCatalogsPageLength" type="Integer" default="5" access="global" />
+    <aura:attribute name="showFullTrainingSessions" type="Boolean" default="true" access="global" />
+    <aura:attribute name="yearsOfHistory" type="Integer" default="0" access="global" />
+    <aura:attribute name="showNulledRequests" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showRefusedRequests" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showInterviewRequests" type="Boolean" default="true" access="global" />
+    <aura:attribute name="trainingRequestsPageLength" type="Integer" default="15" access="global" />
+    <aura:attribute name="showNulledActions" type="Boolean" default="true" access="global" />
+    <aura:attribute name="trainingActionsPageLength" type="Integer" default="15" access="global" />
+    <aura:attribute name="showNulledParticipations" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showRefusedParticipations" type="Boolean" default="true" access="global" />
+    <aura:attribute name="requestOnPathForManager" type="Boolean" default="true" access="global" />
+    <aura:attribute name="trainingParticipationsPageLength" type="Integer" default="15" access="global" />
+    <aura:attribute name="catalogPDFVFPageName" type="String" default="VisualisationCatalogueCustomPrint"
+        access="global" />
+    <aura:attribute name="contactFieldNameToShow" type="String" default="Email" access="global" />
+
+    <!-- Standard leave module parameters -->
+    <aura:attribute name="presenceTypeStr" type="String" default="P" access="global" />
+    <aura:attribute name="leaveTypeStr" type="String" default="ABS" access="global" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <lightning:card>
+        <lightning:tabset selectedTabId="teamVisualisation">
+            <aura:if isTrue="{!v.showTeamVisualisation}">
+                <lightning:tab label="{!$Label.c.Team}" id="teamVisualisation">
+                    <c:Team showAttachmentLevel="{!v.showAttachmentLevel}" showSearchEmployee="{!v.showSearchEmployee}"
+                        recordTypes="{!v.recordTypes}" brandColor="{!v.brandColor}" />
+                </lightning:tab>
+            </aura:if>
+            <aura:if isTrue="{!v.showPerfomanceReviews}">
+                <lightning:tab label="{!$Label.c.Performance_Reviews}" id="performanceReviews">
+                    {!v.interviewsComponent}
+                </lightning:tab>
+            </aura:if>
+            <aura:if isTrue="{!v.showCompensationReview}">
+                <lightning:tab label="{!$Label.c.Compensation_Review}" id="compensationReview">
+                    {!v.compensationReviewsComponent}
+                </lightning:tab>
+            </aura:if>
+            <aura:if isTrue="{!v.showTalentReview}">
+                <lightning:tab label="{!$Label.c.Talent_Review}" id="talentReview">
+                    <lightning:tabset selectedTabId="ninebox">
+                        <!-- <lightning:tab label="{!$Label.c.Q7Leader}" id="q7Leader">
+                            {!v.talentReviewsComponent}
+                        </lightning:tab> -->
+                        <lightning:tab label="{!$Label.c.X9box}" id="ninebox" onactive="{!c.loadNineBox}">
+                            {!v.nineBoxComponent}
+                        </lightning:tab>
+                        <lightning:tab label="{!$Label.c.Mobility_Area}" id="MobilityArea">
+                            {!v.potentialPositionsComponent}
+                        </lightning:tab>
+                    </lightning:tabset>
+                </lightning:tab>
+            </aura:if>
+            <aura:if isTrue="{!v.showLeave}">
+                <lightning:tab label="{!$Label.c.Leaves}" id="leave">
+                    {!v.leavesComponent}
+                    {!v.leavesAPMComponent}
+                </lightning:tab>
+            </aura:if>
+        </lightning:tabset>
+    </lightning:card>
+</aura:component>

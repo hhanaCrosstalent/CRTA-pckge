@@ -1,0 +1,89 @@
+<!---
+* @Author Fallou MBAYE
+* Cretead Date 2022-01-06
+* List modified
+*  ==> Modified by XXXX
+*  ==> Modified Date yyyy-mm-dd
+*-->
+
+<template>
+    <lightning-card title={label.OrgChart_Title} icon-name="standard:hierarchy" >
+        <div class="slds-notify__content">
+            <h2 class="slds-text-heading_small" id="errorMessage"></h2>
+        </div>
+        <lightning-accordion allow-multiple-sections-open>
+            <lightning-accordion-section name="A" label={label.OrgChart_Title_Section_Filtre}>
+                <!-- <span if:true={isDisplay}> -->
+            <div class="slds-grid slds-size_1-of-2"  >
+                <div class="slds-size_1-of-3">
+                    <div class="slds-form-element slds-p-horizontal_small">
+                        <label class="slds-form-element__label" for="orgChartWay">{label.Orgchart_Orientation}</label>
+                        <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                                <select class="slds-select" data-id="orgChartWay" size="1"  onchange={handleChange}>
+                                    <option value="t2b" selected="selected">{label.Orgchart_Orientation_Vertical}</option>
+                                    <option value="l2r">{label.Orgchart_Orientation_Horizontal}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-size_1-of-3">
+                    <div class="slds-form-element slds-p-horizontal_small">
+                        <label class="slds-form-element__label" for="text-input-id-1">{label.Orgchart_Depth}</label>
+                        <div class="slds-form-element__control">
+                            <input class="slds-input" data-id="depth" type="number" value="2" min="1" max="10" step="1" />
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-size_1-of-3">
+                <!-- onClick={createTree} -->
+                    <div class="slds-form-element slds-p-horizontal_small " style="padding-top: 10%;">
+                    <button class="slds-button slds-button_brand slds-m-horizontal_small slds-m-right_medium"  onclick={displayOrgChart}>{label.Display_Orgchart}</button></div>
+                </div>
+            </div>
+        <!-- </span> -->
+        <!--div class="slds-grid slds-size_1-of-2">
+            <div class="slds-size_1-of-3">
+                <div class="slds-form-element slds-p-horizontal_small">
+                    <label class="slds-form-element__label" for="text-input-id-1">{label.Orgchart_Export_Name}</label>
+                    <div class="slds-form-element__control">
+                        <input class="slds-input" id="fileName" type="text" value="MyChart" />
+                    </div>
+                </div>
+            </div>
+            <div class="slds-size_1-of-3">
+                <div class="slds-form-element slds-p-horizontal_small " style="padding-top: 10%;">
+                    <button class="slds-button slds-button_brand slds-m-horizontal_small slds-m-right_medium" onclick={exportTree}>{label.Export_OrgChart}</button></div>
+            </div>
+        </div-->
+        <div class="slds-grid slds-size_1-of-2">
+            <div class="slds-size_1-of-2">
+                <div class="slds-form-element slds-p-horizontal_small">
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+                            <lightning-input data-id="search"
+                            label={label.Search}
+                            type="search" placeholder={label.Orgchart_Placeholder}
+                            ></lightning-input>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-grid slds-size_1-of-2">
+                <div class="slds-size_1-of-3">
+                    <div class="slds-form-element slds-p-horizontal_small " style="padding-top: 20%;">
+                        <button class="slds-button slds-button_brand slds-m-horizontal_small slds-m-right_medium" id="searchButton" onclick={Search}>{label.to_Search}</button></div>
+                </div>
+                <div class="slds-size_1-of-3">
+                    <div class="slds-form-element slds-p-horizontal_small " style="padding-top: 20%;">
+                        <button class="slds-button slds-button_neutral slds-m-horizontal_small slds-m-right_medium" id="clearButton" onclick={SearchClear}>{label.to_Reset}</button></div>
+                </div>
+            </div>
+        </div>
+            </lightning-accordion-section>
+        </lightning-accordion> 
+      <div class="slds-p-horizontal_small tree ">
+        <div data-id="tree" class="orgchart" lwc:dom="manual" > </div>
+      </div>
+      <a id="github-link" href="https://github.com/dabeng/OrgChart" target="_blank"><i class="fa fa-github-square"></i></a>
+    </lightning-card>
+</template>

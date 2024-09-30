@@ -1,0 +1,65 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 30/11/2018 (CreatedDate)
+-->
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    
+    <aura:attribute name="link" type="String" default="" access="global"/>
+    <aura:attribute name="titleLink" type="String" default="" access="global"/>
+    <aura:attribute name="icon" type="String" default="" access="global"/>
+    <aura:attribute name="description" type="String" default="" access="private"/>
+    <aura:attribute name="typeLink" type="String" default="" access="private"/>
+    <aura:attribute name="titleLinkTmp" type="String" default="" access="private"/>
+    <aura:attribute name="inSalesforce" type="Boolean" default="true" access="private"/>
+    <aura:attribute name="labelTrancated" type="Boolean" default="false" access="private"/>
+
+    <aura:attribute name="textColor" type="String" default="#686868" access="global"/>
+    <aura:attribute name="iconsColor" type="String" default="#0047BB" access="global"/>
+    <aura:attribute name="backgroundColor" type="String" default="#FFF" access="global"/>
+    <aura:attribute name="titleLinkInitial" type="String" default="" access="public"/>
+
+       
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <div class="MyLink ct-backgroundColor slds-m-vertical_medium tooltip"  
+        style="{!'--text-color:'+ v.textColor +';color:'+ v.iconsColor +';--bckg-color:'+ v.backgroundColor +';        text-align: center;'}">
+        <!-- {!v.link} --><a target="{!v.inSalesforce ? '_self' : '_blank'}" class="slds-text-link_reset" onclick="{!c.openLink}">
+            <div class="MyLinkInner slds-grid slds-wrap">
+                <div class="slds-size_1-of-1">
+     <lightning:icon iconName="{!'utility:' + v.icon}"
+                        alternativeText="{!v.icon}" 
+                        size="small"
+                        class="slds-current-color slds-m-horizontal_medium"/>
+                </div>
+                <div class="slds-size_1-of-1 ct-text-color" style="    margin-top: -9%;">
+                  
+                    <div>{!v.titleLink}
+                        <aura:if isTrue="{!v.labelTrancated}">
+                        <span class="slds-popover slds-popover_tooltip slds-nubbin_top-left tooltiptext"
+                           style="{!'background:'+ v.textColor +';color:'+ v.backgroundColor +'; '}">
+                            {!v.titleLinkInitial}</span>
+                        </aura:if>
+                      </div>
+                </div>
+                <div class="slds-hide slds-col slds-size_5-of-6 ct-icon-color"> 
+                    <lightning:icon iconName="{!'utility:' + v.icon}"
+                        alternativeText="{!v.icon}" 
+                        size="small"
+                        class="slds-current-color slds-m-horizontal_medium"/>
+                    <span class="ct-text-color">
+                        {!v.titleLink}
+                    </span>
+                </div>
+                <div class="slds-hide slds-col slds-size_1-of-6 slds-text-align_right ct-icon-color">
+                    <div class="MyActionButton">
+                        <lightning:icon iconName="utility:chevronright" 
+                            alternativeText="{!v.titleLink}" 
+                            size="small"
+                            class="slds-current-color slds-p-left_small slds-m-right_small"/>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</aura:component>

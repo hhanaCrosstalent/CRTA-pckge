@@ -1,0 +1,116 @@
+<template>
+<template for:each={tables} for:item="table" for:index="index">
+
+             <template if:true={displayHeader}>
+<h2 class="table-header" key={table.index}> {table.header}  </h2>
+</template>
+    <template if:false={table.isEmpty}>
+
+
+ 
+        <div class="slds-box" key={table.index}>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr class="slds-text-title_caps">
+                                           <template for:each={table.columns} for:item="col">
+                                             <th scope="col"  key={col.fieldName} class="center-content">
+                        <div class="slds-truncate" title={col.label}>{col.label}</div>
+                    </th>
+                                            </template>
+                   
+                   
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={table.values} for:item="value" for:index="i">
+                    <tr key={value.index}>
+                       <template for:each={value} for:item="f">
+                        <td data-label={f.col.fieldName} key={f.col.fieldName} class="center-content">
+                          <template lwc:if={f.col.displayPhoto}>
+                              <c-contactphoto key={f.col.fieldName} contact-id={f.value} ></c-contactphoto>
+                          </template>
+                           <template lwc:elseif={f.col.ispercent}>
+                              <c-percent-bar key={f.col.fieldName} record-id={f.value} object-api-name={table.objApiName} field-api-name={f.col.fieldName} ></c-percent-bar>
+                          </template>
+                           <template lwc:elseif={f.col.isdatetime}>
+
+                          <lightning-formatted-date-time
+        value={f.value}
+        year="numeric"
+        month="numeric"
+        day="numeric"
+        hour="2-digit"
+        minute="2-digit"></lightning-formatted-date-time>
+                            </template>
+                                 <template lwc:elseif={f.col.isdate}>
+
+                          <lightning-formatted-date-time
+        value={f.value}
+        year="numeric"
+        month="numeric"
+        day="numeric"
+        ></lightning-formatted-date-time>
+                            </template>
+                          <template lwc:else>
+                                 <div class="slds-truncate" title={f.col.fieldName}>{f.value}</div>
+                           </template>
+                        </td>
+                        
+                    </template>
+                    </tr>
+                </template>
+            </tbody>
+        </table> 
+    </div>
+
+    <div class="pagination-style" key={table.index}> 
+      <lightning-button  class="pagination-btn" name={table.i}
+        icon-name="utility:jump_to_left"
+        icon-size="small"
+        icon-position="left" 
+        disabled={table.isFirst} onclick={handleFirst}></lightning-button>
+
+         <lightning-button  class="pagination-btn" name={table.i}
+        icon-name="utility:chevronleft"
+        icon-size="small"
+        icon-position="left" 
+        disabled={table.isFirst} onclick={handlePrev}></lightning-button>
+
+         <lightning-button  class="pagination-btn" name={table.i}
+        icon-name="utility:chevronright"
+        icon-size="small"
+        icon-position="left" 
+        disabled={table.isLast} onclick={handleNext}></lightning-button>
+
+         <lightning-button  class="pagination-btn" name={table.i}
+        icon-name="utility:jump_to_right"
+        icon-size="small"
+        icon-position="left" 
+        disabled={table.isLast} onclick={handleLast}></lightning-button>
+    </div>
+
+       <template if:true={table.displayADD}>
+        <div style="    padding-top: 1%;" key={table.index}>
+
+    <lightning-button  class="btn-style" label={table.btnLabel} title={table.btnLabel} name={table.btnLink} onclick={openWindow}>
+    </lightning-button>
+<!--   <c-create-record-dynamically table-id={table.Id} btn-label={table.btnLabel}  oncreate={loadData}></c-create-record-dynamically>-->
+        </div>        
+                </template>
+
+
+                </template>
+    <template if:true={table.isEmpty}   >
+                        <div class="no-data-container" key={table.index}>
+            <div class="no-data-icon">
+                <!-- You can replace this with your preferred icon -->
+                <!--<img src={nodata} alt="No data found" class="celebration-image" style="width:40px;"/>             <div class="no-data-text">{nodataMsg}</div>-->
+                <c-nodataavailable wimg={wimg}></c-nodataavailable>
+            </div>
+        </div>
+                        </template>
+
+
+                        </template>
+
+</template>

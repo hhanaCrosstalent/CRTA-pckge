@@ -1,0 +1,228 @@
+<apex:component controller="DragAndDropRESTAPI" access="global">
+    <apex:attribute name="parentId" type="String" description="Parent record where attachment would be attached" />
+    <apex:attribute name="DragDropHeight" type="String" description="Height in Pixel for Drag and Drop Section" />
+    <apex:includeScript value="{! $Resource.alert }" />
+    <apex:stylesheet value="{! $Resource.style }" />
+
+    <apex:form >
+
+        <div id="holder">
+            <div id="holder2">
+                <span class="slds-icon_container slds-icon-action-script">
+                    <svg aria-hidden="true" class="slds-icon slds-icon--small">
+                        <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/apexpages/slds/latest/assets/icons/action-sprite/svg/symbols.svg#share_file">
+                        </use>
+                    </svg>
+                </span>
+                <span class="holder_text" id="holder_txt1"> Déposez votre CV ici </span>
+                <span id="holder_txt2" class="hidden"></span>
+            </div>
+            <span id="holder_txt3" class="holder_txt3">ou</span>
+            <apex:slds />
+            <div class="slds-form-element">
+                <div class="slds-form-element__control">
+                    <div class="slds-file-selector slds-file-selector_files">
+                        <div class="slds-file-selector__dropzone">
+                            <apex:inputFile styleClass="slds-file-selector__input slds-assistive-text" accept="image/png/txt" id="fileUploadInput01"
+                                value="crosstalent" onchange="readfiles(files)" />
+                            <apex:outputLabel styleClass="slds-file-selector__body" for="fileUploadInput01">
+                                <span class="slds-file-selector__button slds-button slds-button_neutral">
+                                    Upload CV
+                                </span>
+                            </apex:outputLabel>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </apex:form>
+
+    <p id="upload" class="hidden">
+        <label>Drag &amp; drop not supported by your browser, but you can still upload via this input field:
+            <br />
+            <input type="file" />
+        </label>
+    </p>
+    <p id="filereader">File API &amp; FileReader API not supported</p>
+    <p id="formdata">XHR2's FormData is not supported</p>
+    <p id="progress">XHR2's upload progress isn't supported</p>
+    <p id="uploadStatus" class="hidden">
+        <span>Upload progress:</span>
+        <progress id="uploadprogress" min="0" max="100" value="0"></progress>
+    </p>
+
+    <script>
+        var holder = document.getElementById('holder');
+        var holder_txt1 = document.getElementById('holder_txt1');
+        var holder_txt2 = document.getElementById('holder_txt2');
+        var uploadStatus = document.getElementById('uploadStatus');
+
+        var sfdcHostName = window.location.host.split('.')[1];
+
+        tests = {
+            filereader: typeof FileReader != 'undefined',
+            dnd: 'draggable' in document.createElement('span'),
+            formdata: !!window.FormData,
+            progress: "upload" in new XMLHttpRequest
+        },
+            support = {
+                filereader: document.getElementById('filereader'),
+                formdata: document.getElementById('formdata'),
+                progress: document.getElementById('progress')
+            },
+            progress = document.getElementById('uploadprogress'),
+            fileupload = document.getElementById('upload');
+
+        "filereader formdata progress".split(' ').forEach(function (api) {
+            if (tests[api] === false) {
+                support[api].className = 'fail';
+            } else {
+                support[api].className = 'hidden';
+            }
+        });
+
+        function textBeforeDrag(flag) {
+            if (flag) {
+                holder_txt1.className = '';
+                holder_txt2.className = 'hidden';
+            } else {
+                holder_txt1.className = 'hidden';
+                holder_txt2.className = '';
+            }
+        }
+
+        function resetAll() {
+            holder.className = holder_txt1.className = '';
+            holder_txt2.className = uploadStatus.className = 'hidden';
+            //message de fin
+            Swal.fire(
+                'Félicitation !',
+                'Fichier transféré avec succès !',
+                'success'
+            )
+        }
+
+
+        function readfiles(files) {
+            console.log((new Date()).toLocaleTimeString());
+            var formData = tests.formdata ? new FormData() : null;
+
+            //Not sure why multiple files dropping, so for time being disable multi file functionality
+            if (files.length > 1) {
+                alert('Multi Upload is not supported, please try to upload single file');
+                return;
+            }
+            //myMorjan(files);
+            for (var i = 0; i < files.length; i++) {
+                uploadStatus.className = '';
+                holder.className = 'hidden';
+                //console.log('Host Name :: '+window.location.host.split('.')[0]);
+                //alert(document.location.hostname);
+                // now post a new XHR request
+                if (tests.formdata) {
+                    var xhr = new XMLHttpRequest();
+                    var myTempHost = window.location.host.split('.')[0];
+                    console.log('Avant Split :: ' + myTempHost);
+                    //console.log(window.location.host.split('.')[0]);
+                    //console.log(myTempHost.split('--')[0]);
+                    //var finalHost = myTempHost.split('--')[0];
+                    const myHostArray = myTempHost.split('--');
+                    console.log('size : ' + myHostArray.length);
+                    if (myHostArray.length > 2)
+                        var finalHost = myTempHost.split('--')[0] + "--" + myTempHost.split('--')[1];
+                    else
+                        var finalHost = myTempHost.split('--')[0];
+                    console.log('finalHost :: ' + finalHost);
+                    //var sfdcurl = 'https://crta-dev-ed.my.salesforce.com/services/apexrest/cthr/DragAndDrop/v1?FileName=' + encodeURIComponent(files[i].name) + '&cType=' + encodeURIComponent(files[i].type) + '&parId={!parentId}';
+                    var sfdcurl = 'https://' + finalHost + '.my.salesforce.com/services/apexrest/crta/DragAndDrop/v1?FileName=' + encodeURIComponent(files[i].name) + '&cType=' + encodeURIComponent(files[i].type);
+                    console.log('URL  :: ' + sfdcurl);
+                    //console.log('Après Split :: ' + finalHost);
+
+                    //var sfdcurl = 'https://crta-dev-ed.my.salesforce.com/services/apexrest/cthr/DragAndDrop/v1?FileName=' + encodeURIComponent(files[i].name) + '&cType=' + encodeURIComponent(files[i].type) + '&parId={!parentId}';
+                    //var sfdcurl = 'https://' + finalHost + '.my.salesforce.com/services/apexrest/crta/DragAndDrop/v1?FileName=' + encodeURIComponent(files[i].name) + '&cType=' + encodeURIComponent(files[i].type);
+                    //console.log('URL  :: ' + sfdcurl);
+                    //https://api.hrflow.ai/v1/profile/parsing/file
+
+                    xhr.open('POST', '/services/proxy');
+                    //CallApexMethod() ;
+                    //alert(document.location.hostname);
+                    //xhr.setRequestHeader("Content-type",'multipart/form-data');
+                    //xhr.setRequestHeader("Content-type",''); 
+
+                    xhr.setRequestHeader("Authorization", "Bearer {!$Api.Session_ID}");
+                    xhr.setRequestHeader('SalesforceProxy-Endpoint', sfdcurl);
+                    xhr.setRequestHeader('X-User-Agent', 'DragAndDropAPI v1.0');
+
+                    xhr.onload = function () {
+                        // TODO: Display this under the condition job jobId has finished
+
+                        progress.value = progress.innerHTML = 100;
+                        //resetAll();
+                    };
+
+                    if (tests.progress) {
+                        xhr.upload.onprogress = function (event) {
+                            if (event.lengthComputable) {
+                                var complete = (event.loaded / event.total * 100 | 0);
+                                progress.value = progress.innerHTML = complete;
+                            }
+                        }
+                    }
+
+                    xhr.onreadystatechange = function () {
+                        // TODO: Use this job Id in order to track progress on the server
+                        let jobId = null;
+                        if (xhr.readyState > 2 && xhr.status === 200 && xhr.responseText) {
+                            jobId = xhr.responseText;
+                            console.log('Now to track job Id...: ' + jobId);
+                            console.log('Status : ' + xhr.status);
+                            console.log('responseText : ' + xhr.responseText);
+                            resetAll();
+                        }
+                        if (xhr.readyState == 4 && xhr.status != 200) {
+                            if (xhr.responseText) {
+                                alert(xhr.responseText);
+                                resetAll();
+                            }
+                            else {
+                                alert('Some error occurred while uploading file');
+                                resetAll();
+                            }
+
+                            console.log(xhr);
+                        }
+                    }
+                    xhr.send(files[i]);
+                    //console.log((new Date()).toLocaleTimeString());
+                }
+            }
+        }
+
+        if (tests.dnd) {
+            holder.ondragover = function () {
+                this.className = 'hover';
+                textBeforeDrag(false);
+                return false;
+            };
+            holder.ondragend = function () {
+                this.className = '';
+                textBeforeDrag(true);
+                return false;
+            };
+            holder.ondrop = function (e) {
+                textBeforeDrag(true);
+                this.className = '';
+
+                e.preventDefault();
+                readfiles(e.dataTransfer.files);
+            }
+        } else {
+            fileupload.className = 'hidden';
+            fileupload.querySelector('input').onchange = function () {
+                readfiles(this.files);
+            };
+        }
+
+    </script>
+</apex:component>

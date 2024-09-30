@@ -1,0 +1,15 @@
+<apex:page sidebar="false" showHeader="false" controller="bdu_searchResultController">
+    <apex:composition template="BDU_template">
+        <apex:define name="body">
+            <apex:form >
+                    <apex:outputLink styleClass="right" target="_blank" rendered="{!$Setup.showOptions__c.showPrint__c}"  value="#" onclick="event.preventDefault(); window.print();">
+                        <apex:image url="{!URLFOR($Resource.btn_imprimer)}" styleClass="left hide-for-print" width="115" style="position:relative;right:50px;"/>
+                    </apex:outputLink>
+
+                    <c:bduIndicateur indicateur="{!indicateur}" valeur="{!valeur}" displayIndic="true" displayAttachment="false" />
+
+            </apex:form>
+
+        </apex:define>
+    </apex:composition>
+</apex:page>

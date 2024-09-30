@@ -1,0 +1,13 @@
+<aura:documentation>
+	<aura:description>
+		<p>
+			The <code>crta:Image</code> component enables System Administrators to place an image on a page. The primary use of
+			this is to insert a banner. The banner is invisible, when viewed via a mobile phone.
+		</p>
+        <p>
+            An easy way to see how the component works is to look at the home pages of one of the 
+            Crosstalent applications. E.g. for the Exenses application, the static resource of the home page banner is 
+            "banner_expenses" (because this is the name of the static resource) and its style attribute of the image "width:100%".
+        </p>
+	</aura:description>
+</aura:documentation>

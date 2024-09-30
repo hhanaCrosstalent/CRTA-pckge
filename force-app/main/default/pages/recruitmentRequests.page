@@ -1,0 +1,3 @@
+<apex:page tabstyle="Offre_d_emploi__c" standardController="Offre_d_emploi__c" extensions="recruitmentRequestsController" recordSetVar="offres">
+    <apex:enhancedList type="Offre_d_emploi__c" customizable="true" height="600" ListId="{!selectedView}"/>
+</apex:page>

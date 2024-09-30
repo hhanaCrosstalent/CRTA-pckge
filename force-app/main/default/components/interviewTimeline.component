@@ -1,0 +1,39 @@
+<apex:component layout="block">
+  <apex:attribute name="entretien" description="Wanted interview" type="EI_Entretien__c" required="true"/>
+  <apex:attribute name="contactId" description="Logged contact" type="String" required="true"/>
+
+  <li id="{!entretien.id}" class="timeline-block {!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c < 40, 'pending', '')} {!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c >= 40 && entretien.EI_Statut_value__c < 50, 'current', '')} {!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c >= 50, 'confirmed', '')}" data-type="interview">
+    <div class="tlcontent">
+      <div class="tltype {!IF(LEFT(contactId, 15) == LEFT(entretien.EI_Salarie_qui_fait_passer_l_entretien__c, 15), 'conducted', 'interview')}">
+        <i title="{!$ObjectType.EI_Entretien__c.Label}" class="fa {!IF(LEFT(contactId, 15) == LEFT(entretien.EI_Salarie_qui_fait_passer_l_entretien__c, 15), 'fa-comments-o', 'fa-comments')}"></i> 
+        <a href="{!$Setup.crta__sirh__c.crta__Page_Entretien__c}?id={!entretien.id}">
+          <apex:outputText value="{!$Label.crta__timeline_in_review_title}" rendered="{!LEFT(contactId, 15) == LEFT(entretien.EI_Salarie_qui_passe_l_entretien__c, 15)}">
+                <apex:param value="{!entretien.Manager__c}"/>
+          </apex:outputText>
+          <apex:outputText value="{!$Label.crta__timeline_out_review_title}" rendered="{!LEFT(contactId, 15) == LEFT(entretien.EI_Salarie_qui_fait_passer_l_entretien__c, 15)}">
+                <apex:param value="{!entretien.EI_Salarie_qui_passe_l_entretien__r.Name}"/>
+          </apex:outputText>
+        </a>
+        <time class="tltime" datetime="{!entretien.EI_Date_de_l_entretien__c}">
+          <span>
+            <i title="{!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c < 40, $Label.pending_interview, '')} {!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c >= 40 && entretien.EI_Statut_value__c < 50, $Label.current_interview, '')} {!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c >= 50, $Label.Finished_interview, '')}" class="fa {!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c < 40, 'fa-clock-o', '')} {!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c >= 40 && entretien.EI_Statut_value__c < 50, 'fa-edit', '')} {!IF(entretien.EI_Statut_value__c != null && entretien.EI_Statut_value__c >= 50, 'fa-check-circle-o', '')}"></i>
+            <apex:outputField value="{!entretien.EI_Date_de_l_entretien__c}" />
+          </span>
+        </time>
+      </div>
+      <div class="tllabel">
+        <div class="row tldetails">
+          <apex:outputPanel rendered="{!IF(entretien.EI_Duree_de_l_entretien__c != null, true, false)}" styleClass="small-12 medium-6  column">
+            <span class="ct-label">{!$ObjectType.EI_Entretien__c.fields.EI_Duree_de_l_entretien__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!entretien.EI_Duree_de_l_entretien__c}" /></span>
+          </apex:outputPanel>
+          <apex:outputPanel styleClass="small-12 medium-6  column">
+            <span class="ct-label">{!$ObjectType.EI_Entretien__c.fields.EI_Statut__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!entretien.EI_Statut__c}"/></span>
+          </apex:outputPanel>
+          <apex:outputPanel styleClass="small-12  column">
+            <span class="ct-label">{!$ObjectType.EI_Entretien__c.fields.EI_Modele_d_entretien__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!entretien.EI_Modele_d_entretien__r.Name}" /></span> 
+          </apex:outputPanel>
+        </div>
+      </div>
+    </div>
+  </li>
+</apex:component>

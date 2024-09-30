@@ -1,0 +1,17 @@
+.THIS .feedContainer {
+    height: 28rem;
+    max-height: 28rem;
+}
+
+.THIS .slds-card__header {
+    margin: 0;
+    padding: 0;
+}
+
+.THIS .slds-card__body {
+    margin: 0;
+}
+
+.THIS .ct-text-color {
+    color : var(--text-color);
+}

@@ -1,0 +1,133 @@
+<aura:component access="global" implements="flexipage:availableForAllPageTypes" controller="PortalHomeController">
+
+
+    <aura:attribute name="cmpList" type="List" access="public" />
+        <aura:attribute name="textColor" type="String" default="#0047BB" access="global"/>
+
+        <aura:attribute name="displayBody" type="Boolean" default="true" access="public"/>
+        <aura:attribute name="displayModal" type="Boolean" default="false" access="public"/>
+
+        <aura:attribute name="cmpLimitNbr" type="Integer" access="global"  default="5"/>
+        <aura:attribute name="filter" type="String" access="global" 
+                                                  default=" crta__Component_Name__c = 'CustomLink' and crta__Sub_Tab__c = null and crta__Tab__c = null "/>
+    
+        <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+  
+ <div class="slds-grid slds-wrap content-style" style="{!'--text-color:'+ v.textColor +';    padding-left: 15px; padding-right: 11px;   background: white; padding-top: 2%; background: var(--backgroundCmp);'}">
+        <div class="clickable header-style" style="    width: 100%; display: flex;     margin-bottom: 2%;   padding-bottom: 11px; border-bottom: 1px solid #d0cdcd;" onclick="{!c.handleclick}">
+        <div class=" chevron">
+            <aura:if isTrue="{!v.displayBody}"><i class="fa fa-chevron-down"></i>
+                <aura:set attribute="else">
+                    <i class="fa fa-chevron-right"></i>
+                </aura:set>
+            </aura:if>
+           </div>
+            
+            <div class="ct-text-color " title="{!$Label.c.dynamic_cmp_label}" style="width:85%;     font-size: 16px; font-weight:700;">
+            <span class="title-card">{!$Label.c.dynamic_cmp_label}</span>
+          </div>
+            
+                    <lightning:icon iconName="utility:link" alternativeText="{!$Label.c.dynamic_cmp_label}"
+                                    class="slds-m-right_small slds-current-color icon-video" size="small"
+                                    style="    color: #aba3a3;"/>
+              
+        </div>
+        
+        <aura:if isTrue="{!v.displayBody}">
+    
+  
+   
+   <div class="slds-grid slds-wrap h-portal-cards" style="    width: 100%;     min-height: 301px;     max-height: 301px;  scrollbar-width: thin;"><!--   overflow-y: auto; -->        
+    
+          <aura:iteration items="{!v.cmpList}" var="cmp" indexVar="index">
+            <div class="{!index==v.cmpLimitNbr ? cmp.taille +' plus-cntr ' : cmp.taille }">
+            <aura:if isTrue="{!index== v.cmpLimitNbr }">
+                <a class="plus" onclick="{!c.openModal}">+ </a>
+                 <aura:set  attribute="else">
+                    <lightning:tabset  class="tabstyle " >
+                                  <lightning:tab  id="{!cmp.identifier}" onactive="{!c.addContent}" >
+
+                              </lightning:tab>
+                  </lightning:tabset> 
+                 </aura:set>
+            </aura:if>
+                   
+            </div>
+         </aura:iteration> 
+         <!--<aura:if isTrue="{!v.cmpList.length>v.cmpLimitNbr}"></aura:if>-->
+</div>
+    
+   <!-- <div class="slds-grid slds-wrap slds-hide" style="    justify-content: end; margin-top:-15px;">
+         <div style="    padding-right: 1%;"> 
+             
+             
+ <c:CustomLink titleLink="Calendrier" 
+                       link="/lightning/o/Event/home" 
+                       icon="event" 
+                       textColor="#2F4BB7" 
+                       iconsColor="#2F4BB7" 
+                       backgroundColor="#FFFFFF"></c:CustomLink>
+                 
+             
+            </div>
+
+         
+ <div style="    padding-right: 1%;">         <c:CustomLink titleLink="Equipe" 
+                                                            link="/lightning/n/crta__My_team" 
+                       icon="people" 
+                       textColor="#2F4BB7" 
+                       iconsColor="#2F4BB7" 
+                       backgroundColor="#FFFFFF">
+     </c:CustomLink></div>
+ <div style="    padding-right: 1%;">         <c:CustomLink titleLink="Organisation" 
+                                                            link="/lightning/n/crta__Organisation" 
+                       icon="org_chart" 
+                       textColor="#2F4BB7" 
+                       iconsColor="#2F4BB7" 
+                       backgroundColor="#FFFFFF"></c:CustomLink></div>
+ <div style="    padding-right: 1%;">         <c:CustomLink titleLink="Calendrier" 
+                       link="/lightning/o/Event/home" 
+                       icon="event" 
+                       textColor="#2F4BB7" 
+                       iconsColor="#2F4BB7" 
+                       backgroundColor="#FFFFFF"></c:CustomLink></div>
+    </div>-->
+    
+ 
+     </aura:if>
+    </div>
+	
+
+
+
+     <aura:if isTrue="{!v.displayModal}">
+            <div role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container slds-modal_medium" style="max-width: 52rem;">
+                    <header class="slds-modal__header slds-text-heading_large slds-text-align_center">
+                        {!$Label.c.dynamic_cmp_label}
+                    </header>
+                    <div class="slds-modal__content slds-text-align_center" >                    
+                        <div class="slds-grid slds-wrap h-portal-cards" style="    width: 88%;   display: inline-flex;">        
+          <aura:iteration items="{!v.cmpList}" var="cmp" indexVar="index">
+            <div class="{!cmp.taille}">
+           
+                    <lightning:tabset  class="tabstyle " >
+                                  <lightning:tab  id="{!cmp.identifier}" onactive="{!c.addContent}" >
+
+                              </lightning:tab>
+                  </lightning:tabset> 
+                   
+            </div>
+         </aura:iteration> 
+        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.closeModal}">
+                            {!$Label.c.Close}
+                        </button>
+                    </footer>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+</aura:component>

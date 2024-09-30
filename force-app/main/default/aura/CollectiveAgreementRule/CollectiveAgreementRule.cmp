@@ -1,0 +1,30 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 02/07/2019 (CreatedDate)
+-->
+<aura:component controller="CollectiveAgreementRuleController" implements="flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    <aura:attribute name="recordId" type="String" access="public"/>
+    <aura:attribute name="record" type="Object" access="public"/>
+    <aura:attribute name="simpleRecord" type="Object" access="public"/>
+    <aura:attribute name="recordError" type="String" access="public"/>
+
+    <aura:attribute name="contract" type="Object" access="global" default="{}" />
+
+    <force:recordData aura:id="record"
+        layoutType="FULL"
+        recordId="{!v.recordId}"
+        targetError="{!v.recordError}"
+        targetRecord="{!v.record}"
+        targetFields ="{!v.simpleRecord}"
+        mode="VIEW"
+    />
+    <lightning:card title="{!$Label.c.End_of_Period_Calculations}" iconName="standard:contract">
+        <lightning:button variant="brand" 
+            label="{!$Label.c.Calculate_Dates}" 
+            title="{!$Label.c.End_of_Period_Calculations_Detail}" 
+            class="slds-align_absolute-center" 
+            onclick="{!c.periodCalcul}" />
+    </lightning:card>
+  
+</aura:component>

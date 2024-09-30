@@ -1,0 +1,957 @@
+<apex:page sidebar="false" showHeader="false" cache="false" docType="html-5.0" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" controller="VisualisationSchedulerController">
+<apex:stylesheet value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/fullcalendar.min.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/scheduler.min.css')}"/>
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+  <apex:form >
+    <div id="scheduler">
+    <!-- Filtres -->
+      <div id="filters" class="small-12 column" data-fold="false">
+        <h4 class="title secondary-font header">
+          <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('filters');">
+            <i class="fa fa-filter"></i>
+            <span>{!$Label.Filters}</span>
+          </a>
+        </h4>
+        <div class="card">
+          <div class="row infos" data-foldable="true">
+            <div class="small-12 medium-6 large-4 column info">
+              <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__reports_to} :" for="manager"/>
+              <apex:selectList id="manager" value="{!selectedManager}" size="1" title="managers">
+                <apex:selectOptions value="{!managers}"></apex:selectOptions>
+              </apex:selectList>
+            </div>
+            <div class="small-12 medium-6 large-4 column info layer-up">
+              <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Contact.fields.CT_BU3__c.Label} :" for="team"/>
+              <apex:selectList id="team" value="{!selectedTeam}" size="1" title="teams">
+                <apex:selectOptions value="{!teams}"></apex:selectOptions>
+              </apex:selectList>
+            </div>
+            <div class="small-12 medium-6 large-4 column info">
+              <apex:outputLabel styleClass="ct-label" value="{!$Label.crta__scheduler_daily_requirements} :" for="requirements"/>
+              <apex:input value="{!dailyRequirements}" id="requirements" type="number" />
+            </div>
+            <div class="button-center">
+              <button type="submit" class="green button outline"><i class="fa fa-search"></i> {!$Label.Search}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- Calendar -->
+    <div id="calendar-block" class="small-12 column">
+      <div>
+        <div id="calendar" class="custom-cal planning"></div>
+      </div>
+    </div>
+
+    <!-- Total -->
+    <div id="total" class="small-12 column" data-fold="false">
+      <h4 class="title secondary-font header">
+        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('total');">
+          <span>&sum; {!$Label.Scheduler_Total}</span>
+        </a>
+      </h4>
+      <div class="card">
+        <div class="row ct-table" data-foldable="true">
+          <table id="total-table">
+            <thead class="secondary-color header-table">
+              <tr>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="presence">
+                <td>{!$Label.Scheduler_presence}</td>
+              </tr>
+              <tr id="absence">
+                <td>{!$Label.Scheduler_leaves}</td>
+              </tr>
+              <tr id="astreinte" class="{!IF($Setup.crta__timesheet__c.crta__useConstraint__c, 'show', 'hide')}">
+                <td>{!$Label.Scheduler_constraints}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recap -->
+    <div id="summary" class="small-12 column" data-fold="false">
+      <h4 class="title secondary-font header">
+        <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('summary');">
+          <i class="fa fa-pie-chart"></i>
+          <span>{!$Label.Scheduler_Summary}</span>
+        </a>
+      </h4>
+      <div class="card">
+        <div class="row ct-table" data-foldable="true">
+          <table id="summary-table">
+            <thead class="secondary-color header-table">
+              <tr>
+                <th></th>
+                <th>{!$ObjectType.Contact.fields.Conges_solde_n_1__c.Label} </th>
+                <th>{!$ObjectType.Contact.fields.Conges_solde_n__c.Label} </th>
+                <th>{!$ObjectType.Contact.fields.Repos_compensateurs_solde__c.Label} </th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal -->
+  <div id="modals">
+    <!-- Modal time creation -->
+    <div id="time-modal" class="row reveal-modal time-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.new_time} (<time></time>) - <small></small></h3>
+
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-6 column">
+              <label>{!$ObjectType.Temps__c.fields.Type__c.Label}
+                <apex:selectList id="type-select" value="{!selectedtimeType}" size="1" styleClass="type-select">
+                  <apex:selectOptions value="{!timeTypes}"></apex:selectOptions>
+                </apex:selectList>
+              </label>
+            </div>
+            <div class="small-12 medium-6 column">
+              <label>{!$ObjectType.Temps__c.fields.Heure_de_fin__c.Label}<input type="time" name="end" value="" class="end-select timepicker" required="required"/></label>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" name="start" value="" class="start-select" />
+        <input type="hidden" name="date" value="" class="date-select" />
+        <input type="hidden" name="employee" value="" class="employee-select" />
+
+        <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createTime('time-modal')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+    </div>
+
+    <!-- Modal time edition -->
+    <div id="time-edit-modal" class="row reveal-modal time-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.edit_time}</h3>
+
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Temps__c.fields.Heure_de_debut__c.Label}<input type="time" name="end" value="" class="start-select timepicker" required="required"/></label>
+            </div>
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Temps__c.fields.Type__c.Label}
+                <apex:selectList id="type-select1" value="{!selectedtimeType}" size="1" styleClass="type-select">
+                  <apex:selectOptions value="{!timeTypes}"></apex:selectOptions>
+                </apex:selectList>
+              </label>
+            </div>
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Temps__c.fields.Heure_de_fin__c.Label}<input type="time" name="end" value="" class="end-select timepicker" required="required"/></label>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" name="id" value="" class="id-select" />
+        <input type="hidden" name="date" value="" class="date-select" />
+
+        <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); editTime()"><i class="fa fa-save"></i> {!$Label.update}</a>
+        <a href="#" class="button red outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); deleteTime('time-edit-modal')"><i class="fa fa-minus-circle"></i> {!$Label.delete}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+    </div>
+
+    <!-- Modal datetime creation -->
+    <div id="time-start-modal" class="row reveal-modal time-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.new_time}</h3>
+
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-3 column">
+              <label>{!$ObjectType.Contact.Label}
+                <select name="employee-select" class="employee-select"></select>
+              </label>
+            </div>
+            <div class="small-6 medium-2 column">
+              <label>{!$ObjectType.Temps__c.fields.Date__c.Label}<input type="date" name="date" value="" class="date-select datepicker" required="required"/></label>
+            </div>
+            <div class="small-3 medium-2 column">
+              <label>{!$ObjectType.Temps__c.fields.Heure_de_debut__c.Label}<input type="time" name="start" value="" class="start-select timepicker" required="required"/></label>
+            </div>
+            <div class="small-3 medium-2 column">
+              <label>{!$ObjectType.Temps__c.fields.Heure_de_fin__c.Label}<input type="time" name="end" value="" class="end-select timepicker" required="required"/></label>
+            </div>
+            <div class="small-12 medium-3 column">
+              <label>{!$ObjectType.Temps__c.fields.Type__c.Label}
+                <apex:selectList id="type-select2" value="{!selectedtimeType}" size="1" styleClass="type-select">
+                  <apex:selectOptions value="{!timeTypes}"></apex:selectOptions>
+                </apex:selectList>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <a href="#" class="button green outline hide-for-print small-12 medium-3 large-2" onclick="event.preventDefault(); createTime('time-start-modal')"><i class="fa fa-plus"></i> {!$Label.create}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+    </div>
+
+    <!-- Modal constraint creation -->
+    <div id="constraint-create-modal" class="row reveal-modal constraint-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.new_constraint}</h3>
+
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-3 column">
+              <label>{!$ObjectType.Contact.Label}
+                <select name="employee-select" class="employee-select"></select>
+              </label>
+            </div>
+            <div class="small-12 medium-3 column">
+              <label>{!$ObjectType.Astreinte__c.fields.Date_de_debut__c.Label}<input type="date" name="start-date" value="" class="start-date-select datepicker" required="required"/></label>
+            </div>
+            <div class="small-12 medium-3 column">
+              <label>{!$ObjectType.Astreinte__c.fields.Date_de_fin__c.Label}<input type="date" name="end-date" value="" class="end-date-select datepicker" required="required"/></label>
+            </div>
+            <div class="small-12 medium-3 column">
+              <label>{!$ObjectType.Astreinte__c.fields.Motif__c.Label}<input type="text" name="motif" value="" class="motif-select" /></label>
+            </div>
+          </div>
+        </div>
+
+        <a href="#" class="button green outline hide-for-print" onclick="event.preventDefault(); createConstraint()">{!$Label.create}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+    </div>
+
+    <!-- Modal constraint edition -->
+    <div id="constraint-edit-modal" class="row reveal-modal constraint-modal" data-reveal="true">
+        <h3 class="small-12 title">{!$Label.edit_constraint}</h3>
+
+        <div class="small-12">
+          <div class="row">
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Astreinte__c.fields.Date_de_debut__c.Label}<input type="date" name="start-date" value="" class="start-date-select datepicker" required="required"/></label>
+            </div>
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Astreinte__c.fields.Date_de_fin__c.Label}<input type="date" name="end-date" value="" class="end-date-select datepicker" required="required"/></label>
+            </div>
+            <div class="small-12 medium-4 column">
+              <label>{!$ObjectType.Astreinte__c.fields.Motif__c.Label}<input type="text" name="motif" value="" class="motif-select" /></label>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" name="id" value="" class="id-select" />
+
+        <a href="#" class="button green outline hide-for-print" onclick="event.preventDefault(); editConstraint()">{!$Label.update}</a>
+        <a href="#" class="button red outline hide-for-print" onclick="event.preventDefault(); deleteConstraint()">{!$Label.delete}</a>
+        <a class="close-reveal-modal modal-dismiss hide-for-print"><i class="fa fa-minus"></i></a>
+    </div>
+  </div>
+  </apex:form>
+
+  <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/fullcalendar.min.js')}" />
+  <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/lang-all.js')}" />
+  <apex:includeScript value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/scheduler.min.js')}" />
+  <script type="text/javascript">
+    jQuery(document).ready(function($) {
+      jQuery('#calendar').fullCalendar({
+        schedulerLicenseKey: '0321809729-fcs-1455883080',
+        lang: '{!locale}',
+        customButtons: {
+          addTime: {
+            text: '{!$Label.Scheduler_button_add_time}',
+            title: '{!$Label.Scheduler_button_add_time}',
+            icon: ' fa fa-calendar-plus-o',
+            click: function() {
+              jQuery('#time-start-modal').foundation('reveal', 'open');
+            }
+          },
+          addConstraint: {
+            text: '{!$Label.Scheduler_button_add_constraint}',
+            title: '{!$Label.Scheduler_button_add_constraint}',
+            icon: ' fa fa-chain',
+            click: function() {
+              jQuery('#constraint-create-modal').foundation('reveal', 'open');
+            }
+          }
+        },
+        header: {
+          left: 'prev,next addTime,{!IF($Setup.crta__timesheet__c.crta__useConstraint__c, "addConstraint", "")}',
+          center: 'title',
+          right: 'timelineMonth,timelineWeek,timelineDay,today'
+        },
+        defaultView:'timelineMonth',
+        displayEventTime: false,
+        height: 'auto',
+        businessHours: {
+          start: '07:00',
+          end: '20:00',
+
+          dow: [ 1, 2, 3, 4, 5 ]
+        },
+        weekends: true,
+        editable: true,
+        eventOverlap:false,
+        resourceAreaWidth: '17%',
+        resourceColumns: [
+          {
+            labelText: '{!$Label.Scheduler_employees}',
+            field: 'title'
+          }
+        ],
+        resources: function(callback) {
+          Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationSchedulerController.getCalendarResources}', '{!JSENCODE(selectedManager)}', '{!JSENCODE(selectedTeam)}', function(result, event) {
+              if (event.status) {
+                var resources = [];
+                jQuery.each(result, function(index, val) {
+                      resources.push({
+                            title: jQuery(this).attr('Name'),
+                            id: jQuery(this).attr('Id'),
+                            teamId: jQuery(this).attr(NSU+'CT_BU3__c'),
+                      });
+                      //Filling the select lists
+                      jQuery('#time-start-modal .employee-select').append('<option value="'+jQuery(this).attr('Id')+'">'+jQuery(this).attr('Name')+'</option>');
+                      jQuery('#date-start-modal .employee-select').append('<option value="'+jQuery(this).attr('Id')+'">'+jQuery(this).attr('Name')+'</option>');
+                      jQuery('#constraint-create-modal .employee-select').append('<option value="'+jQuery(this).attr('Id')+'">'+jQuery(this).attr('Name')+'</option>');
+
+                      //Filling the summary table
+                      jQuery('#summary table tbody').append('<tr><td>'+jQuery(this).attr('Name')+'</td><td>'+jQuery(this).attr(NSU+'Conges_solde_n_1__c')+'j</td><td>'+jQuery(this).attr(NSU+'Conges_solde_n__c')+'j</td><td>'+jQuery(this).attr(NSU+'Repos_compensateurs_solde__c')+'</td>');
+                });
+                callback(resources);
+              } else {
+                console.log(event);
+                jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+event.message+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                jQuery(document).foundation('alert', 'reflow');
+              }
+          }, {escape: true});
+        },
+        events: function(start, end, timezone, callback) {
+            Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationSchedulerController.getCalendarEvents}', start, end, '{!selectedManager}', '{!selectedTeam}', function(result, event) {
+            if (event.status) {
+              var events = [];
+              var dayArray = [];
+              var leaveArray = [];
+              var leaveUnicity = [];
+              var constraintArray = [];
+              var constraintUnicity = [];
+              var eventDuration = 0;
+              jQuery.each(result, function(index, val) {
+                jQuery.each(val, function(index2, val2) {
+                  switch(index) {
+                    case 'times':
+                      var start = moment.utc(jQuery(this).attr(NSU+'Date__c')).add({h: jQuery(this).attr(NSU+'Heure_de_debut__c').substring(0,2), m: jQuery(this).attr(NSU+'Heure_de_debut__c').substring(3,5)});
+                      var end = moment.utc(jQuery(this).attr(NSU+'Date__c')).add({h: jQuery(this).attr(NSU+'Heure_de_fin__c').substring(0,2), m: jQuery(this).attr(NSU+'Heure_de_fin__c').substring(3,5)});
+
+                      var className = 'week-event';
+                      if(end.isBefore(moment())) className += ' past';
+
+                      var description = '';
+                      var clickable = false;
+                      var title = jQuery(this).attr(NSU+'Type__c');
+                      var type = jQuery(this).attr(NSU+'Valeur_type__c')+' '+jQuery(this).attr(NSU+'Type_text__c');
+                      var id = jQuery(this).attr('Id');
+                      var resourceId = jQuery(this).attr(NSU+'Feuille_hebdo__r')[NSU+'Salarie__c'];
+                      var typeNumber = jQuery(this).attr(NSU+'Valeur_type__c');
+                      var fa ='';
+                      if(typeNumber >= 10 && typeNumber < 20) {
+                            fa = '<i class="fa fa-lg fa-briefcase" title="'+jQuery(this).attr(NSU+'Type__c')+'"></i> ';
+                      } else if(typeNumber >= 20 && typeNumber < 30) {
+                            fa = '<i class="fa fa-lg fa-pause-circle" title="'+jQuery(this).attr(NSU+'Type__c')+'"></i> ';
+                      } else if(typeNumber >= 30 && typeNumber < 50) {
+                            fa = '<i class="fa fa-lg fa-calendar-minus-o red-font" title="'+jQuery(this).attr(NSU+'Type__c')+'"></i> ';
+                      } else if(typeNumber >= 50 && typeNumber < 70) {
+                            fa = '<i class="fa fa-lg fa-clock-o blue-font" title="'+jQuery(this).attr(NSU+'Type__c')+'"></i> ';
+                      } else if(typeNumber >= 70 && typeNumber < 90) {
+                            fa = '<i class="fa fa-lg fa-chain purple-font" title="'+jQuery(this).attr(NSU+'Type__c')+'"></i> ';
+                      }
+                      if(jQuery(this).attr(NSU+'Valeur_statut__c') < 20) {
+                            className += ' editable';
+                            clickable = true;
+                      } else if(jQuery(this).attr(NSU+'Valeur_statut__c') >= 20 && jQuery(this).attr(NSU+'Valeur_statut__c') < 90) {
+                            fa += '<i class="fa fa-lg fa-clock-o" title="'+jQuery(this).attr(NSU+'Statut__c')+'"></i> ';
+                      } else if(jQuery(this).attr(NSU+'Valeur_statut__c') >= 90) {
+                            fa += '<i class="fa fa-lg fa-check-circle" title="'+jQuery(this).attr(NSU+'Statut__c')+'"></i> ';
+                            className += ' validated';
+                      }
+                      if(jQuery(this).attr(NSU+'Commentaire__c')) {
+                            fa += '<i class="fa fa-lg fa-comment" title="'+jQuery(this).attr(NSU+'Commentaire__c')+'"></i> ';
+                      }
+                      var rendering = 'normal';
+                      var allDay = false;
+                      eventDuration += moment.duration(end-start).hours();
+                    break;
+                    case 'leaves':
+                      var start = moment.utc(jQuery(this).attr(NSU+'Date_de_debut__c'));
+                      var end = moment.utc(jQuery(this).attr(NSU+'Date_de_fin__c'));
+
+                      var className = 'leave-event';
+                      if(end.isBefore(moment())) className += ' past';
+
+                      var allDay = false;
+                      // any better idea?!
+                      if(jQuery(this).attr(NSU+'Periode_de_fin__c') == 'Journée complète' 
+                          || jQuery(this).attr(NSU+'Periode_de_fin__c') == 'Full day' 
+                          || jQuery(this).attr(NSU+'Periode_de_fin__c') == 'Jornada completa') {
+                          allDay = true;
+                          end = end.startOf('day').add(1, 'day');
+                      }
+                      var id = jQuery(this).attr('Id');
+                      var resourceId = jQuery(this).attr(NSU+'Salarie__r').Id;
+                      var description = '';
+                      var fa = '<i class="fa fa-lg fa-ticket" title="'+jQuery(this).attr(NSU+'Type__c')+'"></i> '+jQuery(this).attr(NSU+'Type__c');
+                      if(jQuery(this).attr(NSU+'Valeur_statut__c') < 30) fa += '<i class="fa fa-lg fa-clock-o" title="'+jQuery(this).attr(NSU+'Statut__c')+'"></i> ';
+                      if((jQuery(this).attr(NSU+'Valeur_statut__c') >= 30 && jQuery(this).attr(NSU+'Valeur_statut__c') < 50) || jQuery(this).attr(NSU+'Valeur_statut__c') >= 70) {
+                          fa += '<i class="fa fa-lg fa-check-circle" title="'+jQuery(this).attr(NSU+'Statut__c')+'"></i> ';
+                          className += ' validated';
+                        }
+                      if(!jQuery(this).attr(NSU+'Afficher_dans_le_planning__c')) className += ' hide-for-print';
+                      var title = jQuery(this).attr(NSU+'Type__c');
+                      var type = jQuery(this).attr(NSU+'Type__c');
+                      var rendering = 'normal';
+                      var clickable = false;
+
+                      //Total table initialization for leaves
+                      var startDate = moment(start); 
+                      var endDate = moment(end);
+                      if(moment(startDate).isSame(endDate, 'day')) {
+                        var date = startDate.format('YYYYMMDD');
+                        if(leaveArray[date] && leaveUnicity[date] != jQuery(this).attr(NSU+'Salarie__r').Id) {
+                          leaveArray[date]++;
+                        } else {
+                          leaveArray[date] = 1;
+                          leaveUnicity[date] = jQuery(this).attr(NSU+'Salarie__r').Id
+                        }
+                      } else {
+                        endDate.add(1, 'days');
+                        while(!moment(startDate).isSame(endDate, 'day'))  {
+                          var date = startDate.format('YYYYMMDD');
+                          if(leaveArray[date] && leaveUnicity[date] != jQuery(this).attr(NSU+'Salarie__r').Id) {
+                            leaveArray[date]++;
+                          } else {
+                            leaveArray[date] = 1;
+                            leaveUnicity[date] = jQuery(this).attr(NSU+'Salarie__r').Id
+                          }
+                          startDate.add(1, 'days');
+                        }
+                      }
+                    break;
+                    case 'constraints':
+                      var start = moment(jQuery(this).attr(NSU+'Date_de_debut__c'));
+                      var end = moment(jQuery(this).attr(NSU+'Date_de_fin__c'));
+                      end = end.add(1, 'days');
+
+                      var className = 'constraint-event';
+                      if(end.isBefore(moment())) className += ' past';
+
+                      var allDay = true;
+                      var id = jQuery(this).attr('Id');
+                      var resourceId = jQuery(this).attr(NSU+'Salarie__c');
+                      var description = '';
+                      var fa = '<i class="fa fa-lg fa-chain" title="'+jQuery(this).attr(NSU+'Motif__c')+'"></i> '+jQuery(this).attr(NSU+'Motif__c');
+                      var type = jQuery(this).attr(NSU+'Motif__c');
+                      var clickable = true;
+                      className += ' editable';
+
+                      var startDate = moment(start);
+                      var endDate = moment(end);
+                      if(moment(startDate).isSame(endDate, 'day')) { //Preparation for the result table
+                        var date = startDate.format('YYYYMMDD');
+                        if(constraintArray[date] && constraintUnicity[date] != jQuery(this).attr(NSU+'Salarie__c')) {
+                          constraintArray[date]++;
+                        } else {
+                          constraintArray[date] = 1;
+                          constraintUnicity[date] = jQuery(this).attr(NSU+'Salarie__c');
+                        }
+                      } else {
+                        while(!moment(startDate).isSame(endDate, 'day'))  {
+                          var date = startDate.format('YYYYMMDD');
+                          if(constraintArray[date] && constraintUnicity[date] != jQuery(this).attr(NSU+'Salarie__c')) {
+                            constraintArray[date]++;
+                          } else {
+                            constraintArray[date] = 1;
+                            constraintUnicity[date] = jQuery(this).attr(NSU+'Salarie__c');
+                          }
+                          startDate.add(1, 'days');
+                        }
+                      }
+                    break;
+                    case 'dayCount':
+                      var date = moment(jQuery(this).attr('dt')).format('YYYYMMDD');
+                      if(dayArray[date]) {
+                        dayArray[date]++;
+                      } else {
+                        dayArray[date] = 1;
+                      }
+                    break;
+                    case 'constraintCount':
+                      var date = moment(jQuery(this).attr('dt')).format('YYYYMMDD');
+                      if(constraintArray[date]) {
+                        constraintArray[date]++;
+                      } else {
+                        constraintArray[date] = 1;
+                      }
+                    break;
+                  }
+                  if(index != 'dayCount' && index != 'constraintCount') {
+                    events.push({
+                      id: id,
+                      resourceId: resourceId,
+                      title: fa,
+                      type: type,
+                      start: start,
+                      end: end,
+                      allDay: allDay,
+                      clickable: clickable,
+                      resourceEditable: false,
+                      className: className
+                    });
+                  }
+                });
+              });
+              callback(events);
+              var startDate = moment(start);
+              jQuery('#total-table thead tr').html('<th></th>');
+              jQuery('#total-table #astreinte').html('<td>{!$Label.Scheduler_constraints}</td>');
+              jQuery('#total-table #absence').html('<td>{!$Label.Scheduler_leaves}</td>');
+              jQuery('#total-table #presence').html('<td>{!$Label.Scheduler_planned}</td>');
+              while(!moment(startDate).isSame(end, 'day'))  {
+                var date = startDate.format('YYYYMMDD');
+                var dayCount = 0;
+                var leaveCount = 0;
+                var constraintCount = 0;
+                if(leaveArray[date]) leaveCount = leaveArray[date];
+                if(constraintArray[date]) constraintCount = constraintArray[date];
+                if(dayArray[date]) dayCount = dayArray[date];
+                jQuery('#total-table thead tr').append('<th>'+startDate.format('dd DD')+'</th>');
+                jQuery('#total-table #astreinte').append('<td>'+constraintCount+'</td>');
+                jQuery('#total-table #absence').append('<td>'+leaveCount+'</td>');
+                if(dayCount < {!dailyRequirements}) {
+                  jQuery('#total-table #presence').append('<td class="red-font"><i class="fa fa-exclamation-circle" title="'+dayCount+'"></i></td>');
+                } else {
+                  jQuery('#total-table #presence').append('<td>'+dayCount+'</td>');
+                }
+                startDate.add(1, 'days');
+              }
+            } else {
+              console.log(event);
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+event.message+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+            }
+          }, {escape: true});
+        },
+        eventAfterRender: function( event, element, view ) { 
+          element.find('.fc-title').html(event.title); 
+          element.find('.fc-content').attr('title', event.description); 
+          element.find('.fc-content').attr('data-type', event.type); 
+          element.find('.fc-content').attr('data-id', event.id); 
+        },
+        eventClick: function(calEvent, jsEvent, view) {
+          if(calEvent.className[0] == 'week-event' && calEvent.clickable == true) {
+            jQuery('#time-edit-modal .date-select').val(calEvent.start.format('YYYY-MM-DD'));
+            jQuery('#time-edit-modal .start-select').val(calEvent.start.format('HH:mm'));
+            jQuery('#time-edit-modal .end-select').val(calEvent.end.format('HH:mm'));
+            jQuery('#time-edit-modal .id-select').val(calEvent.id);
+            jQuery('#time-edit-modal .type-select option').each(function(index, el) {
+                  if(jQuery(this).val() == calEvent.type) {
+                        jQuery(this).prop('selected', true);
+                  } else {
+                        jQuery(this).prop('selected', false);
+                  }
+            });
+            jQuery('#time-edit-modal').foundation('reveal', 'open');
+          } else if(calEvent.className[0] == 'constraint-event'  && calEvent.clickable == true) {
+            if (!Modernizr.inputtypes.date) {
+                  jQuery('#constraint-edit-modal .start-date-select').val(calEvent.start.format('DD/MM/YYYY'));
+                  jQuery('#constraint-edit-modal .end-date-select').val(calEvent.end.subtract(1, 'day').format('DD/MM/YYYY'));
+            } else {
+                  jQuery('#constraint-edit-modal .start-date-select').val(calEvent.start.format('YYYY-MM-DD'));
+                  jQuery('#constraint-edit-modal .end-date-select').val(calEvent.end.subtract(1, 'day').format('YYYY-MM-DD'));
+            }
+            jQuery('#constraint-edit-modal .motif-select').val(calEvent.type);
+            jQuery('#constraint-edit-modal .id-select').val(calEvent.id);
+            jQuery('#constraint-edit-modal').foundation('reveal', 'open');
+          }
+        },
+        eventResize: function(event, delta, revertFunc) {
+          var startDate = event.start.format('YYYY-MM-DD');
+          var startTime = event.start.format('HH:mm');
+          var endDate = event.end.format('YYYY-MM-DD');
+          var endTime = event.end.format('HH:mm');
+          var id = event.id;
+          var type = event.type;
+          if(event.className[0] == 'week-event') {
+            sforce.connection.sessionId = '{!$Api.Session_ID}';
+            var result = sforce.apex.execute(NSD+'TimeManager', 'editWithTime', {
+              startDate: startDate,
+              startTime: startTime,
+              endTime: endTime,
+              type: type,
+              timeId: id
+            }, {
+              onSuccess: function (result) {
+                if (result != 'success') {
+                  console.log(result);
+                  jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                  jQuery(document).foundation('alert', 'reflow');
+                  revertFunc();
+                }
+              },
+              onFailure: function (error) {
+                console.log(error);
+                jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown}<strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                jQuery(document).foundation('alert', 'reflow');
+                revertFunc();
+              }
+            });
+          } else if(event.className[0] == 'constraint-event') {
+            sforce.connection.sessionId = '{!$Api.Session_ID}';
+            var result = sforce.apex.execute(NSD+'ConstraintManager', 'editConstraint', {
+              startDate: startDate,
+              endDate: endDate,
+              motif: type,
+              constraintId: id
+            }, {
+              onSuccess: function (result) {
+                if (result != 'success') {
+                  console.log(result);
+                  jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                  jQuery(document).foundation('alert', 'reflow');
+                  revertFunc();
+                }
+              },
+              onFailure: function (error) {
+                console.log(error);
+                jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown}<strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                jQuery(document).foundation('alert', 'reflow');
+                revertFunc();
+              }
+            });
+          } else {
+            revertFunc();
+          }
+        },
+        eventDrop: function(event, delta, revertFunc) {
+          var startDate = event.start.format('YYYY-MM-DD');
+          var startTime = event.start.format('HH:mm');
+          var endDate = event.end.format('YYYY-MM-DD');
+          var endTime = event.end.format('HH:mm');
+          var id = event.id;
+          var type = event.type;
+          if(event.className[0] == 'week-event') {
+            sforce.connection.sessionId = '{!$Api.Session_ID}';
+            var result = sforce.apex.execute(NSD+'TimeManager', 'editWithTime', {
+              startDate: startDate,
+              startTime: startTime,
+              endTime: endTime,
+              type: type,
+              timeId: id
+            }, {
+              onSuccess: function (result) {
+                if (result != 'success') {
+                  console.log(result);
+                  jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                  jQuery(document).foundation('alert', 'reflow');
+                  revertFunc();
+                }
+              },
+              onFailure: function (error) {
+                console.log(error);
+                jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown}<strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                jQuery(document).foundation('alert', 'reflow');
+                revertFunc();
+              }
+            });
+          } else if(event.className[0] == 'constraint-event') {
+            sforce.connection.sessionId = '{!$Api.Session_ID}';
+            var result = sforce.apex.execute(NSD+'ConstraintManager', 'editConstraint', {
+              startDate: startDate,
+              endDate: endDate,
+              motif: type,
+              constraintId: id
+            }, {
+              onSuccess: function (result) {
+                if (result != 'success') {
+                  console.log(result);
+                  jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                  jQuery(document).foundation('alert', 'reflow');
+                  revertFunc();
+                }
+              },
+              onFailure: function (error) {
+                console.log(error);
+                jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown}<strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                jQuery(document).foundation('alert', 'reflow');
+                revertFunc();
+              }
+            });
+          } else {
+            revertFunc();
+          }
+        },
+        dayClick: function(date, jsEvent, view, resourceObj) {
+          jQuery('#time-modal time').html(date.format('LT'));
+          jQuery('#time-modal small').html(resourceObj.title);
+          jQuery('#time-modal .date-select').val(date.format('YYYY-MM-DD'));
+          jQuery('#time-modal .start-select').val(date.format('HH:mm'));
+          jQuery('#time-modal .end-select').val('');
+          jQuery('#time-modal .end-select').attr('min', date.format('HH:mm'));
+          jQuery('#time-modal .employee-select').val(resourceObj.id);
+          jQuery('#time-modal').foundation('reveal', 'open');
+        },
+        viewRender: function( view, element ) {
+          jQuery('#calendar .fc-addTime-button').attr('title', '{!$Label.Scheduler_button_add_time}');
+        }
+      });
+
+      jQuery('#calendar').on('click', '.fc-resource-area .fc-widget-content .fc-cell-content', function(event) {
+          event.preventDefault();
+          var contactId = jQuery(this).parents('tr[data-resource-id]').attr('data-resource-id');
+          window.open('<apex:outputText value="{!$Setup.sirh__c.Page_Semaine__c}"/>?contactId='+contactId,'_blank');
+      });
+    });
+    
+    function createTime(id) {
+      jQuery('#'+id+' .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var date;
+      if(id == 'time-start-modal') {
+        if (!Modernizr.inputtypes.date) {
+          date = moment(jQuery('#'+id+' .date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+        } else {
+          date = moment(jQuery('#'+id+' .date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+        }
+      } else {
+        date = jQuery('#'+id+' .date-select')[0].value;
+      }
+      var start = jQuery('#'+id+' .start-select')[0];
+      var end = jQuery('#'+id+' .end-select')[0];
+      var type = jQuery('#'+id+' .type-select')[0];
+      var employee = jQuery('#'+id+' .employee-select')[0];
+      
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'TimeManager', 'createWithTime', {
+        startDate: date,
+        startTime: start.value,
+        endTime: end.value,
+        type: type.value,
+        contactId: employee.value
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            jQuery('#calendar').fullCalendar('refetchEvents');
+            jQuery('#'+id).foundation('reveal', 'close');
+            jQuery('#'+id+' .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+          } else {
+            console.log(result);
+            jQuery('#'+id).foundation('reveal', 'close');
+            jQuery('#'+id+' .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#'+id).foundation('reveal', 'close');
+          jQuery('#'+id+' .green.button').html('<i class="fa fa-plus"></i> {!$Label.create}');
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+        }
+      });
+    }
+
+    function editTime() {
+      jQuery('#time-edit-modal .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var date = jQuery('#time-edit-modal .date-select')[0];
+      var start = jQuery('#time-edit-modal .start-select')[0];
+      var end = jQuery('#time-edit-modal .end-select')[0];
+      var type = jQuery('#time-edit-modal .type-select')[0];
+      var id = jQuery('#time-edit-modal .id-select')[0];
+
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'TimeManager', 'editWithTime', {
+        startDate: date.value,
+        startTime: start.value,
+        endTime: end.value,
+        type: type.value,
+        timeId: id.value
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            jQuery('#calendar').fullCalendar('refetchEvents');
+            jQuery('#time-edit-modal').foundation('reveal', 'close');
+            jQuery('#time-edit-modal .green.button').html('<i class="fa fa-save"></i> {!$Label.update}');
+          } else {
+            console.log(result);
+            jQuery('#time-edit-modal').foundation('reveal', 'close');
+            jQuery('#time-edit-modal .green.button').html('<i class="fa fa-save"></i> {!$Label.update}');
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#time-edit-modal').foundation('reveal', 'close');
+          jQuery('#time-edit-modal .green.button').html('<i class="fa fa-save"></i> {!$Label.update}');
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+        }
+      });
+    }
+
+    function deleteTime(id) {
+      if(confirm('{!$Label.Planning_prompt_delete_time}')) {
+        jQuery('#'+id+' .red.button').html('<i class="fa fa-spin fa-spinner"></i>');
+        var eventId = jQuery('#'+id+' .id-select')[0];
+
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'TimeManager', 'deleteTime', {
+          timeId: eventId.value
+        }, {
+          onSuccess: function (result) {
+            if (result == 'success') {
+              jQuery('#calendar').fullCalendar('refetchEvents');
+              jQuery('#'+id).foundation('reveal', 'close');
+              jQuery('#'+id+' .red.button').html('<i class="fa fa-minus-circle"></i> {!$Label.delete}');
+            } else {
+              console.log(result);
+              jQuery('#'+id).foundation('reveal', 'close');
+              jQuery('#'+id+' .red.button').html('<i class="fa fa-minus-circle"></i> {!$Label.delete}');
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+            }
+          },
+          onFailure: function (error) {
+            console.log(error);
+            jQuery('#'+id).foundation('reveal', 'close');
+            jQuery('#'+id+' .red.button').html('<i class="fa fa-minus-circle"></i> {!$Label.delete}');
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      }
+    }
+
+    function createConstraint() {
+      jQuery('#constraint-create-modal .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var startdate;
+      var enddate;
+      if (!Modernizr.inputtypes.date) {
+        startdate = moment(jQuery('#constraint-create-modal .start-date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+        enddate = moment(jQuery('#constraint-create-modal .end-date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+      } else {
+        startdate = moment(jQuery('#constraint-create-modal .start-date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+        enddate = moment(jQuery('#constraint-create-modal .end-date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+      }
+      var employee = jQuery('#constraint-create-modal .employee-select')[0];
+      var motif = jQuery('#constraint-create-modal .motif-select')[0];
+
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'ConstraintManager', 'createConstraint', {
+        startDate: startdate,
+        endDate: enddate,
+        motif: motif.value,
+        contactId: employee.value
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            jQuery('#calendar').fullCalendar('refetchEvents');
+            jQuery('#constraint-create-modal').foundation('reveal', 'close');
+            jQuery('#constraint-create-modal .green.button').html('{!$Label.create}');
+          } else {
+            console.log(result);
+            jQuery('#constraint-create-modal').foundation('reveal', 'close');
+            jQuery('#constraint-create-modal .green.button').html('{!$Label.create}');
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#constraint-create-modal').foundation('reveal', 'close');
+          jQuery('#constraint-create-modal .green.button').html('{!$Label.create}');
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+        }
+      });
+    }
+
+    function editConstraint() {
+      jQuery('#constraint-edit-modal .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var startdate;
+      var enddate;
+      if (!Modernizr.inputtypes.date) {
+        startdate = moment(jQuery('#constraint-edit-modal .start-date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+        enddate = moment(jQuery('#constraint-edit-modal .end-date-select')[0].value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+      } else {
+        startdate = moment(jQuery('#constraint-edit-modal .start-date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+        enddate = moment(jQuery('#constraint-edit-modal .end-date-select')[0].value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+      }
+      var motif = jQuery('#constraint-edit-modal .motif-select')[0];
+      var id = jQuery('#constraint-edit-modal .id-select')[0];
+
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'ConstraintManager', 'editConstraint', {
+        startDate: startdate,
+        endDate: enddate,
+        motif: motif.value,
+        constraintId: id.value
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            jQuery('#calendar').fullCalendar('refetchEvents');
+            jQuery('#constraint-edit-modal').foundation('reveal', 'close');
+            jQuery('#constraint-edit-modal .green.button').html('{!$Label.update}');
+          } else {
+            console.log(result);
+            jQuery('#constraint-edit-modal').foundation('reveal', 'close');
+            jQuery('#constraint-edit-modal .green.button').html('{!$Label.update}');
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#constraint-create-modal').foundation('reveal', 'close');
+          jQuery('#constraint-create-modal .green.button').html('{!$Label.create}');
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+        }
+      });
+    }
+
+    function deleteConstraint() {
+      jQuery('#constraint-edit-modal .red.button').html('<i class="fa fa-spin fa-spinner"></i>');
+      var id = jQuery('#constraint-edit-modal .id-select')[0];
+
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'ConstraintManager', 'deleteConstraint', {
+        constraintId: id.value
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            jQuery('#calendar').fullCalendar('refetchEvents');
+            jQuery('#constraint-edit-modal').foundation('reveal', 'close');
+            jQuery('#constraint-edit-modal .red.button').html('{!$Label.delete}');
+          } else {
+            console.log(result);
+            jQuery('#constraint-edit-modal').foundation('reveal', 'close');
+            jQuery('#constraint-edit-modal .red.button').html('{!$Label.delete}');
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#constraint-edit-modal').foundation('reveal', 'close');
+          jQuery('#constraint-edit-modal .red.button').html('{!$Label.delete}');
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+        }
+      });
+    }
+    
+    function startIntro() {}
+  </script>
+</apex:define>
+</apex:composition>
+</apex:page>

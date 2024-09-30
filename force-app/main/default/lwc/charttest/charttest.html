@@ -1,0 +1,18 @@
+<template>
+        <lightning-card class="card-style chart-card"  title={chartTitle}>
+          <tempate lwc:if={showPercentBar}>
+                <div class="slds-grid slds-gutters percent-style">
+  <div class="slds-col slds-size_1-of-3">
+                <c-percent-bar percentage={percentValue} background="red"></c-percent-bar>
+  </div>
+  <div class="slds-col text-content">
+    <span class="percent-value">{percentValue} %</span>
+  </div>
+</div>
+          </tempate>
+           <tempate lwc:else>
+           <canvas  data-id={chartTitle} class="chart-style" width="1450" height={chartHeight}></canvas>
+          </tempate>
+           <!-- <p slot="footer">Card Footer</p> -->  
+        </lightning-card>
+</template>

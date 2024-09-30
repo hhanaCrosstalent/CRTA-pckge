@@ -1,0 +1,425 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" controller="sirhTemplateController"  docType="html-5.0">
+<html class="no-js" lang="fr">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{!$Label.SIRH_Page_Title}</title>
+    <apex:stylesheet value="{!URLFOR($Resource.fullcalendar, 'fullcalendar/fullcalendar.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.foundation, 'css/foundation.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.rome, 'rome.min.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.introjs, 'introjs.min.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.sirhCSS)}" />
+    <apex:stylesheet value="{!URLFOR($Resource.printCSS)}" html-media="print"/>
+    <apex:stylesheet value="{!customCSS}" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,400italic' rel='stylesheet' type='text/css' />
+    <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css' />
+    <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/vendor/modernizr.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.sortable)}" />
+    <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/vendor/jquery.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.moments, 'moments.js')}"/>
+    <apex:includeScript value="/soap/ajax/37.0/connection.js" />
+    <apex:includeScript value="/soap/ajax/37.0/apex.js" />
+  </head>
+
+  <body>
+    <div id="body" >
+      <div class="off-canvas-wrap" data-offcanvas="true">
+        <div class="inner-wrap">
+          <!-- Off Canvas Menu -->
+          <aside class="left-off-canvas-menu hide-for-print">
+            <div class="show-for-small">
+              <div class="avatar">
+                <apex:outputPanel rendered="{!$Setup.sirh__c.useAvatars__c}" layout="block">
+                  <img src="{!IF(photo == '/servlet/servlet.FileDownload?file=', URLFOR($Resource.avatar_blank), photo)}" />
+                </apex:outputPanel>
+                <h4 class="title">{!loggedContact.name}</h4>
+              </div>
+            </div>
+
+            <ul>
+              <apex:repeat value="{!menuLinks}" var="menuLink">
+                <apex:variable value="{!RIGHT(menuLink.URL__c, LEN(menuLink.URL__c)-FIND('apex/', menuLink.URL__c)-4)}" var="cleanedURL" />
+                <li>
+                  <apex:outputLink value="{!absoluteUrls[menuLink.URL__c]}" target="{!menuLink.Target__c}" rendered="{!(menuLink.Manager_only__c && isManager) || !menuLink.Manager_only__c}" styleClass="{!IF((menuLink.URL__c == $CurrentPage.Name) || (cleanedURL == $CurrentPage.Name), 'active-page primary-font', '')} {!IF(menuLink.Manager_only__c, 'manager-page', '')} {!cleanedURL}"><i class="fa {!menuLink.Icone__c}"></i>{!$Label[menuLink.DeveloperName]}</apex:outputLink>
+                  <!-- Use... value=# onclick=sforce.one.navigateToURL(/apex/!menuLink.URL__C); when no custom settings reference absolute URLs. -->
+                </li>
+              </apex:repeat>
+            </ul>
+
+            <div class="buttons show-for-small">
+              <apex:form >
+                <div id="dd-small" class="dropdown-wrapper green-dropdown" tabindex="1" onclick="event.preventDefault(); openMenu('dd-small')">{!$Label.Actions}
+                  <ul class="dropdown">
+                    <li class="{!IF($Setup.crta__sirh__c.crta__showTimes__c, 'show', 'hide')}">
+                      <apex:outputLink value="#" rendered="{!!$Setup.timesheet__c.useTimesheetPage__c}" styleClass="dropdown-link week-dropdown" html-data-reveal-id="timesheet"><i class="fa fa-calendar"></i>{!$Label.new_timesheet}</apex:outputLink>
+                      <apex:outputLink value="{!$Setup.timesheet__c.Page_Creation_Feuille__c}" rendered="{!$Setup.timesheet__c.useTimesheetPage__c}" styleClass="dropdown-link week-dropdown"><i class="fa fa-calendar"></i>{!$Label.new_timesheet}</apex:outputLink>
+                    </li>
+                    <li class="{!IF($Setup.sirh__c.showExpenses__c, 'show', 'hide')}">
+                      <apex:outputLink rendered="{!!$Setup.expenses__c.usePage__c}" value="#" styleClass="dropdown-link expense-dropdown" html-data-reveal-id="expenses"><i class="fa fa-credit-card"></i>{!$Label.new_expenses}</apex:outputLink>
+                      <apex:outputLink rendered="{!$Setup.expenses__c.usePage__c}" value="{!$Setup.expenses__c.Page_creation_Note_de_frais__c}" styleClass="dropdown-link expense-dropdown"><i class="fa fa-credit-card"></i>{!$Label.new_expenses}</apex:outputLink>
+                    </li>
+                    <li class="{!IF($Setup.sirh__c.showLeave__c, 'show', 'hide')}">
+                      <apex:outputLink rendered="{!!$Setup.timesheet__c.useLeavePage__c}" value="#" styleClass="dropdown-link leave-dropdown" html-data-reveal-id="{!IF((BEGINS(loggedContact.Categorie_professionnelle__c, $Setup.timesheet__c.dateModalActivationName__c) || $Setup.timesheet__c.useDateLeaveModal__c), 'leave-date', 'leave')}"><i class="fa fa-ticket"></i>{!$Label.new_leave}</apex:outputLink>
+                      <apex:outputLink rendered="{!$Setup.timesheet__c.useLeavePage__c}" value="{!$Setup.timesheet__c.Page_Creation_Demande__c}" styleClass="dropdown-link leave-dropdown"><i class="fa fa-ticket"></i>{!$Label.new_leave}</apex:outputLink>
+                    </li>
+                    <li class="{!IF($Setup.sirh__c.showTrainingRequest__c, 'show', 'hide')}">
+                      <apex:outputLink rendered="{!!$Setup.TrainingModule__c.useTrainingRequestPage__c}" value="#" styleClass="dropdown-link training-dropdown" html-data-reveal-id="training-request"><i class="fa fa-graduation-cap"></i>{!$Label.new_training_request}</apex:outputLink>
+                      <apex:outputLink rendered="{!$Setup.TrainingModule__c.useTrainingRequestPage__c}" value="{!$Setup.TrainingModule__c.Page_Creation_Demande_formation__c}" styleClass="dropdown-link training-dropdown"><i class="fa fa-graduation-cap"></i>{!$Label.new_training_request}</apex:outputLink>
+                    </li>
+                    <li><a class="dropdown-link red-dropdown red" href="/secur/logout.jsp"><i class="fa fa-sign-out"></i>{!$Label.Log_off}</a></li>
+                  </ul>
+                </div>
+              </apex:form>
+            </div>
+          </aside>
+
+          <c:sirhMenu contact="{!loggedContact}" subCount="{!subCount}" logo="{!customLogo}" photo="{!photo}" alertCount="{!alertCount}" displayDateLeave="{!BEGINS(loggedContact.Categorie_professionnelle__c, $Setup.timesheet__c.dateModalActivationName__c)}" isManager="{!isManager}" rendered="{!!ispreview}" />
+
+          <apex:outputPanel layout="block" id="right_content" styleClass="row right-content small-12 {!IF(isPreview, 'preview', '')}" >
+            <div id="alert-messages" class="small-12 column {!IF(isPreview, 'hide', 'show')}">
+              <apex:outputPanel rendered="{!loggedContact == null}" layout="block">
+                <div class="alert-box alert" data-alert="true">
+                  <span>{!$Label.SI_Error_contact_not_found}</span>
+                  <a href="#" class="close hide">&otimes;</a>
+                </div>
+              </apex:outputPanel>
+              <apex:repeat value="{!notifications}" var="notification">
+                <div class="alert-box {!notification.Type__c}" data-alert="true" id="{!notification.Id}">
+                  <span>{!notification.Texte__c}</span>
+                  <apex:outputPanel rendered="{!CONTAINS(notification.Objet__c, 'EI_Entretien__c') && notification.Type__c == 'Interaction'}" styleClass="end">
+                    <apex:outputLink value="{!JSENCODE($Setup.sirh__c.Page_Entretien__c)}?id={!JSENCODE(notification.Id_de_l_objet__c)}" onclick="readNotif('{!notification.Id}');" styleClass="tiny button outline gray">{!$Label.crta__see}</apex:outputLink>
+                  </apex:outputPanel>
+                  <apex:outputPanel rendered="{!CONTAINS(notification.Objet__c, 'Feuille_Temps_Hebdo__c') && notification.Type__c == 'Interaction'}" styleClass="end">
+                    <apex:outputLink value="{!JSENCODE($Setup.sirh__c.Page_Semaine__c)}?id={!JSENCODE(notification.Id_de_l_objet__c)}" onclick="readNotif('{!notification.Id}');" styleClass="tiny button outline gray">{!$Label.crta__see}</apex:outputLink>
+                  </apex:outputPanel>
+                  <apex:outputPanel rendered="{!CONTAINS(notification.Objet__c, 'Note_de_frais__c') && notification.Type__c == 'Interaction'}" styleClass="end">
+                    <apex:outputLink value="{!JSENCODE($Setup.sirh__c.Page_Frais__c)}?id={!JSENCODE(notification.Id_de_l_objet__c)}" onclick="readNotif('{!notification.Id}');" styleClass="tiny button outline gray">{!$Label.crta__see}</apex:outputLink>
+                  </apex:outputPanel>
+                  <apex:outputPanel rendered="{!CONTAINS(notification.Objet__c, 'Demande_de_conges__c') && notification.Type__c == 'Interaction'}" styleClass="end">
+                    <a href="#" onclick="event.preventDefault(); acceptLeave('{!JSENCODE(notification.Id_de_l_objet__c)}', '{!notification.Id}')" class="tiny button outline green">{!$Label.Accept}</a>
+                    <a href="#" onclick="event.preventDefault(); refuseLeave('{!JSENCODE(notification.Id_de_l_objet__c)}', '{!notification.Id}')" class="tiny button outline red">{!$Label.reject}</a>
+                  </apex:outputPanel>
+                  <apex:outputPanel rendered="{!CONTAINS(notification.Objet__c, 'Demande_de_formation__c') && notification.Type__c == 'Interaction'}" styleClass="end">
+                    <a href="#" onclick="event.preventDefault(); acceptTrainingRequest('{!JSENCODE(notification.Id_de_l_objet__c)}', '{!notification.Id}')" class="tiny button outline green ">{!$Label.Accept}</a>
+                    <a href="#" onclick="event.preventDefault(); refuseTrainingRequest('{!JSENCODE(notification.Id_de_l_objet__c)}', '{!notification.Id}')" class="tiny button outline red">{!$Label.reject}</a>
+                  </apex:outputPanel>
+                  <!--  -->
+                  <apex:outputPanel rendered="{!CONTAINS(notification.Objet__c, 'Participation_session_formation__c') && notification.Type__c == 'Interaction'}" styleClass="end">
+                    <a href="#" onclick="event.preventDefault(); acceptTrainingRegistration('{!JSENCODE(notification.Id_de_l_objet__c)}', '{!notification.Id}')" class="tiny button outline green">{!$Label.Accept}</a>
+                    <a href="#" onclick="event.preventDefault(); refuseTrainingRegistration('{!JSENCODE(notification.Id_de_l_objet__c)}', '{!notification.Id}')" class="tiny button outline red">{!$Label.reject}</a>
+                  </apex:outputPanel>
+                  <!--  -->
+                  <a href="#" class="close {!IF(notification.Type__c != 'Interaction','show', 'hide')}">&otimes;</a>
+                </div>
+              </apex:repeat>
+            </div>
+
+            <apex:insert name="body"/>
+          </apex:outputPanel>
+          <a class="exit-off-canvas"></a>
+        </div>
+      </div>
+    </div>
+
+    <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/foundation.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/foundation/foundation.equalizer.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/foundation/foundation.alert.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.foundation, 'js/foundation/foundation.topbar.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.cropjs)}" />
+    <apex:includeScript value="{!URLFOR($Resource.rome, 'rome.standalone.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.introjs, 'intro.min.js')}"/>
+    <apex:includeScript value="{!$Resource.pushjs}"/>
+    <apex:includeScript value="{!$Resource.utilsjs}"/>
+    <script type="text/javascript">
+        moment.locale('{!locale}');
+        if (!Modernizr.inputtypes.date) {
+            var dates = document.querySelectorAll(".datepicker");
+            for (var i=0, max=dates.length; i < max; i++) {
+                  rome(dates[i], {
+                        time: false,
+                        weekStart: 1,
+                        inputFormat: "DD/MM/YYYY",
+                        initialValue: dates[i].value,
+                        styles: {
+                          back: "fa fa-arrow-left left",
+                          next: "fa fa-arrow-right right"
+                        }
+                  });
+            }
+      }
+      if (!Modernizr.inputtypes.datetime && !Modernizr.inputtypes['datetime-local']) {
+            var datetimes = document.querySelectorAll(".datetimepicker");
+            for (var i=0, max=datetimes.length; i < max; i++) {
+                  rome(datetimes[i], {
+                        time: true,
+                        weekStart: 1,
+                        inputFormat: "DD/MM/YYYY HH:mm",
+                        initialValue: datetimes[i].value,
+                        styles: {
+                          back: "fa fa-arrow-left left",
+                          next: "fa fa-arrow-right right"
+                        }
+                  });
+            }
+      }
+      if (!Modernizr.inputtypes.time) {
+            var times = document.querySelectorAll(".timepicker");
+            for (var i=0, max=times.length; i < max; i++) {
+                  rome(times[i], {
+                        time: true,
+                        date: false,
+                        inputFormat: "HH:mm",
+                        initialValue: times[i].value,
+                        styles: {
+                          back: "fa fa-arrow-left left",
+                          next: "fa fa-arrow-right right"
+                        }
+                  });
+            }
+      }
+
+      function openMenu (menu) {
+            jQuery('#'+menu).toggleClass('active');
+      }
+            
+      function acceptLeave(leaveId, notifId) {
+        jQuery('#'+notifId+' .green.button').html('<i class="fa fa-spinner fa-spin"></i>');
+        jQuery('#'+notifId+' .red.button').hide();
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'LeaveManager', 'acceptLeave',{
+          leaveId:leaveId
+        }, {
+          onSuccess: function (result) {
+            if ('success' == result){
+              readNotif(notifId);
+            } else {
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+              jQuery('#'+notifId+' .green.button').html('{!$Label.Accept}');
+              jQuery('#'+notifId+' .red.button').show();
+            }
+          },
+          onFailure: function (error) {
+            console.log(error);
+            jQuery('#'+notifId+' .green.button').html('{!$Label.Accept}');
+            jQuery('#'+notifId+' .red.button').show();
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      }
+
+      function refuseLeave(leaveId, notifId) {
+        jQuery('#'+notifId+' .red.button').html('<i class="fa fa-spinner fa-spin"></i>');
+        jQuery('#'+notifId+' .green.button').hide();
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'LeaveManager', 'rejectLeave', {
+              leaveId:leaveId
+        }, {
+          onSuccess: function (result) {
+            if ('success' == result){
+              readNotif(notifId);
+            } else {
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+              jQuery('#'+notifId+' .red.button').html('{!$Label.Reject}');
+              jQuery('#'+notifId+' .green.button').show();
+            }
+          },
+          onFailure: function (error) {
+            console.log(error);
+            jQuery('#'+notifId+' .red.button').html('{!$Label.Reject}');
+            jQuery('#'+notifId+' .green.button').show();
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      }
+
+      function acceptTrainingRequest(requestId, notifId) {
+        if(notifId != null && notifId != '') {
+          jQuery('#'+notifId+' .green.button').html('<i class="fa fa-spinner fa-spin"></i>');
+          jQuery('#'+notifId+' .red.button').hide();
+        } else {
+          jQuery('#'+requestId+' i.fa-check').removeClass('fa-check').addClass('fa-spin fa-spinner');
+        }
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'TrainingRequestManager', 'acceptRequest',{
+          requestId:requestId
+        }, {
+          onSuccess: function (result) {
+            if ('success' == result){
+              if(notifId) { 
+                readNotif(notifId);
+              } else {
+                window.location.reload();
+              }
+            } else {
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+              if(notifId != null && notifId != '') {
+                jQuery('#'+notifId+' .green.button').html('{!$Label.Accept}');
+                jQuery('#'+notifId+' .red.button').show();
+              } else {
+                jQuery('#'+requestId+' i.fa-spin').removeClass('fa-spin fa-spinner').addClass('fa-check');
+              }
+            }
+          },
+          onFailure: function (error) {
+            console.log(error);
+            if(notifId != null && notifId != '') {
+              jQuery('#'+notifId+' .green.button').html('{!$Label.Accept}');
+              jQuery('#'+notifId+' .red.button').show();
+            } else {
+              jQuery('#'+requestId+' i.fa-spin').removeClass('fa-spin fa-spinner').addClass('fa-check');
+            }
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      }
+
+      function refuseTrainingRequest(requestId, notifId) {
+        if(notifId != null && notifId != '') {
+          jQuery('#'+notifId+' .red.button').html('<i class="fa fa-spinner fa-spin"></i>');
+          jQuery('#'+notifId+' .green.button').hide();
+        } else {
+          jQuery('#'+requestId+' i.fa-times').removeClass('fa-times').addClass('fa-spin fa-spinner');
+        }
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'TrainingRequestManager', 'rejectRequest', {
+              requestId:requestId
+        }, {
+          onSuccess: function (result) {
+            if ('success' == result){
+              if(notifId) { 
+                readNotif(notifId);
+              } else {
+                window.location.reload();
+              }
+            } else {
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+              if(notifId != null && notifId != '') {
+                jQuery('#'+notifId+' .red.button').html('{!$Label.Reject}');
+                jQuery('#'+notifId+' .green.button').show();
+              } else {
+                jQuery('#'+requestId+' i.fa-spin').removeClass('fa-spin fa-spinner').addClass('fa-times');
+              }
+            }
+          },
+          onFailure: function (error) {
+            console.log(error);
+            if(notifId != null && notifId != '') {
+              jQuery('#'+notifId+' .red.button').html('{!$Label.Reject}');
+              jQuery('#'+notifId+' .green.button').show();
+            } else {
+              jQuery('#'+requestId+' i.fa-spin').removeClass('fa-spin fa-spinner').addClass('fa-times');
+            }
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      }
+      
+      function acceptTrainingRegistration(registrationId, notifId) {
+        jQuery('#'+notifId+' .green.button').html('<i class="fa fa-spinner fa-spin"></i>');
+        jQuery('#'+notifId+' .red.button').hide();
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'TrainingRegistrationManager', 'accept',{
+          registrationId:registrationId
+        }, {
+          onSuccess: function (result) {
+            if ('success' == result){
+              readNotif(notifId);
+            } else {
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+              jQuery('#'+notifId+' .green.button').html('{!$Label.Accept}');
+              jQuery('#'+notifId+' .red.button').show();
+            }
+          },
+          onFailure: function (error) {
+            console.log(error);
+            jQuery('#'+notifId+' .green.button').html('{!$Label.Accept}');
+            jQuery('#'+notifId+' .red.button').show();
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      }
+
+      function refuseTrainingRegistration(registrationId, notifId) {
+        jQuery('#'+notifId+' .red.button').html('<i class="fa fa-spinner fa-spin"></i>');
+        jQuery('#'+notifId+' .green.button').hide();
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'TrainingRegistrationManager', 'reject', {
+              registrationId:registrationId
+        }, {
+          onSuccess: function (result) {
+            if ('success' == result){
+              readNotif(notifId);
+            } else {
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+              jQuery('#'+notifId+' .red.button').html('{!$Label.Reject}');
+              jQuery('#'+notifId+' .green.button').show();
+            }
+          },
+          onFailure: function (error) {
+            console.log(error);
+            jQuery('#'+notifId+' .red.button').html('{!$Label.Reject}');
+            jQuery('#'+notifId+' .green.button').show();
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      }
+      
+      function readNotif(notifId) {
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        var result = sforce.apex.execute(NSD+'NotificationManager', 'markAsRead', {
+              notifId: notifId
+        }, {
+          onSuccess: function (result) {
+            if (result == 'success') {
+              jQuery('#'+notifId).fadeOut();
+            } else{
+              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+              jQuery(document).foundation('alert', 'reflow');
+            };
+          },
+          onFailure: function (error) {
+            console.log(error);
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+          }
+        });
+      }
+      
+      jQuery(document).foundation({
+        reveal : {
+          dismiss_modal_class: 'modal-dismiss',
+        },
+        equalizer : {
+          // Specify if Equalizer should make elements equal height once they become stacked.
+          equalize_on_stack: true
+        }
+      });
+
+      jQuery(document).ready(function($) {
+        {!IF(!hasJoyride && $Setup.crta__sirh__c.crta__useIntro__c, 'startIntro();', '')}
+
+        jQuery(document).on('close.fndtn.alert', function(event) {
+          var notifId = event.target.id;
+          if(notifId != null && notifId != '' && event.namespace == 'alert.fndtn') {
+            readNotif(notifId);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+</apex:page>

@@ -1,0 +1,50 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 01/12/2020 (CreatedDate)
+-->
+<aura:component
+    implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+    controller="TeamContainerController" access="global">
+    <aura:attribute name="recordTypes" type="String" default="Salarie" access="global" />
+    <aura:attribute name="brandColor" type="String" default="#0047BB" access="global" />
+    <aura:attribute name="showTeamVisualisation" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showAttachmentLevel" type="Boolean" default="true" access="global" />
+    <aura:attribute name="showSearchEmployee" type="Boolean" default="true" access="global" />
+
+    <aura:attribute name="tabsList" type="List" access="private" />
+    <aura:attribute name="componentsList" type="Aura.Component[]" access="private" />
+    
+    
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <lightning:card>
+        <lightning:tabset selectedTabId="teamVisualisation">
+            <aura:if isTrue="{!v.showTeamVisualisation}">
+                <lightning:tab label="{!$Label.c.Team}" id="teamVisualisation">
+                    <c:Team showAttachmentLevel="{!v.showAttachmentLevel}" showSearchEmployee="{!v.showSearchEmployee}"
+                        recordTypes="{!v.recordTypes}" brandColor="{!v.brandColor}" />
+                </lightning:tab>
+            </aura:if>
+            <aura:iteration items="{!v.tabsList}" var="tab">
+                <lightning:tab label="{!tab.label}" id="{!tab.id}" onactive="{!c.addContent}"  aura:id="top-tab">
+                    <!-- Modified By Tenhinene BENMESSAOUD 26/10/2021-->
+                    <!--div class="slds-p-around_small">
+                        {!v.componentsList}
+                    </div-->
+                    <!-- Modified By Tenhinene BENMESSAOUD 26/10/2021-->
+                    <aura:if isTrue="{!tab.subTabsList.length > 0}">
+                        <lightning:tabset aura:id="subtabs">
+                            <aura:iteration items="{!tab.subTabsList}" var="subtab">
+                                <lightning:tab label="{!subtab.label}" id="{!tab.id + '-' + subtab.id}"
+                                    onactive="{!c.addContent}" aura:id="sub-tab" class="slds-p-around_small">
+                                </lightning:tab>
+                            </aura:iteration>
+                        </lightning:tabset>
+                    </aura:if>
+                </lightning:tab>
+            </aura:iteration>
+        </lightning:tabset>
+    </lightning:card>
+</aura:component>

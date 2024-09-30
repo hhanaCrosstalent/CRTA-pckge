@@ -1,0 +1,6 @@
+<design:component>
+	<design:attribute name="typeFeed" label="{!$Label.crta.Feed_Type}" datasource="X,Facebook" default="X"/>
+	<design:attribute name="account" label="{!$Label.crta.Account_Name}" />
+	<design:attribute name="textColor" label="{!$Label.crta.Text_Color}" />
+    <design:attribute name="showIcon" label="{!$Label.crta.Display_Icon}" />
+</design:component>

@@ -1,0 +1,84 @@
+<apex:page showHeader="true" sidebar="false" cache="false" controller="candidateSearchController" docType="html-5.0">
+
+        <style type="text/css" media="screen">
+            .sidebar { height: 800px; width: 24%; float: left;}
+            .results { height: 800px; width: 74%; float: right;}
+            .results .table { min-height: 150px; overflow: auto; margin-bottom: 10px;}
+            input, select { margin-bottom: 10px;}
+            body .bPageBlock  { margin-bottom: 0; }
+            body .secondaryPalette.bPageBlock { border-radius: 0; }
+        </style>
+
+    <apex:form id="sidebarForm">
+        <div class="sidebar">
+            <apex:pageBlock tabStyle="Offre_d_emploi__c" id="positionBlock" mode="detail">
+                    <apex:pageBlockSection columns="1" collapsible="true" title="Expérience" id="experienceBlockSection">
+                        <apex:inputField label="{!$ObjectType.Contact.fields.Niveau_de_Diplome__c.Label}: " value="{!mockContact.Niveau_de_Diplome__c}" />
+                        <apex:inputField label="{!$ObjectType.Contact.fields.RC_Annees_d_experience__c.Label}: " type="number" value="{!mockContact.RC_Annees_d_experience__c}" />
+                    </apex:pageBlockSection>
+                    <!--apex:pageBlockSection columns="1" collapsible="true" title="Langues">
+                        <apex:inputField label="{!$ObjectType.Contact.fields.CT_Langue_maternelle__c.Label}: " value="{!mockContact.CT_Langue_maternelle__c}" />
+                        <apex:inputField label="{!$ObjectType.Contact.fields.CT_Langue_1__c.Label}: " value="{!mockContact.CT_Langue_1__c}" />
+                        <apex:inputField label="{!$ObjectType.Contact.fields.CT_Niveau_langue_1__c.Label}: " value="{!mockContact.CT_Niveau_langue_1__c}" />
+                    </apex:pageBlockSection-->
+                    <apex:pageBlockSection columns="1" collapsible="true" title="Poste">
+                        <apex:inputField label="{!$ObjectType.Contact.fields.CT_Type_poste_recherche__c.Label}: " value="{!mockContact.CT_Type_poste_recherche__c}" />
+                        <apex:inputField label="{!$ObjectType.Contact.fields.CT_Brut_fixe_recherche__c.Label}: " type="number" value="{!mockContact.CT_Brut_fixe_recherche__c}" />
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1" collapsible="true" title="{!$Label.crta__search}">
+                        <apex:input label="{!$Label.crta__search}" type="search" value="{!searchText}" />
+                        <apex:commandButton action="{!search}" value="Valider" />
+                        <apex:commandButton action="{!URLFOR($Action.Contact.NewContact)}" value="{!$Label.crta__cr_ation_candidat}" /> 
+                    </apex:pageBlockSection>
+            </apex:pageBlock>
+        </div>
+        <div class="results">
+            <div class="table">
+                <apex:pageBlock tabStyle="Offre_d_emploi__c" mode="edit" id="results">
+                    <apex:pageBlockTable value="{!matchedContacts}" var="contact" rows="50">
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Nom" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="nom" assignTo="{!sortField}" />
+                                </apex:commandLink>
+                            </apex:facet>
+                            <a target="_parent" href="/{!contact.id}">{!contact.Name}</a>
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Niveau de diplôme" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="Niveau de diplôme" assignTo="{!sortField}" />
+                                </apex:commandLink>
+                            </apex:facet>
+                            {!contact.Niveau_de_Diplome__c}
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Années d'expérience" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="Années d'expérience" assignTo="{!sortField}" />
+                                </apex:commandLink>
+                            </apex:facet>
+                            {!contact.RC_Annees_d_experience__c}
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Type de poste recherché" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="Type de poste recherché" assignTo="{!sortField}" />
+                                </apex:commandLink>
+                            </apex:facet>
+                            {!contact.CT_Type_poste_recherche__c}
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Brut annuel recherché" action="{!toggleSort}" rerender="contact_table">
+                                    <apex:param name="sortField" value="Brut annuel recherché" assignTo="{!sortField}" />
+                                </apex:commandLink>
+                            </apex:facet>
+                            {!contact.CT_Brut_fixe_recherche__c}
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:pageBlock>
+            </div>
+        </div>
+    </apex:form>
+</apex:page>

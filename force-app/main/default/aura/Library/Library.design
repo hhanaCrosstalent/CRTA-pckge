@@ -1,0 +1,12 @@
+<design:component>
+    <design:attribute name="isPrivate" label="{!$Label.crta.Show_Private_Folders}"/>
+    <design:attribute name="headerBanner" label="{!$Label.crta.Library_Header_Banner_Name}" description="{!$Label.crta.Library_Header_Banner_Name_Descr}"/>
+    <design:attribute name="displayHeaderBanner" label="{!$Label.crta.Display_Library_Header_Banner}" description="{!$Label.crta.Display_Library_Header_Banner_Descr}"/>
+    <design:attribute name="activeTagColor" label="{!$Label.crta.Active_Tag_Color}"/>
+    <design:attribute name="displayTagsFilter" label="{!$Label.crta.Display_Tags_Filter}"/>
+    <design:attribute name="displayTags" label="{!$Label.crta.Display_Tags_List}" />
+    <design:attribute name="accountsAllowed" label="{!$Label.crta.Account_Filter}" description="{!$Label.crta.Account_Filter_Description}" datasource="Deprecated"/>
+	<design:attribute name="displayLanguageFilter" label="{!$Label.crta.Display_Languages_Filter}" datasource="Deprecated"/>
+    <design:attribute name="isOnboardingReadOnly" label="isOnboardingReadOnly"/>
+
+</design:component>

@@ -1,0 +1,522 @@
+<apex:page docType="html-5.0" controller="OrgChartController">
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <apex:slds />
+    <div id="spinner" style="height:6rem">
+        <div class="slds-spinner_container slds-is-fixed">
+            <div role="status" class="slds-spinner slds-spinner_medium">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-scope slds-p-top_small">
+        <div id="toast" style="height:4rem">
+            <div class="slds-notify_container slds-is-relative">
+                <div class="slds-notify slds-notify_toast slds-theme_error" role="status">
+                    <span class="slds-assistive-text">error</span>
+                    <span class="slds-icon_container slds-icon-utility-error slds-m-right_small slds-no-flex slds-align-top" title="Description of icon when needed">
+                        <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                            <use xlink:href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#error')}"></use>
+                        </svg>
+                    </span>
+                    <div class="slds-notify__content">
+                        <h2 class="slds-text-heading_small" id="errorMessage"></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <apex:outputPanel rendered="{!displaySettings}">
+            <div class="slds-form-element slds-p-horizontal_small">
+                <label class="slds-form-element__label" for="orgChartWay">{!$Label.Orgchart_Orientation}</label>
+                <div class="slds-form-element__control">
+                    <div class="slds-select_container">
+                        <select class="slds-select" id="orgChartWay" size="1">
+                            <option value="t2b" selected="selected">{!$Label.Orgchart_Orientation_Vertical}</option>
+                            <option value="l2r">{!$Label.Orgchart_Orientation_Horizontal}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-form-element slds-p-horizontal_small">
+                <label class="slds-form-element__label" for="text-input-id-1">{!$Label.Orgchart_Depth}</label>
+                <div class="slds-form-element__control">
+                    <input class="slds-input" id="depth" type="number" value="2" min="1" max="10" step="1" />
+                </div>
+            </div>
+            <button class="slds-button slds-button_brand slds-m-horizontal_small slds-m-right_medium" onClick="createTree();">{!$Label.Display_Orgchart}</button>
+        </apex:outputPanel>
+        <div class="slds-p-top_small">
+            <div class="slds-form-element slds-p-horizontal_small">
+                <label class="slds-form-element__label" for="text-input-id-1">{!$Label.Orgchart_Export_Name}</label>
+                <div class="slds-form-element__control">
+                    <input class="slds-input" id="fileName" type="text" value="MyChart" />
+                </div>
+            </div>
+            <button class="slds-button slds-button_brand slds-m-horizontal_small slds-m-right_medium" onClick="exportTree();">{!$Label.Export_OrgChart}</button>
+        </div>
+        <div class="slds-p-top_small">
+            <div class="slds-form-element slds-p-horizontal_small">
+                <label class="slds-form-element__label" for="text-input-id-1">{!$Label.Search}</label>
+                <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+                    <svg class="slds-icon slds-input__icon slds-input__icon_right slds-icon-text-default" aria-hidden="true">
+                        <use xlink:href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#search')}"></use>
+                    </svg>
+                    <input class="slds-input" id="search" type="text" placeholder="{!$Label.Orgchart_Placeholder}" />
+                </div>
+            </div>
+            <button class="slds-button slds-button_brand slds-m-horizontal_small slds-m-right_medium" id="searchButton">{!$Label.to_Search}</button>
+            <button class="slds-button slds-button_neutral slds-m-horizontal_small slds-m-right_medium" id="clearButton">{!$Label.to_Reset}</button>
+        </div>
+        <div id="jOrgChart">
+        </div>
+    </div>
+    <apex:stylesheet value="{!URLFOR($Resource.JOrgChart, 'JOrgChart2.1.3/jquery.orgchart.css')}" />
+    <!-- <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" /> -->
+    <apex:stylesheet value="{!URLFOR($Resource.font_awesome, 'font-awesome-4.7.0/css/font-awesome.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.JOrgChart, 'JOrgChart2.1.3/jquery-3.2.1.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.JOrgChart, 'JOrgChart2.1.3/jquery.orgchart.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.JOrgChart, 'JOrgChart2.1.3/html2canvas.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.JOrgChart, 'JOrgChart2.1.3/jspdf.min.js')}" />
+    <apex:includeScript value="/soap/ajax/40.0/connection.js" />
+    <apex:includeScript value="/soap/ajax/40.0/apex.js" />
+    <style>
+        .orgchart .second-menu-icon {
+            transition: opacity .5s;
+            opacity: 0;
+            right: -5px;
+            top: -5px;
+            z-index: 2;
+            color: rgba(184, 0, 100, 0.8);
+            font-size: 18px;
+            position: absolute;
+        }
+
+        .orgchart .second-menu-icon:hover {
+            color: #b80064;
+        }
+
+        .orgchart .node:hover .second-menu-icon {
+            opacity: 1;
+        }
+
+        .orgchart .node .second-menu {
+            display: block;
+            position: absolute;
+            top: 0;
+            right: -70px;
+            border-radius: 35px;
+            box-shadow: 0 0 4px 1px #999;
+            background-color: #fff;
+            z-index: 100;
+        }
+
+        .orgchart .node .edge {
+            z-index: 111;
+        }
+
+        .orgchart .node .content {
+            /*padding-right: 40px;*/
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        .orgchart .node .second-menu .avatar {
+            width: auto;
+            height: 40px;
+            float: left;
+            margin: 5px;
+        }
+
+        .orgchart .second-menu-icon,
+        .orgchart .avatar {
+            position: absolute;
+        }
+
+        .orgchart .second-menu-icon {
+            top: -10px;
+            left: 185px;
+            transform-origin: center;
+        }
+
+        .orgchart .avatar {
+            top: 19px;
+            left: -119px;
+            transform-origin: center;
+        }
+
+        .orgchart.l2r .second-menu-icon,
+        .orgchart.l2r .avatar {
+            position: absolute;
+            transform: rotate(-90deg) rotateY(180deg);
+            -ms-transform: rotate(-90deg) rotateY(180deg);
+            -moz-transform: rotate(-90deg) rotateY(180deg);
+            -webkit-transform: rotate(-90deg) rotateY(180deg);
+        }
+
+        .orgchart.l2r .second-menu-icon {
+            top: 188px;
+            left: -84px;
+            transform-origin: center;
+        }
+
+        .orgchart.l2r .avatar {
+            top: 152px;
+            left: -133px;
+            transform-origin: center;
+        }
+
+        /** Ajout Ophelie - 12/12/2018 **/
+
+        .orgchart .node:hover {
+            background-color: #0047BB;
+        }
+
+        .oc-export-btn,
+        .button {
+            padding-left: 16px;
+            padding-right: 16px;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #d8dde6;
+            background-color: #fff;
+            display: inline-block;
+            background: 0 0;
+            background-clip: border-box;
+            border-radius: .25rem;
+            font-size: .75rem;
+            line-height: 1.875rem;
+            text-decoration: none;
+            color: #0070d2 !important;
+            -webkit-appearance: none;
+            white-space: normal;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            transition: color 50ms linear, background-color 50ms linear;
+        }
+
+        .oc-export-btn:hover,
+        .oc-export-btn:focus {
+            color: #005fb2;
+            background-color: #f4f6f9;
+            border: 1px solid #d8dde6;
+        }
+
+        .oc-export-btn {
+            margin-left: .75rem!important;
+            margin-top: .75rem!important;
+        }
+
+
+        .slds-form-element {
+            width: 16%;
+            display: inline-block;
+        }
+
+        .slds-scope img {
+            max-width: initial;
+        }
+
+        .orgchart .node {
+            width: 260px;
+        }
+
+        .orgchart {
+            display: block;
+        }
+
+        .orgchart.node .content {
+            height: auto;
+        }
+
+        .orgcart a,
+        .orgcart a:focus,
+        .orgcart a:active {
+            color: #FFF;
+        }
+
+        .orgchart.l2r .node .content {
+            height: auto;
+        }
+
+        .orgchart.l2r .node .second-menu {
+            right: -56px;
+        }
+
+        .orgchart .node.matched {
+            background-color: rgba(255, 106, 19, 0.5);
+        }
+
+        .oc-export-btn {
+            display: none;
+        }
+
+        .lines {
+            height: 20px;
+        }
+
+        /* Clip-path pour la photo  */
+
+        #toast {
+            display: none;
+            position: absolute;
+            margin-left: auto;
+            margin-right: auto;
+            left: 0;
+            right: 0;
+        }
+    </style>
+    <script>
+
+
+        $(document).ready(function (params) {
+            createTree();
+        });
+
+        $("#searchButton").on("click", function () {
+            filterNodes($("#search").val());
+        });
+        $("#clearButton").on("click", function () {
+            $("#search").val('');
+            createTree();
+        });
+
+        function exportTree() {
+            $(".oc-export-btn").click();
+        }
+
+        function createTree() {
+            $('#jOrgChart').empty();
+            getParents();
+        }
+
+        var allContacts;
+        function getParents() {
+            crta.OrgChartController.getParentContacts(
+                function (response, event) {
+                    if (event.status) {
+                        var items = [];
+                        response.forEach(function (e, i) {
+                            items.push({
+                                id: e.contactId,
+                                userId: e.user.Id,
+                                name: e.contact.Name,
+                                field1: e.field1,
+                                field2: e.field2,
+                                field3: e.field3,
+                                field4: e.field4,
+                                img: (e.photoContact != undefined ? e.photoContact : (e.user != undefined ? e.user.SmallPhotoUrl : '')),
+                                children: getChildren(e)
+                            });
+                        });
+
+                        var fakeNode = {
+                            name: '{!companyName}',
+                            title: '{!$Label.crta__all_company}',
+                            children: items
+                        };
+                        initChart(fakeNode);
+                    }
+                    else if (event.type === 'exception') {
+                        console.log(event.message + ' ' + event.where);
+                    } else {
+                        console.log(event.message);
+                    }
+                },
+                { escape: true }
+            );
+        }
+
+        function getChildren(child) {
+            let items = [];
+            if (child.employee && child.employee.length > 0) {
+                child.employee.forEach(function (f) {
+                    items.push({
+                        id: f.contactId,
+                        userId: f.user.Id,
+                        name: f.contact.Name,
+                        field1: f.field1,
+                        field2: f.field2,
+                        field3: f.field3,
+                        field4: f.field4,
+                        img: (f.photoContact != undefined ? f.photoContact : (f.user != undefined ? f.user.SmallPhotoUrl : '')),
+                        children: getChildren(f)
+                    });
+                });
+            }
+            return items;
+        }
+
+        var chart;
+        function initChart(contacts) {
+            //Initialisation de l'organigramme
+            var depth = (parseInt(jQuery('#depth').val(), 10)).toString();
+            if (jQuery('#depth').val() == undefined) {
+                depth = 2;
+            }
+            var oc = $('#jOrgChart').orgchart({
+                'data': contacts,
+                'nodeId': 'id',
+                'nodeContent': 'title',
+                'zoom': false,
+                'zoomoutLimit': 0.5,
+                'visibleLevel': depth,
+                'toggleSiblingsResp': true,
+                'exportButton': true,
+                'exportFilename': jQuery('#fileName').val(),
+                'exportFileextension': 'pdf',
+                'direction': jQuery('#orgChartWay').val(),
+                'createNode': function (node, data) {
+                    if (data.img != undefined) {
+                        let secondMenu = '<div class="second-menu"><img class="avatar" src="' + data.img + '"></div>';
+                        node.append(secondMenu);
+                    }
+                    //Ajout du lien vers le profil chatter
+                    let redirectToChatter = ('{!redirectToChatter}' == 'true');
+                    let hasRedirection = ('{!activateRedirection}' == 'true');
+                    if (hasRedirection) {
+                        if (redirectToChatter) {
+                            if (data.userId != undefined) {
+                                node.children('.title').wrapInner('<a href="/lightning/r/User/' + data.userId + '/view" target="_blank"></a>');
+                            }
+                        } else {
+                            node.children('.title').wrapInner('<a href="/lightning/cmp/crta__Profile?c__token=' + data.id + '" target="_blank"></a>');
+                        }
+                    }
+                    let fields = addFields(data);
+                    node.find(".content").append(fields);
+                },
+                'initCompleted': function (chart) {
+                    $('.title, .title a').css({
+                        backgroundColor: "{!colorBanner}",
+                        color: "{!textColorBanner}"
+                    });
+                    $('#spinner').hide();
+                }
+            });
+            let contactId = "{!JSENCODE(contactConnected)}";
+        }
+
+        //Ajout des champs sur un noeud
+        function addFields(data) {
+            let html = '';
+
+            if (data.field1 != undefined) {
+                html += '<div style="word-break: break-word;">' + data.field1 + '</div>';
+            }
+            if (data.field2 != undefined) {
+                html += '<div style="word-break: break-word;">' + data.field2 + '</div>';
+            }
+            if (data.field3 != undefined) {
+                html += '<div style="word-break: break-word;">' + data.field3 + '</div>';
+            }
+            if (data.field4 != undefined) {
+                html += '<div style="word-break: break-word;">' + data.field4 + '</div>';
+            }
+
+            return html;
+        }
+
+        function filterNodes(keyWord) {
+            if (!keyWord.length) {
+                showToast('1');
+                console.log('Mot de recherche' + keyWord);
+            } else {
+                //clearFilterResult();
+                let $chart = $("#jOrgChart");
+                // disable the expand/collapse feture
+                // $chart.addClass("noncollapsable");
+                // distinguish the matched nodes and the unmatched nodes according to the given key word
+                $chart
+                    .find(".node")
+                    .filter(function (index, node) {
+                        return (
+                            $(node)
+                                .text()
+                                .toLowerCase()
+                                .indexOf(keyWord) > -1
+                        );
+
+                    })
+                    .addClass("matched")
+                    .closest("table")
+                    .parents("table")
+                    .find("tr:first")
+                    .find(".node")
+                    .addClass("retained");
+
+                // hide the unmatched nodes
+                $chart.find(".matched,.retained").each(function (index, node) {
+                    $(node)
+                        .removeClass("slide-up")
+                        .closest(".nodes")
+                        .removeClass("hidden")
+                        .siblings(".lines")
+                        .removeClass("hidden");
+                    let $unmatched = $(node)
+                        .closest("table")
+                        .parent()
+                        .siblings()
+                        .find(".node:first:not(.matched,.retained)")
+                        .closest("table")
+                        .parent()
+                        .addClass("hidden");
+                    $unmatched
+                        .parent()
+                        .prev()
+                        .children()
+                        .slice(1, $unmatched.length * 2 + 1)
+                        .addClass("hidden");
+                });
+                // hide the redundant descendant nodes of the matched nodes
+                $chart.find(".matched").each(function (index, node) {
+                    if (
+                        !$(node)
+                            .closest("tr")
+                            .siblings(":last")
+                            .find(".matched").length
+                    ) {
+                        $(node)
+                            .closest("tr")
+                            .siblings()
+                            .addClass("hidden");
+                    }
+                });
+                if ($(".matched").length == 0) {
+                    showToast('2');
+                    console.log('Resultat null');
+                }
+            }
+        }
+
+        function clearFilterResult() {
+            $("#jOrgChart")
+                .find(".node")
+                .removeClass("matched retained")
+                .end()
+                .find(".hidden")
+                .removeClass("hidden")
+                .end()
+                .find(".slide-up, .slide-left, .slide-right")
+                .removeClass("slide-up slide-right slide-left");
+        }
+
+        function showToast(type) {
+            if (type == '1') {
+                $('#errorMessage').text('{!$Label.crta__orgchart_error_search_empty}');
+            } else {
+                $('#errorMessage').text('{!$Label.crta__orgchart_error_search_not_found}');
+            }
+
+            $('#toast').slideToggle();
+            setTimeout(function () {
+                $('#toast').slideToggle();
+            }, 2000);
+        }
+    </script>
+
+    </html>
+</apex:page>

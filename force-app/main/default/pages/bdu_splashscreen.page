@@ -1,0 +1,7 @@
+<apex:page >
+  <p class="disclaimer">
+      En cochant la case ci-dessous je reconnais que, conformément aux dispositions légales, le droit d’accès à la présente base de données économiques et sociales qui m’a été attribué m’est strictement personnel. Il ne peut en aucun cas être transmis à un tiers. <br />
+      Je reconnais également être tenu à une stricte obligation de discrétion à l’égard de toutes les informations contenues dans cette base qui revêtent un caractère confidentiel et qui sont présentées comme telles par l’employeur.  <br />
+      Par conséquent je m’engage à ne pas communiquer ces informations à des tiers ni à les rendre publiques, et le cas échéant au regard des exigences légales qui régissent les informations économiques et financières notamment en matière de droit boursier à ne pas les utiliser à mon propre profit ou à celui de tiers.
+  </p>
+</apex:page>

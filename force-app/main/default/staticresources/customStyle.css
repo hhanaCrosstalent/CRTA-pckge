@@ -1,0 +1,50 @@
+.fileClass{
+  width:100% !important;
+}
+
+
+.fileClass .slds-file-selector{
+  width:100% !important;
+}
+
+.fileClass .slds-file-selector__dropzone{
+  width:100% !important;
+}
+
+.fileClass .slds-file-selector__dropzone slot{
+  display: inline-block;
+  width:100% !important;
+  padding-top:2%;
+  padding-bottom:2%
+}
+
+.fileClass .slds-file-selector__dropzone slot .slds-file-selector__body{
+  display: block;
+  padding-left: 27% !important;
+  margin-left: 0% !important;
+  border: dashed;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  border-radius: 30%;
+  border-width: thin;
+  border-left: none;
+  border-right: none;
+}
+.fileClass .slds-file-selector__dropzone slot .slds-file-selector__button{
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-variant: all-small-caps;
+    color: currentColor;
+    background: linear-gradient(90deg, rgba(57,57,250,0.2528361686471463) 0%, rgba(66,206,250,0.49933476808692223) 50%, rgba(66,206,250,0.49933476808692223) 99%);
+}
+.fileClass .slds-file-selector__dropzone slot .slds-file-selector__text{
+    font-size: 18px;
+    font-variant: all-small-caps;
+    border: dotted;
+    margin-right: 25%;
+    margin-left: -10%;
+    text-align: -webkit-center;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    border-radius: 20%;
+}

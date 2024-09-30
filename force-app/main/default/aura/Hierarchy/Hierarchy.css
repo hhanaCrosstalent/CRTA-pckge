@@ -1,0 +1,11 @@
+.THIS .dropdown-frame {
+       max-height: 320px;
+       position: absolute;
+       width: 100%; 
+       background-color: white; 
+       z-index: 1;
+       display: inline-table;
+}
+.THIS .slds-tree_container h4 {
+    margin: 1rem;
+}

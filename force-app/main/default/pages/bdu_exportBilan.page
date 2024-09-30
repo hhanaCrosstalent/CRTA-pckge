@@ -1,0 +1,1 @@
+<apex:page sidebar="false" cache="true" controller="bdu_exportBilanController" contentType="text/txt#{selectedDocument}.txt;charset=iso-8859-1"><meta charset="iso-8859-1"/>{!csv}</apex:page>

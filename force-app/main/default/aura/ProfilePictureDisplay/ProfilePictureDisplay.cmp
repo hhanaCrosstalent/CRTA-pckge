@@ -1,0 +1,33 @@
+<aura:component controller="ProfilePictureDisplayController"
+                implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+<!-- Id of the Record the page hosting this component is showing -->
+<aura:attribute name="recordId" type="Id"/>
+ 
+    <aura:attribute name="pictureSrc" type="String" access="global"/>
+        <aura:attribute name="initials" type="String" access="public"/>
+ 
+    <aura:attribute name="message" type="String" default="Glissez-déposez la photo ici" access="global"/>
+ 
+    <aura:handler name="init" value="{!this}" action="{!c.onInit}" />
+ 
+    <aura:attribute name="AfficherLaPhoto" type="Boolean" default="false" access="global"/>
+ 
+    
+
+<div aura:id="image"  ondragover="{!c.onDragOver}" ondrop="{!c.onDrop}" style="display:block" >
+    <aura:if isTrue="{!v.pictureSrc != undefined}">
+<img src="{!v.pictureSrc}" alt="image" height="100" width="100" />
+
+<aura:set attribute="else">
+    <lightning:avatar variant="circle" 
+                                  initials="{!v.initials}"
+                                  alternativeText="Alt name" 
+                                  class=" initials"/>
+                                  
+    <p>{!v.message}</p>    
+
+    </aura:set>
+</aura:if>
+</div>
+
+</aura:component>

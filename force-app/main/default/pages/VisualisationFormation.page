@@ -1,0 +1,215 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" standardController="Action_de_formation__c" extensions="VisualisationFormationExtension" cache="false" docType="html-5.0">
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+  <!-- Infos -->
+  <div class="small-12 small-centered column">
+    <h3 class="title ">
+      <apex:outputText value="{!$Label.crta__training_title}">
+        <apex:param value="{!Action_de_formation__c.Intitule_de_la_formation__c}"/>
+        <apex:param value="{!Action_de_formation__c.Catalogue_de_formation__r.FO_organisme_de_formation__r.Name}"/>
+      </apex:outputText>
+    </h3>
+  </div>
+
+  <!-- Détails -->
+  <div id="details" class="small-12 small-centered column info-block" data-fold="false">
+    <h4 class="title secondary-font header">
+      <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('details');">
+        <i class="fa fa-search-plus"></i>
+        <span>{!$Label.details}</span>
+      </a>
+    </h4>
+    <div class="card">
+      <div class="row infos" data-foldable="true">
+        <div class="small-12 medium-6 large-4 xlarge-3 column info">
+          <div class="row">
+            <div class="ct-label small-12 column">
+              {!$ObjectType.Action_de_formation__c.fields.Type__c.Label} : 
+              <span class="ct-output"><apex:outputField value="{!Action_de_formation__c.Type__c}" /></span>
+            </div>
+          </div>
+        </div>
+        <div class="small-12 medium-6 large-4 xlarge-3 column info">
+          <div class="row">
+            <div class="ct-label small-12 column">
+              {!$ObjectType.Action_de_formation__c.fields.Type_de_decompte__c.Label} : 
+              <span class="ct-output"><apex:outputField value="{!Action_de_formation__c.Type_de_decompte__c}" /></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="small-12 medium-6 large-4 xlarge-3 column info">
+          <div class="row">
+            <div class="ct-label small-12 column">
+              {!$ObjectType.FO_catalogue_de_formation__c.fields.FO_Type__c.Label} : 
+              <span class="ct-output"><apex:outputField value="{!Action_de_formation__c.Catalogue_de_formation__r.FO_Type__c}" /></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="small-12 medium-6 large-4 xlarge-3 column info end">
+          <div class="row">
+            <div class="ct-label small-12 column">
+              {!$ObjectType.FO_catalogue_de_formation__c.fields.Mode__c.Label} : 
+              <span class="ct-output"><apex:outputField value="{!Action_de_formation__c.Catalogue_de_formation__r.Mode__c}" /></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessions-->
+  <div id="sessions" class="small-12 column tab-block" data-fold="false">
+    <h4 class="title secondary-font header">
+      <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('sessions');">
+        <i class="fa fa-list"></i>
+        <span>{!$ObjectType.FO_Session_collective__c.LabelPlural}</span>
+      </a>
+    </h4>
+    <div class="card">
+      <div data-foldable="true">
+        <div class="row header-table secondary-color">
+          <div class="small-2 column">
+              <span>{!$ObjectType.Participation_session_formation__c.fields.Nom_de_la_formation__c.Label}</span>
+          </div>
+          <div class="small-2 column">
+              <span>{!$ObjectType.Participation_session_formation__c.fields.FO_Date_et_heure_de_debut__c.Label}</span>
+          </div>
+          <div class="small-2 column">
+              <span>{!$ObjectType.Participation_session_formation__c.fields.FO_Date_et_heure_de_fin__c.Label}</span>
+          </div>
+          <div class="small-2 column">
+              <span>{!$ObjectType.Participation_session_formation__c.fields.Nom_du_formateur__c.Label}</span>
+          </div>
+          <div class="small-1 column">
+              <span>{!$ObjectType.Participation_session_formation__c.fields.Nom_de_la_salle__c.Label}</span>
+          </div>
+          <div class="small-1 column">
+              <span>{!$ObjectType.Participation_session_formation__c.fields.Statut__c.Label}</span>
+          </div>
+          <div class="small-1 column">
+              <span>{!$Label.Actions}</span>
+          </div>
+          <div class="small-1 column">
+              <span>{!$Label.Training_forms}</span>
+          </div>
+        </div>
+        <div class="result-table">
+          <apex:repeat value="{!trainingRegistrations}" var="registration">
+            <div id="{!registration.id}" class="row highlight-primary">
+              <div class="small-2 column">
+                &nbsp;
+                <span class="ct-output"><apex:outputField value="{!registration.Nom_de_la_formation__c}" /></span>
+              </div>
+              <div class="small-2 column">
+                &nbsp;
+                <span class="ct-output"><apex:outputField value="{!registration.FO_Date_et_heure_de_debut__c}" /></span>
+              </div>
+              <div class="small-2 column">
+                &nbsp;
+                <span class="ct-output"><apex:outputField value="{!registration.FO_Date_et_heure_de_fin__c}" /></span>
+              </div>
+              <div class="small-2 column">
+                &nbsp;
+                <span class="ct-output"><apex:outputField value="{!registration.Nom_du_formateur__c}" /></span>
+              </div>
+              <div class="small-1 column">
+                &nbsp;
+                <span class="ct-output">
+                  <apex:outputField rendered="{!registration.Nom_de_la_salle__c != null}" value="{!registration.Nom_de_la_salle__c}" />
+                  <apex:outputField rendered="{!registration.Nom_de_la_salle__c == null && registration.Nom_du_lieu__c != null}" value="{!registration.Nom_du_lieu__c}" />
+                </span>
+              </div>
+              <div class="small-1 column">
+                &nbsp;
+                <span class="ct-output">
+                  <apex:outputPanel layout="none" rendered="{!registration.Valeur_statut__c < 30}">
+                    <i class="fa fa-clock-o" title="{!registration.Statut__c}"></i>
+                  </apex:outputPanel>
+                  <apex:outputPanel layout="none" rendered="{!registration.Valeur_statut__c >= 30 && registration.Valeur_statut__c < 70}">
+                    <i class="fa fa-check-square-o green-font" title="{!registration.Statut__c}"></i>
+                  </apex:outputPanel>
+                  <apex:outputPanel layout="none" rendered="{!registration.Valeur_statut__c >= 70}">
+                    <i class="fa fa-times-circle red-font" title="{!registration.Statut__c}"></i>
+                  </apex:outputPanel>
+                </span>
+              </div>
+              <div class="small-1 column">
+                &nbsp;
+                <apex:outputPanel layout="none" rendered="{!$Setup.TrainingModule__c.cancelAsDelete__c}">
+                  <a href="#" title="{!$Label.Action_cancel}" onclick="event.preventDefault(); cancelTrainingRegistration('{!registration.Id}');" class="red-font"><i class="fa fa-ban"></i></a>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!!$Setup.TrainingModule__c.cancelAsDelete__c}">
+                  <a href="#" title="{!$Label.Action_delete}" onclick="event.preventDefault(); deleteTrainingRegistration('{!registration.Id}');" class="red-font"><i class="fa fa-minus-circle"></i></a>
+                </apex:outputPanel>
+              </div>
+              <div class="small-1 column">
+                &nbsp;
+                <apex:outputLink value="{!$Setup.TrainingModule__c.Page_evaluation_chaud__c}?registrationId={!registration.Id}&type=hot" rendered="{!$Setup.TrainingModule__c.Page_evaluation_chaud__c != null && isCollab}" title="{!$Label.crta__training_hot_evaluation}"><i class="fa fa-fire"></i></apex:outputLink>
+                <apex:outputLink value="{!$Setup.TrainingModule__c.Page_evaluation_froid__c}?registrationId={!registration.Id}&type=cold" rendered="{!$Setup.TrainingModule__c.Page_evaluation_froid__c != null && isCollab}" title="{!$Label.crta__training_cold_evaluation}"><i class="fa fa-snowflake-o"></i></apex:outputLink>
+                <apex:outputLink value="{!$Setup.TrainingModule__c.Page_evaluation_manager__c}?registrationId={!registration.Id}&type=manager" rendered="{!$Setup.TrainingModule__c.Page_evaluation_manager__c != null && isManager}" title="{!$Label.crta__training_manager_evaluation}"><i class="fa fa-sitemap"></i></apex:outputLink>
+              </div>
+            </div>
+          </apex:repeat>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    function deleteTrainingRegistration(registrationId) {
+      jQuery('#'+registrationId+' .fa-minus-circle').removeClass('fa-minus-circle').addClass('fa-spin fa-spinner');
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'TrainingRegistrationManager', 'deleteTrainingRegistration', {
+        registrationId: registrationId,
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            jQuery('#'+registrationId).fadeOut();
+          } else {
+            console.log(event);
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'<span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+            jQuery('#'+registrationId+' .fa-spin fa-spinner').removeClass('fa-spin fa-spinner').addClass('fa-minus-circle');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+            jQuery('#'+registrationId+' .fa-spin fa-spinner').removeClass('fa-spin fa-spinner').addClass('fa-minus-circle');
+        }
+      });
+    }
+
+    function cancelTrainingRegistration(registrationId) {
+      jQuery('#'+registrationId+' .fa-ban').removeClass('fa-ban').addClass('fa-spin fa-spinner');
+      sforce.connection.sessionId = '{!$Api.Session_ID}';
+      var result = sforce.apex.execute(NSD+'TrainingRegistrationManager', 'cancelTrainingRegistration', {
+        registrationId: registrationId,
+        isManager: {!isManager},
+        isCollab: {!isCollab}
+      }, {
+        onSuccess: function (result) {
+          if (result == 'success') {
+            jQuery('#'+registrationId).fadeOut();
+          } else {
+            console.log(event);
+            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'<span><a href="#" class="close">&otimes;</a></div>');
+            jQuery(document).foundation('alert', 'reflow');
+            jQuery('#'+registrationId+' .fa-spin fa-spinner').removeClass('fa-spin fa-spinner').addClass('fa-ban');
+          }
+        },
+        onFailure: function (error) {
+          console.log(error);
+          jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+          jQuery(document).foundation('alert', 'reflow');
+            jQuery('#'+registrationId+' .fa-spin fa-spinner').removeClass('fa-spin fa-spinner').addClass('fa-ban');
+        }
+      });
+    }
+  </script> 
+</apex:define>
+</apex:composition>
+</apex:page>

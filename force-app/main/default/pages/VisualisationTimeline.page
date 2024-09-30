@@ -1,0 +1,97 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" controller="VisualisationTimelineController" cache="false">
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <!-- Filters -->
+      <div id="joyride-timeline-filters" class="small-11 large-12 small-centered column filters">
+            <div class="row">
+                  <div class="small-3 medium-2 large-1 column">
+                        <span class="ct-label">{!$Label.Filters} :</span>
+                  </div>
+                  <apex:outputPanel rendered="{!$Setup.sirh__c.showInterviews__c}" layout="block" styleClass="small-5 medium-3 large-2 column">
+                        <label class="interview-font"><input type="checkbox" name="interview" checked="checked" /> {!$ObjectType.EI_Entretien__c.LabelPlural}</label>
+                  </apex:outputPanel>
+                  <apex:outputPanel rendered="{!$Setup.sirh__c.showTrainings__c}" layout="block" styleClass="small-5 medium-3 large-2 column">
+                        <label class="training-font"><input type="checkbox" name="training" checked="checked" /> {!$ObjectType.Formation__c.LabelPlural}</label>
+                  </apex:outputPanel>
+                  <apex:outputPanel rendered="{!$Setup.sirh__c.showTimes__c}" layout="block" styleClass="small-5 medium-3 large-2 column">
+                        <label class="week-font"><input type="checkbox" name="week" checked="checked" /> {!$ObjectType.Feuille_Temps_Hebdo__c.LabelPlural}</label>
+                  </apex:outputPanel>
+                  <apex:outputPanel rendered="{!$Setup.sirh__c.showExpenses__c}" layout="block" styleClass="small-5 medium-3 large-2 column end">
+                        <label class="expense-font"><input type="checkbox" name="expense" checked="checked" /> {!$ObjectType.Note_de_frais__c.LabelPlural}</label>
+                  </apex:outputPanel>
+            </div>
+      </div>
+
+      <ul class="tltimeline">
+            <apex:repeat value="{!sortedDates}" var="date">
+                  <apex:variable value="{!dateToObject[date]}" var="objectList" />
+                  <apex:repeat value="{!objectList}" var="object">
+                        <apex:variable value="{!LEFT(object.id, 3)}" var="type" />
+                        <c:interviewTimeline entretien="{!object}" contactId="{!contactId}" rendered="{!IF(type == $ObjectType.EI_Entretien__c.keyPrefix, true, false)}"/>
+                        <c:trainingTimeline formation="{!object}" rendered="{!IF(type == $ObjectType.Formation__c.keyPrefix, true, false)}" />
+                        <c:registrationTimeline registration="{!object}" rendered="{!IF(type == $ObjectType.Participation_session_formation__c.keyPrefix, true, false)}" />
+                        <c:weekTimeline week="{!object}" rendered="{!IF(type == $ObjectType.Feuille_Temps_Hebdo__c.keyPrefix, true, false)}"/>
+                        <c:expenseTimeline expense="{!object}" expenseAmount="{!expenseAmount[object.Id]}" rendered="{!IF(type == $ObjectType.Note_de_frais__c.keyPrefix, true, false)}"/>
+                  </apex:repeat>
+            </apex:repeat>
+      </ul> 
+
+      <script type="text/javascript">
+            function startIntro(){
+                  var intro = introJs();
+                  intro.setOptions({
+                        nextLabel: "{!$Label.SI_Joyride_button_next}",
+                        prevLabel: "{!$Label.SI_Joyride_button_previous}",
+                        doneLabel: "{!$Label.SI_Joyride_button_end}",
+                        skipLabel: "{!$Label.SI_Joyride_button_skip}",
+                        exitOnEsc: true,
+                        exitOnOverlayClick: true,
+                        showStepNumbers: false,
+                        keyboardNavigation: true,
+                        disableInteraction: true,
+                        steps: [
+                              { 
+                                    intro: "{!$Label.SI_Joyride_timeline_step}"
+                              },
+                              {
+                                    element: document.getElementById('joyride-timeline-filters'),
+                                    intro: "{!$Label.SI_Joyride_timeline_filters_step}",
+                                    position: 'bottom'
+                              }
+                        ]
+                  });
+                  intro.start().oncomplete(function() {
+                        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationTimelineController.finishJoyride}', function(result, event) {
+                              if(result == null || result == 'null') {
+                                    console.log(event);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+event.message+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                              } else if(result != 'success') {
+                                    console.log(result);
+                                    jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&times;</a></div>');
+                                    jQuery(document).foundation('alert', 'reflow');
+                              }
+                        },
+                        {escape: true});
+                  });
+            }
+
+            jQuery(document).ready(function() {
+                  jQuery('.filters').on('click', 'input', function(event) {
+                        if(jQuery(this).prop('checked') == true) {
+                              var type = jQuery(this).attr('name');
+                              jQuery('li[data-type="'+type+'"]').parent().removeClass('hidden').fadeIn('400');
+                        } else {
+                              var type = jQuery(this).attr('name');
+                              jQuery('li[data-type="'+type+'"]').parent().addClass('hidden').fadeOut('400');
+                        }
+                        jQuery('.tltimeline > div:not(.hidden)').each(function(index, el) {
+                              var classToAdd = index%2 ? 'even' : 'odd' ;
+                              jQuery(this).removeClass('even odd').addClass(classToAdd);
+                        });
+                  });
+            });
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

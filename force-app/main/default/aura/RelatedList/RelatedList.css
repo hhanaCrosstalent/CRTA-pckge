@@ -1,0 +1,8 @@
+.THIS .slds-th__action-button{
+    display: none;
+}
+
+.THIS.error-required-list {
+    border-color: rgb(194, 57, 52);
+    border-width: 2px;
+}

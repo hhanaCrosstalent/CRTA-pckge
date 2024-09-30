@@ -1,0 +1,11 @@
+<design:component>
+    <design:attribute name="recordTypes" label="{!$Label.crta.Record_Types}" description="{!$Label.crta.Separator_Record_Types}"/>
+    <design:attribute name="brandColor" label="{!$Label.crta.Brand_Color}"/>
+    <design:attribute name="showTeamVisualisation" label="{!$Label.crta.Display_Team_Tab}" />
+    <design:attribute name="showAttachmentLevel" label="{!$Label.crta.Display_Attachement_Level}" />
+    <design:attribute name="showSearchEmployee" label="{!$Label.crta.Display_Search_Employee}" />
+    <design:attribute name="showPerfomanceReviews" label="{!$Label.crta.Display_Performance_Reviews_Tab}" />
+    <design:attribute name="showCompensationReview" label="{!$Label.crta.Display_Compensation_Review_Tab}" />
+    <design:attribute name="showTalentReview" label="{!$Label.crta.Display_Talent_Review_Tab}" />
+    <design:attribute name="showLeave" label="{!$Label.crta.Display_Leaves_Tab}" />
+</design:component>

@@ -1,0 +1,481 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 13/05/2019 (CreatedDate)
+-->
+<aura:component controller="RelatedListController" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,lightning:isUrlAddressable" access="global">
+    <aura:attribute name="title" type="String" access="global"/>
+    <aura:attribute name="icon" type="String" access="global"/>
+    <aura:attribute name="addRecord" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="editRecord" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="deleteRecord" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="ManagerAddRecord" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="ManagerEditRecord" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="ManagerDeleteRecord" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="objectApiName" type="String" access="global"/>
+    <aura:attribute name="referenceField" type="String" access="global"/>
+    <aura:attribute name="fieldsStr" type="String" access="private"/>
+    <aura:attribute name="fields" type="String" access="global"/>
+    <aura:attribute name="fieldsList" type="List" access="private"/>
+    <aura:attribute name="filterList" type="String" access="global"/>
+    <aura:attribute name="sortClause" type="String" access="global"/>
+    <aura:attribute name="additionalFields" type="String" access="global"/>
+    <aura:attribute name="fieldsToAdd" type="String" access="global"/>
+    <aura:attribute name="fieldsToEdit" type="String" access="global"/>
+    <aura:attribute name="fieldsModal" type="List" access="private"/>
+    <aura:attribute name="objectLabel" type="String" access="private"/>
+    <aura:attribute name="objectId" type="String" access="private"/>
+    <aura:attribute name="parentId" type="String" access="public"/>
+    <aura:attribute name="filterField" type="String" access="global"/>
+    <aura:attribute name="editFilterValues" type="String" access="global"/>
+    <aura:attribute name="deleteFilterValues" type="String" access="global"/>
+    <aura:attribute name="recordType" type="String" access="public"/>
+    <aura:attribute name="required" type="Boolean" default="false" access="public"/>
+
+    <aura:attribute name="columns" type="List" access="private"/>
+    <aura:attribute name="records" type="List" default="{}" access="private"/>
+    <aura:attribute name="fileColumns" type="List" access="private"/>
+    <aura:attribute name="filesList" type="List" default="[]" access="public"/>
+    <aura:attribute name="filesName" type="String" access="private" />
+
+    <aura:attribute name="openModal" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="openFileModal" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isReadOnly" type="Boolean" access="private"/>
+    <aura:attribute name="isFileReadOnly" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="buttonDisabled" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="showFiles" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="allowFiles" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="attachmentRequired" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="isRequiredOnField" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isNewRecord" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="hasFile" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="requiredFileOnField" type="String" access="public"/>
+    <!--Fallou 07/02/2022: Rafraichissement du composant relatedList  -->
+    <aura:handler event="c:ReloadRelatedList" action="{!c.reloadComponent}" />
+    <aura:registerEvent name="eventReload" type="c:ReloadRelatedList" />
+    <!--Fallou 07/02/2022: Rafraichissement du composant relatedList  -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:method name="reloadRecords" action="{!c.reloadRecords}">
+        <aura:attribute name="objectName" type="String" />
+    </aura:method>
+    <aura:method name="showHelpMessageIfInvalid" action="{!c.showHelpMessageIfInvalid}"></aura:method>
+    <aura:method name="getNumberRecords" action="{!c.getNumberRecords}"></aura:method>
+
+    <lightning:card class="slds-card_boundary" aura:id="cardContainer">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner alternativeText="Loading" size="medium" />
+        </aura:if>
+        <aura:set attribute="title">
+            <aura:if isTrue="{!v.icon != null}">
+                <lightning:icon iconName="{!v.icon}" size="small" class="slds-m-right_small"/>
+            </aura:if>
+           {!v.title}&nbsp;
+            <aura:if isTrue="{!v.required}">
+                <span class="slds-text-color_error slds-m-right_xxx-small">*</span>
+            </aura:if>
+        </aura:set>
+        <aura:set attribute="actions">
+            <aura:if isTrue="{!v.addRecord || v.ManagerAddRecord}">
+                
+                <aura:if isTrue="{!$Browser.isPhone}">
+                    <lightning:buttonIcon  iconName="utility:add"   alternativeText="{!$Label.c.New}" class="slds-m-left_xx-small" title="{!$Label.c.New}" onclick="{!c.addRecord}" disabled="{!v.columns.length == 0}"></lightning:buttonIcon>
+                      <aura:set attribute="else">
+                    <lightning:button label="{!$Label.c.New}" title="{!$Label.c.New}" onclick="{!c.addRecord}" disabled="{!v.columns.length == 0}"/>
+                    </aura:set>
+                </aura:if>
+                </aura:if>
+        </aura:set>
+        <div class="slds-p-horizontal_small">
+            <div class="slds-scrollable" style="max-height: 300px;">
+                <lightning:datatable 
+                    keyField="id"
+                    data="{!v.records}"
+                    columns="{!v.columns}"
+                    onrowaction="{!c.handleRowAction}"
+                    hideCheckboxColumn="true"/>
+            </div>
+        </div>
+    </lightning:card>
+
+    <!-- MODAL MODIFICATION -->
+    <aura:if isTrue="{!v.openModal}">
+        <div class="edit-modal" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!v.objectLabel} </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content">
+                        <aura:iteration items="{!v.fieldsModal}" var="field">
+                            
+                            <aura:if isTrue="{!field.type == 'reference'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <c:LookupField objectLabel="{!field.label}"
+                                                refField="{!field.fieldName}"
+                                                childObjectApiName="{!v.objectApiName}"
+                                                nameField="{!field.fieldName}"
+                                                filteredField="{!field.fieldName}"
+                                                filteredFieldLabel="{!field.fieldName}"
+                                                selectedObjectId="{!field.newValue}"
+                                                filteredByEmployee="true"
+                                                required="{!field.required}"
+                                                isDisabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}"
+                                                fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <div><lightning:formattedText value="{!field.valueRefLabel}" /></div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'picklist'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <!-- Beg: Added By Tenhinene  Ticket:CT-202202#004387  Last Modified Date :11/04/2022-->
+                                    <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                        <div class="slds-is-absolute">
+                                            <label class="slds-form-element__label slds-hidden">
+                                                {!field.label}
+                                            </label>
+                                            <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                        </div>
+                                    </aura:if>
+                                    <!-- End: Added By Tenhinene  Ticket :CT-202202#004387 Last Modified Date :11/04/2022-->
+                                    <lightning:select aura:id="field" name="picklist" value="{!field.newValue}" label="{!field.label}" 
+                                                      disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}">
+                                        <aura:iteration items="{!field.picklist}" var="options">
+                                            <option value="{!options.value}">{!options.label}</option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <div>{!field.newValue}</div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                                
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'boolean'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="checkbox" name="checkbox" checked="{!field.newValue}" label="{!field.label}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <aura:if isTrue="{!field.newValue}">
+                                                <lightning:input type="checkbox-button" label="{!field.label}" name="checkbox" checked="{!field.newValue}" disabled="true"/>
+                                                <aura:set attribute="else">{!field.newValue}</aura:set>
+                                            </aura:if>
+                                            
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'email'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="email" name="email" value="{!field.newValue}" label="{!field.label}" onblur="{!c.handleBlur}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <lightning:input type="email" name="email" readonly="true" value="{!field.newValue}" label="{!field.label}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'date'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="date" name="date" value="{!field.newValue}" label="{!field.label}" onblur="{!c.handleBlur}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>
+                                                <lightning:formattedDateTime value="{!field.newValue}"
+                                                    year="numeric"
+                                                    month="numeric"
+                                                    day="numeric"/>
+                                            </div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'datetime'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="datetime" name="datetime" value="{!field.newValue}" label="{!field.label}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>
+                                                <lightning:formattedDateTime value="{!field.newValue}"
+                                                    day="numeric"
+                                                    month="numeric"
+                                                    year="numeric"
+                                                    hour="2-digit"
+                                                    minute="2-digit"/>
+                                            </div>
+                                            </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'time'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="time" name="time" value="{!field.newValue}" label="{!field.label}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>
+                                                <lightning:formattedTime  value="{!field.newValue}"
+                                                                    />
+                                            </div>
+                                            </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'currency'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="number" name="number" label="{!field.label}" value="{!field.newValue}" formatter="currency" step="0.01" onblur="{!c.handleBlur}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>
+                                                <ui:outputCurrency value="{!field.newValue}"/>
+                                            </div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                             </aura:if> 
+                            <aura:if isTrue="{!field.type == 'double' || field.type == 'integer' || field.type == 'long'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="number" name="number" value="{!field.newValue}" label="{!field.label}" onblur="{!c.handleBlur}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>{!field.newValue}</div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'string'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" value="{!field.newValue}" label="{!field.label}" onblur="{!c.handleBlur}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>{!field.newValue}</div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                             <aura:if isTrue="{!field.type == 'phone'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="tel" value="{!field.newValue}" name="phone" label="{!field.label}" onblur="{!c.handleBlur}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>
+                                                <lightning:formattedPhone value="{!field.newValue}" ></lightning:formattedPhone>
+                                            </div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'address'}">
+                                <lightning:inputAddress aura:id="address"
+                                    addressLabel="Adresse"
+                                    streetLabel="Rue"
+                                    cityLabel="Ville"
+                                    countryLabel="Pays"
+                                    provinceLabel="Province"
+                                    postalCodeLabel="Code postal"
+                                    street=""
+                                    city=""
+                                    country=""
+                                    province=""
+                                    postalCode=""
+                                    fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"
+                                    disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}"
+                                    required="{!field.required}"
+                                />
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'textarea'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:textarea aura:id="field" name="textarea"  value="{!field.newValue}" label="{!field.label}" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>
+                                                <lightning:formattedText value="{!field.newValue}"/>
+                                            </div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'richtext'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:inputRichText aura:id="field"
+                                        label="{!field.label}" value="{!field.newValue}"
+                                        labelVisible="true"
+                                        required="{!field.required}"
+                                    disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div>
+                                                <lightning:formattedRichText value="{!field.newValue}" />
+                                            </div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'percent'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="number" name="percent" label="{!field.label}" value="{!field.newValue}" formatter="percent-fixed" step="0.01" disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}"
+                                    fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}" />
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <lightning:formattedNumber value="{!field.newValue}" style="percent-fixed" maximumFractionDigits="2"/>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'multipicklist'}">
+                                
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:dualListbox aura:id="field" name="multipleOptions" label="{!field.label}" sourceLabel="{!$Label.c.Available}"
+                                        selectedLabel="{!$Label.c.Selected}" options="{!field.picklist}" value="{!field.selectedValues}"
+                                        disableReordering="true" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}" 
+                                        required="{!field.required}"/>
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            {!field.picklistLabel}
+                                            <div>
+                                                <lightning:formattedRichText value="{!field.newValue}" />
+                                            </div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!field.type == 'url'}">
+                                <aura:if isTrue="{!!v.isReadOnly}">
+                                    <lightning:input aura:id="field" type="url" value="{!field.newValue}" label="{!field.label}" onblur="{!c.handleBlur}"
+                                        disabled="{!v.isReadOnly || (field.fieldPermission == 'Read only')}" required="{!field.required}"
+                                        fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}" />
+                                    <aura:set attribute="else">
+                                        <div class="slds-m-bottom_small">
+                                            <div class="slds-form-element__label">{!field.label}</div>
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </aura:if>
+                                            <div><lightning:formattedUrl value="{!field.newValue}" /></div>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+
+                        </aura:iteration>
+                       <aura:if isTrue="{!v.allowFiles &amp;&amp; v.objectId == null}">
+                            <aura:if isTrue="{!v.attachmentRequired || v.isRequiredOnField}">
+                                <span class="slds-text-color_error">{!$Label.c.Required_Files}</span>
+                            </aura:if>
+                            <lightning:fileUpload name="fileUploader" recordId="{!$SObjectType.CurrentUser.Id}" onuploadfinished="{!c.handleUploadFinished}"
+                                label="{!$Label.c.New_Attachment}" multiple="true" disabled="{!v.isFileReadOnly}" />
+                                <div class="slds-text-body_small slds-text-color_weak">{!v.filesName}</div>
+                     </aura:if>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <aura:if isTrue="{!!v.isReadOnly}">
+                            <button class="slds-button slds-button_neutral" onclick="{!c.closeModal}">{!$Label.c.Action_cancel}</button>
+                            <aura:if isTrue="{!v.objectId == null}">
+                                <button class="slds-button slds-button_brand" onclick="{!c.saveRecord}" disabled="{!v.buttonDisabled}">{!$Label.c.Add}</button>
+                                <aura:set attribute="else">
+                                    <button class="slds-button slds-button_brand" onclick="{!c.editRecord}" disabled="{!v.buttonDisabled}">
+                                        {!$Label.c.Edit}
+                                    </button>
+                                </aura:set>
+                            </aura:if>
+                            <aura:set attribute="else">
+                                <button class="slds-button slds-button_neutral" onclick="{!c.closeModal}">{!$Label.c.Finish}</button>
+                            </aura:set>
+                        </aura:if>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open">
+            </div>
+        </div>
+    </aura:if>
+
+    <aura:if isTrue="{!v.objectId != null &amp;&amp; v.openFileModal}">
+        
+        <div role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container slds-modal_large">
+                <div class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">{!$Label.c.Files}</h2>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <aura:if isTrue="{!v.allowFiles}">
+                        <aura:if isTrue="{!!(v.hasFile) &amp;&amp; (v.attachmentRequired || v.isRequiredOnField)}">
+                            <span class="slds-text-color_error">{!$Label.c.Required_Files}</span>
+                        </aura:if>
+                        <lightning:fileUpload name="fileUploader"
+                            recordId="{!v.objectId}"
+                            onuploadfinished="{!c.handleUploadFinished}"
+                            label="{!$Label.c.New_Attachment}"
+                            multiple="true" 
+                           />
+                    </aura:if>
+                    <div class="slds-m-top_medium">
+                        <lightning:datatable keyField="id" 
+                            data="{!v.filesList}" 
+                            columns="{!v.fileColumns}"
+                            hideCheckboxColumn="true"
+                            onrowaction="{!c.handleFileAction}" />
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral" onclick="{!c.closeFileModal}">
+                        {!$Label.c.Close}
+                    </lightning:button>
+                </footer>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>

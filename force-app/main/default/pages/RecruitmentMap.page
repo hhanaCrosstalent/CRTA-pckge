@@ -1,0 +1,199 @@
+<apex:page showHeader="false" controller="RecruitmentMapController">
+<!-- @author Felix van Hove -->
+    <html>
+        <head>
+            <!-- as a reference see https://developers.google.com/maps/documentation/javascript/demos/demos.css -->
+            <style>
+                #map {
+                    height: 646px;
+                    position: relative;
+                    width: 100%;
+                }
+            </style>
+        </head>
+        <body>
+
+            <div id="map"></div>
+            <script>
+
+                const lexOrigin = 'https://{!JSENCODE($CurrentPage.parameters.lcHost)}';
+                let gmap; // reference to Google's map object
+            //let mapKey = 'unknown';
+                let data;
+                let gmarkers = []; // we need to keep track of all markers in order to remove them when necessary
+                let columnsContact = '';
+                let columnscrta__Offre_d_emploi__c = '';
+
+                function processContacts(searchText, position, selectedType, distance, mockContact) {
+                    if (!searchText) searchText = '';
+                    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.RecruitmentMapController.getContacts}',
+                        searchText, position, selectedType, distance,
+                        mockContact.crta__CT_Management_level__c, mockContact.crta__CT_Support__c, mockContact.crta__CT_Situation__c, columnsContact,
+                        function(result, event) {
+                            if (event.status) {
+                                const mapData = Array();
+                                for (let i=0; i<result.length; i++) {
+                                    if(result[i].crta__Location__Latitude__s) result[i].crta__Location__Latitude__s = parseFloat(result[i].crta__Location__Latitude__s);
+                                    if(result[i].crta__Location__Longitude__s) result[i].crta__Location__Longitude__s = parseFloat(result[i].crta__Location__Longitude__s);
+                                    const s = result[i].crta__CT_Situation__c;
+                                    if(s) result[i].crta__CT_Situation__c = s.substring(2, s.length);
+                                    mapData.push(result[i]);
+                                }
+                                addMarkers(mapData, 'blue');
+                                sendToLC({
+                                    state: 'Contact',
+                                    vfHost: "{!LEFT($CurrentPage.URL,FIND('/',$CurrentPage.URL,9))}",
+                                    payload: mapData
+                                });
+                            } else if (event.type === 'exception') {
+                                console.error('Failed contacts with exception: ' + event.message);
+                            } else {
+                                console.error('Failed contacts with no exception: ' + event.message);
+                            }
+                    }, {buffer: false, escape: true, timeout: 10000});
+                }
+
+                function processJobPostings(searchText, position, distance, mockJobPosting) {
+                    if (!searchText) searchText = '';
+
+                    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.RecruitmentMapController.getJobPostings}',
+                        searchText, position, mockJobPosting.crta__CT_Industry_of_activities__c, distance, mockJobPosting.crta__Filiere__c,
+                        mockJobPosting.crta__Categorie__c, mockJobPosting.crta__CT_Scope__c, columnscrta__Offre_d_emploi__c,
+                        function(result, event) {
+                            if (event.status) {
+                                const mapData = Array();
+                                for (let i=0; i<result.length; i++) {
+                                    result[i].crta__Location__Latitude__s = parseFloat(result[i].crta__Location__Latitude__s);
+                                    result[i].crta__Location__Longitude__s = parseFloat(result[i].crta__Location__Longitude__s);
+                                    mapData.push(result[i]);
+                                }
+                                addMarkers(mapData, 'green');
+                                sendToLC({
+                                    state: 'crta__Offre_d_emploi__c',
+                                    vfHost: "{!LEFT($CurrentPage.URL,FIND('/',$CurrentPage.URL,9))}",
+                                    payload: mapData
+                                });
+                            } else if (event.type === 'exception') {
+                                console.error('Failed job postings with exception: ' + event.message);
+                            } else {
+                                console.error('Failed job postings with no exception: ' + event.message);
+                            }
+                    }, {buffer: false, escape: true, timeout: 10000});
+                }
+
+                function processFurther(d, lat, lng) {
+                    removeMarkers();
+                    // address marker
+                    let latlng = {lat: lat, lng: lng};
+                    gmarkers.push(new google.maps.Marker({
+                         map: gmap,
+                         position: latlng
+                    }));
+                    const position = '(' + lat + ', ' + lng + ')';
+                    let contactFields = '';
+                    let jobPostingFields = '';
+                    processContacts(d.searchText, position, d.selectedType, d.distance, d.mockContact);
+                    processJobPostings(d.searchText, position, d.distance, d.mockJobPosting);
+                }
+
+                function getZoom(d) {
+                    // following strategy is insufficient for mobile phones, see
+                    // https://stackoverflow.com/questions/2242086/how-to-detect-the-screen-resolution-with-javascript
+                    const CIRCUMFERENCE = 40075; // earth circumference in km
+                    const idealHeight = 2 * d; // targeted minimal map height in km
+                    return 1 + Math.round(Math.log2(CIRCUMFERENCE / idealHeight));
+                }
+
+                function processFormData(d) {
+                    if (!d.address) {
+                        const LAT = 48.856578;
+                        const LNG = 2.351828;
+                        const mapOptionsCenter = {lat: LAT, lng: LNG};
+                        gmap.setCenter(mapOptionsCenter);
+                        processFurther(d, LAT, LNG);
+                    } else {
+                        const geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({'address': d.address}, function(results, status) {
+                            if (status == google.maps.GeocoderStatus.OK) {
+                                const p = results[0].geometry.location;
+                                gmap.setCenter(p);
+                                gmap.setZoom(getZoom(d.distance));
+                                processFurther(d, p.lat(), p.lng());
+                            } else {
+                                console.error('Problem with GeocoderStatus: ' + status);
+                            }
+                        });
+                    }
+                }
+
+                //Receive message from LC
+                window.addEventListener('message', function(event) {
+                    //If page is public (like used in force.com sites) then be careful about the origin
+                    if(event.origin !== lexOrigin) {
+                        console.error('Not from Lightning Container, not from the expected origin. Rejecting request.');
+                        return;
+                    }
+                    data = event.data;
+                    if (event.data.loadGoogleMap == true) {
+                        /*let mapKey = encodeURI(event.data.mapKey);
+                        let script = document.createElement('script');
+                        script.setAttribute('src', encodeURI('{!p1}' + mapKey + '{!p2}'));
+                        var head =  document.getElementsByTagName('head')[0];
+                        head.appendChild(script);
+                        columnsContact = event.data.columnsContact;
+                        columnscrta__Offre_d_emploi__c = event.data.columnscrta__Offre_d_emploi__c;*/
+                    } else if (event.data.formData) {
+                        processFormData(event.data.formData);
+                    }
+                }, false);
+            function sendToLC(message) {
+                if (typeof(lexOrigin) != 'undefined') {
+                    parent.postMessage(message, lexOrigin);
+                }
+            }
+
+            sendToLC({state: 'LOADED', vfHost: "{!LEFT($CurrentPage.URL,FIND('/',$CurrentPage.URL,9))}", 'payload': ''});
+
+            function initMap() {
+                gmap = new google.maps.Map(document.getElementById('map'), JSON.parse(data.mapOptions));
+                // default center: Paris - but this is instantly adjusted by the search for the location
+                // that the initial form comes with
+                gmap.setCenter({lat: 48.8566, lng: 2.3522});
+                processFormData(data.formData);
+            }
+
+            function addMarkers(mapData, color) {
+
+                function addMarker(position, id, name, color) {
+                    const marker = new google.maps.Marker({
+                        position: position,
+                        map: gmap,
+                        icon: 'https://maps.google.com/mapfiles/ms/micons/' + color +  '.png',
+                        title: name
+                    });
+                    gmarkers.push(marker);
+                    let markerText = name + "  <a href='../" + id + "' target='_blank'>Details</a><br> ";
+                    let infoWindow = new google.maps.InfoWindow({
+                        content: markerText
+                    });
+
+                    marker.addListener('click', function() {
+                        infoWindow.open(gmap, marker);
+                    });
+                }
+                for (let i=0; i<mapData.length; i++) {
+                    const myLatlng = new google.maps.LatLng(mapData[i].crta__Location__Latitude__s, mapData[i].crta__Location__Longitude__s);
+                    addMarker(myLatlng, mapData[i].Id, mapData[i].Name, color);
+                }
+            }
+
+            function removeMarkers() {
+                for (i=0; i<gmarkers.length; i++) {
+                    gmarkers[i].setMap(null);
+                }
+                gmarkers = [];
+            }
+            </script>
+    </body>
+    </html>
+</apex:page>

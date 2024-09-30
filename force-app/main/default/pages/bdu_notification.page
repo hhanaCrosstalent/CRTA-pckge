@@ -1,0 +1,5 @@
+<apex:page >
+Bonjour,
+
+{@listAdded}
+</apex:page>

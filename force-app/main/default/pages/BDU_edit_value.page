@@ -1,0 +1,68 @@
+<apex:page showHeader="true" sidebar="true" standardController="BDU_Valeur__c" extensions="bdu_edit_valueController">
+    <!--<apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" />-->
+    <apex:includeScript value="{!URLFOR($Resource.JQuery_min_3_5_1)}" />
+    <apex:includeScript value="{!URLFOR($Resource.ckeditor, 'ckeditor/ckeditor.js')}"/>
+
+    <apex:form id="editValue">
+        <apex:pageBlock id="editBlock" title="{!IF(BDU_Valeur__c.id != null, 'Editer la valeur', 'Créer une valeur')}">
+           <apex:messages />
+            <apex:pageBlockSection title="Information" columns="1">
+                <apex:inputField value="{!BDU_Valeur__c.CT_BDU_Indicateur__c}" />
+                <apex:inputField value="{!BDU_Valeur__c.CT_A_publier__c}" />
+                <apex:inputField value="{!BDU_Valeur__c.CT_Date_de_publication__c}" />
+                <apex:inputField value="{!BDU_Valeur__c.CT_Date_de_fin_de_publication__c}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Organisations" columns="2">
+                <apex:inputField rendered="{!$Setup.showOptions__c.showBU1__c}" value="{!BDU_Valeur__c.CT_BU1__c}" />
+                <apex:inputField rendered="{!$Setup.showOptions__c.showBU2__c}" value="{!BDU_Valeur__c.CT_BU2__c}" />
+                <apex:inputField rendered="{!$Setup.showOptions__c.showBU3__c}" value="{!BDU_Valeur__c.CT_BU3__c}" />
+                <apex:inputField rendered="{!$Setup.showOptions__c.showBU4__c}" value="{!BDU_Valeur__c.CT_BU4__c}" />
+                <apex:inputField rendered="{!$Setup.showOptions__c.showBU5__c}" value="{!BDU_Valeur__c.CT_BU5__c}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Périodicité" columns="2">
+                <apex:inputField value="{!BDU_Valeur__c.CT_Annee__c}" />
+                <apex:inputField value="{!BDU_Valeur__c.CT_Semestre__c}" />
+                <apex:inputField value="{!BDU_Valeur__c.CT_Trimestre__c}" />
+                <apex:inputField value="{!BDU_Valeur__c.CT_Bimestre__c}" />
+                <apex:inputField value="{!BDU_Valeur__c.CT_Mois__c}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="editSection" title="Contenu" columns="1">
+                <apex:inputTextarea id="rteValue" value="{!BDU_Valeur__c.CT_Valeur__c}"  richText="false"/>
+                <apex:inputTextarea id="rteComment" value="{!BDU_Valeur__c.CT_Commentaire__c}"  richText="false"/>
+                <apex:inputField value="{!BDU_Valeur__c.CT_Liaison_Contenu__c}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Confidentialité" columns="2">
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.BDU_Valeur__c.fields.CT_isConfidential__c.label}" />
+                    <apex:inputField value="{!BDU_Valeur__c.CT_isConfidential__c}" />
+                </apex:pageblockSectionItem>
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.BDU_Valeur__c.fields.CT_confidentialityDate__c.label}" />
+                    <apex:inputField value="{!BDU_Valeur__c.CT_confidentialityDate__c}" />
+                </apex:pageblockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons >
+                <apex:commandbutton action="{!Save}" onclick="beforeTextSave()" value="Enregistrer" />
+                <apex:commandButton action="{!cancel}" value="Annuler"/>
+            </apex:pageBlockButtons>
+
+      </apex:pageBlock>
+    </apex:form>
+    <script type="text/javascript">
+        CKEDITOR.disableAutoInline = true;
+        CKEDITOR.replace( '{!$Component.editValue.editBlock.editSection.rteValue}',{
+            extraPlugins: 'dialogadvtab'
+        });
+        CKEDITOR.replace( '{!$Component.editValue.editBlock.editSection.rteComment}',{
+            extraPlugins: 'dialogadvtab'
+        });
+         
+        function beforeTextSave() {
+            var rteValue = CKEDITOR.instances['{!$Component.editValue.editBlock.editSection.rteValue}}'];
+            document.getElementById('{!$Component.editValue.editBlock.editSection.rteValue}').value = rteValue.getData();
+    
+            var rteComment = CKEDITOR.instances['{!$Component.editValue.editBlock.editSection.rteComment}'];
+            document.getElementById('{!$Component.editValue.editBlock.editSection.rteComment}').value = rteComment.getData();
+        }
+    </script>
+</apex:page>

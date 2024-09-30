@@ -1,0 +1,51 @@
+<apex:page sidebar="false" showHeader="false" controller="bdu_print_historiqueController">
+      <img src="{!$Resource[$Setup.crta__override__c.crta__filigrane__c]}" width="100%" height="100%" style="position: fixed;background-repeat:repeat;left: 0cm; top:0cm; z-index:-1"/>
+        <apex:stylesheet value="{!$Resource.bduCSS}" />
+        <apex:stylesheet value="{!$Resource[$Setup.override__c.css__c]}" />
+        <h3>{!$Organization.Name}</h3><br />
+        <h3><apex:outputText value="{!$Setup.override__c.CT_printText__c}"/></h3><br />
+        <h3>Imprimé par {!$User.FirstName} {!$User.LastName} le <apex:outputText value="{0, date, dd'/'MM'/'yyyy à HH:mm}">
+          <apex:param value="{!NOW()}"></apex:param>
+        </apex:outputtext></h3>
+
+            <apex:repeat value="{!valeurs}" var="ivaleur">
+
+                <div class="line">
+
+                    <div class="hannee Cocon">
+
+                        <div>{!ivaleur.CT_Annee__c}</div>
+
+                    </div>
+                    <apex:outputPanel layout="block" styleClass="decret" rendered="{!$Setup.showOptions__c.showBuReminder__c}">
+                            <h3 class=" Cocon">{!$ObjectType.BDU_Valeur__c.fields.CT_BU__c.Label} : </h3>
+                            <apex:outputText value="{!ivaleur.CT_BU__c}" />
+                    </apex:outputPanel>
+
+                    <div class="hval">
+
+                            <apex:outputField style="width:10px;" value="{!ivaleur.CT_Valeur__c}"/>
+
+                    </div>
+                   <div style="height:50px;clear:both;"></div>
+                    <div class="hcommentaire print">
+
+                            <apex:image style="margin-top:-7px;" url="{!URLFOR($Resource.icone_commentaire)}" styleClass="left" width="20" />
+
+                            <span class="Cocon" style="font-weight:bold; font-size:12px;">
+                            
+                                    Commentaire
+                            
+                            </span>
+                                        <br />
+                            <apex:outputField value="{!ivaleur.CT_Commentaire__c}"/>
+
+                    </div>
+
+                </div>
+
+            </apex:repeat>
+    <script type="text/javascript">
+        window.print();
+    </script>
+</apex:page>

@@ -1,0 +1,28 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" controller="DragDropCVController" access="global">
+    <lightning:card>
+	<!-- <div class="square"> -->
+        <label class="innerlabel" for="inputFile">
+
+            <div class="innersquare">
+                <p>                   
+                     <ui:outputText value="{!$Label.c.DragCV}" />
+                </p>
+            </div>
+            
+            <lightning:input 
+                class="squarebutton"
+                aura:id="fileSelector" 
+                name="fileSelector"
+                type="File" 
+                label="Déposer votre CV ici ou charger..."
+                required="true"
+                variant="label-hidden"
+                onchange="{!c.handleFilesChange}"/>
+        
+        </label>
+    <!-- </div> -->
+
+    <lightning:spinner alternativeText="Lecture de votre CV..." size="small" class="slds-hide" aura:id="mySpinner"/>
+
+    </lightning:card>
+</aura:component>

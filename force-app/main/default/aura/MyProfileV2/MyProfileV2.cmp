@@ -1,0 +1,766 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Hana HAMMAMI -> 12/03/2024 (CreatedDate)
+-->
+<aura:component controller="ProfileController"
+    implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,lightning:isUrlAddressable"
+    access="global">
+    <aura:attribute name="token" type="String" default="" access="public"/>
+    <aura:attribute name="contactName" type="String" access="private"/>
+    <aura:attribute name="profilePicture" type="String" access="private"/>
+    <aura:attribute name="currentContactId" type="String" default="" access="private"/>
+    <aura:attribute name="photoStyle" type="String" default="" access="private"/>
+    <aura:attribute name="myEditProfileButton" type="String" default="" access="private"/>
+    <aura:attribute name="isEditPhoto" type="Boolean" default="false" access="private"/>
+        <aura:attribute name="capitalMap" type="Map" />
+
+    <aura:attribute name="photoFileId" type="String" access="private"/>
+    <aura:attribute name="myContact" type="Object" access="private"/>
+    <aura:attribute name="modalTitle" type="String" default="" access="private"/>
+    <aura:attribute name="buttonDisabled" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="openModal" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isUploadFiles" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="privateAccess" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="managerAccess" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isOnboarding" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="listIdLookup" type="List" default="[]" access="private"/>
+
+    <aura:attribute name="sectionsList" type="List" default="[]" access="private"/>
+    <aura:attribute name="sectionsListDisplayed" type="Integer" access="private"/>
+    <aura:attribute name="tabsList" type="List" default="[]" access="private"/>
+    <aura:attribute name="tabsListDisplayed" type="Integer" access="private"/>
+    <aura:attribute name="privateSectionAccess" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="ManagerSectionAccess" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="fieldGroupsList" type="List" default="[]" access="private"/>
+    <aura:attribute name="fieldGroup" type="Object" default="{}" access="private"/>
+    <aura:attribute name="fileIds" type="List" default="[]" access="private"/>
+    <aura:attribute name="fileIsRequired" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="filesName" type="String"  access="private"/>
+
+    <aura:attribute name="street" type="String"  access="private"/>
+    <aura:attribute name="postalCode" type="String"  access="private"/>
+    <aura:attribute name="city" type="String"  access="private"/>
+    <aura:attribute name="state" type="String"  access="private"/>
+    <aura:attribute name="country" type="String"  access="private"/>
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="public"/>
+    <aura:attribute name="modalLoading" type="Boolean" default="true" access="private"/>
+    <aura:attribute name="labelText" type="String" access="private"/>
+    <aura:attribute name="iconsColor" type="String" default="#FF6A13" access="global"/>
+    <aura:attribute name="showFiles" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="accountFieldName" type="String" default="AccountId" access="global"/>
+
+    <aura:attribute name="filesMissing" type="List" access="private"/>
+    <aura:attribute name="fieldsMissing" type="List" access="private"/>
+    <aura:attribute name="BypassLookupRemoveValue" type="Boolean"  access="global"  />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="render" value="{!this}" action="{!c.afterRender}" />
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+
+    <aura:method name="reloadData" action="{!c.reloadData}" description="Refreshes the component"/>
+    <aura:if isTrue="{!!v.isOnboarding}">
+        <aura:if isTrue="{!v.filesMissing.length > 0}">
+            <div class="slds-scoped-notification slds-media slds-media_center slds-theme_warning slds-m-bottom_large" role="status">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-utility-warning" title="warning">
+                        <lightning:icon iconName="utility:warning" alternativeText="Warning" variant="inverse" size="small" />
+                        <span class="slds-assistive-text">warning</span>
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <p>{!$Label.c.Onboarding_Files_Error}</p>
+                    <ul class="slds-list_dotted">
+                        <aura:iteration items="{!v.filesMissing}" var="file">
+                            <li>{!file}</li>
+                        </aura:iteration>
+                    </ul>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.fieldsMissing.length > 0}">
+            <div class="slds-scoped-notification slds-media slds-media_center slds-theme_warning slds-m-bottom_large" role="status">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-utility-warning" title="warning">
+                        <lightning:icon iconName="utility:warning" alternativeText="Warning" variant="inverse" size="small" />
+                        <span class="slds-assistive-text">warning</span>
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <p>{!$Label.c.Required_Fields}</p>
+                    <ul class="slds-list_dotted">
+                        <aura:iteration items="{!v.fieldsMissing}" var="field">
+                            <li>{!field}</li>
+                        </aura:iteration>
+                    </ul>
+                </div>
+            </div>
+        </aura:if>
+        <lightning:card>
+            <aura:if isTrue="{!v.isLoading}">
+                <lightning:spinner alternativeText="Loading" size="medium" />
+            </aura:if>
+            <div class="slds-grid slds-wrap" style="{!'--icon-color:'+ v.iconsColor +';'}">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-m-top_medium p-2" style="width:18%;">
+                    <aura:if isTrue="{!v.privateAccess}">
+                        <div class="{!' photo-user ' + v.photoStyle }" style="{!'background-image:url(' + v.profilePicture + ')'}">
+                            <aura:if isTrue="{!v.privateAccess &amp;&amp; v.myContact != null}">
+                                <lightning:buttonIcon iconName="utility:edit" alternativeText="{!$Label.c.Edit_Photo}"
+                                    onclick="{!c.editPhoto}" size="large"
+                                    class="{! 'ct-icon-color myEditProfileButton ' + v.editBtnStyle}" />
+                            </aura:if>
+                        </div>
+                        <aura:set attribute="else">
+                            <div class="{!' photo-user ' + v.photoStyle }" style="{!'background-image:url(' + v.profilePicture + ')'}" />
+                        </aura:set>
+                    </aura:if>
+                    <div class="slds-m-top_large slds-m-bottom_small slds-text-align_center" >
+                        <div class="slds-text-heading_medium slds-text-bold" style=" display: inline-flex;  font-size: 14px;"> 
+                            <p class="color-gray">---</p><p style=" color: #746a6a;"> {!v.myContact.Name}</p><p class="color-gray">---</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4"  style="width:80%;">
+
+                    <aura:iteration items="{!v.sectionsList}" var="section">
+                        <aura:if
+                            isTrue="{!(!section.isPrivate &amp;&amp; !section.isManager) || (section.isPrivate &amp;&amp;
+                                v.privateAccess) || (section.isManager &amp;&amp; v.managerAccess)}">
+                            
+      <aura:if isTrue="{!$Browser.isPhone}">                          
+                             <lightning:accordion 
+               allowMultipleSectionsOpen="true" class="w-99 top-1 slds-card_boundary slds-m-right_medium slds-p-horizontal_small"
+            >
+              <lightning:accordionSection  label="{!section.title}"> 
+
+                <aura:set attribute="body">
+                    <div class="slds-grid slds-wrap">
+                                        <aura:iteration items="{!section.fieldGroupsList}" var="fieldGroup">
+                                            <aura:iteration items="{!fieldGroup.fieldsList}" var="field">
+                                                <aura:if isTrue="{!fieldGroup.fieldFormat == 'Field'}">
+                                                    <aura:if
+                                                        isTrue="{!(!field.isPrivate &amp;&amp; !field.isManager) ||
+                                                            (field.isPrivate &amp;&amp; v.privateAccess) ||
+                                                            (field.isManager &amp;&amp; v.managerAccess)}">
+                                                        <div class="slds-size_1-of-1"
+                                                            style="display:inline-flex;">
+                                                            <span class="slds-text-title_bold">{!field.fieldLabel}</span>
+                                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                                <lightning:helptext class="helpText top--5"
+                                                                    content="{!field.fieldHelpText}" />
+                                                            </aura:if>&nbsp;:&nbsp;
+                                                            <aura:if isTrue="{!field.fieldType == 'date'}">
+                                                                <lightning:formattedDateTime value="{!field.fieldValue}"
+                                                                    year="numeric" month="numeric" day="numeric" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'datetime'}">
+                                                                <lightning:formattedDateTime value="{!field.fieldValue}"
+                                                                    day="numeric" month="numeric" year="numeric"
+                                                                    hour="2-digit" minute="2-digit" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'boolean'}">
+                                                                <lightning:input type="checkbox" name="checkbox"
+                                                                    checked="{!field.fieldValue}" class="checkbox top--5"
+                                                                    disabled="true" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'picklist'}">
+                                                                {!field.picklistLabel}
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'multipicklist'}">
+                                                                {!field.picklistLabel}
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'email' ||
+                                                                    field.fieldType == 'string' || field.fieldType == 'textarea'
+                                                                    || field.fieldType == 'address' || field.fieldType == 'phone'
+                                                                    || field.fieldType == 'encryptedstring' || field.fieldType == 'reference'}">
+                                                                <lightning:formattedText  value="{!field.fieldValue}" />
+                                                          
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'currency'}">
+                                                                <lightning:formattedNumber style="currency"
+                                                                    value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if
+                                                                isTrue="{!field.fieldType == 'double' ||
+                                                                field.fieldType == 'long' || field.fieldType == 'integer'}">
+                                                                <lightning:formattedNumber style="decimal"
+                                                                    value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'percent'}">
+                                                                <lightning:formattedNumber style="percent"
+                                                                maximumFractionDigits="2" value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'url'}">
+                                                                <lightning:formattedUrl value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'richtext'}">
+                                                                <lightning:formattedRichText value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                          
+                                                            <aura:if
+                                                                isTrue="{!(fieldGroup.fieldPermission != 'Read only'
+                                                                    &amp;&amp; v.privateAccess)
+                                                                    || (fieldGroup.fieldPermission != 'Read only'
+                                                                        &amp;&amp; v.privateAccess)}">
+                                                              <div data-id="{!fieldGroup.uniqueName}">
+                                                                        <lightning:buttonIcon onclick="{!c.openModal}"
+                                                                        iconName="utility:edit" size="small" variant="bare"
+                                                                         class="ct-icon-color slds-current-color
+                                                                            slds-m-left_x-small slds-p-around_xx-small top--5"
+                                                                        alternativeText="{!fieldGroup.fieldPermissionLabel}" />
+                                                          
+                                                                         </div>
+                                                            </aura:if>
+                                                       </div>
+                                                    </aura:if>
+                                                    <aura:set attribute="else">
+                                                        <div class="{!'slds-size_1-of-'+ field.columnSize}"></div>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </aura:iteration>
+                                        </aura:iteration>
+                                    </div>
+                  </aura:set>
+     </lightning:accordionSection>
+                    </lightning:accordion>
+                                  <aura:set attribute="else">
+
+                            <lightning:card class="{!!section.isDisplayed ? 'slds-hide' : ''}" >
+                                     <lightning:accordion 
+               allowMultipleSectionsOpen="true" class="w-99 top-1 slds-card_boundary slds-m-right_medium slds-p-horizontal_small"
+            >
+              <lightning:accordionSection  label="{!section.title}"> 
+ 
+                  <aura:set attribute="actions">
+                        <aura:if isTrue="{!section.icon != null &amp;&amp; section.customIcon == null}">
+                                            <lightning:icon iconName="{!'utility:'+ section.icon}"
+                                                class="slds-m-right_small ct-section-color slds-current-color"
+                                                size="small" />
+                                        </aura:if>
+                                        <aura:if isTrue="{!section.customIcon != null}">
+                                            <lightning:icon src="{!section.customIcon}"
+                                                size="small"
+                                                class="slds-m-right_small ct-section-color slds-current-color"/>
+                                        </aura:if>
+                  </aura:set>
+                <aura:set attribute="body">
+                    <div class="slds-grid slds-wrap">
+                         <aura:iteration items="{!section.fieldGroupsList}" var="fieldGroup">
+                                            <aura:iteration items="{!fieldGroup.fieldsList}" var="field">
+                                                <aura:if isTrue="{!fieldGroup.fieldFormat == 'Field'}">
+                                                    <aura:if
+                                                        isTrue="{!(!field.isPrivate &amp;&amp; !field.isManager) ||
+                                                            (field.isPrivate &amp;&amp; v.privateAccess) ||
+                                                            (field.isManager &amp;&amp; v.managerAccess)}">
+                                                        <div class="{! 'slds-size_1-of-1 slds-medium-size_1-of-2
+                                                            slds-large-size_1-of-'+ field.columnSize +'
+                                                            slds-p-around_xx-small slds-col'}"
+                                                            style="display:inline-flex;">
+                                                            <span class="slds-text-title_bold">{!field.fieldLabel}</span>
+                                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                                <lightning:helptext class="helpText"
+                                                                    content="{!field.fieldHelpText}" />
+                                                            </aura:if>&nbsp;:&nbsp;
+                                                            <aura:if isTrue="{!field.fieldType == 'date'}">
+                                                                <lightning:formattedDateTime value="{!field.fieldValue}"
+                                                                    year="numeric" month="numeric" day="numeric" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'datetime'}">
+                                                                <lightning:formattedDateTime value="{!field.fieldValue}"
+                                                                    day="numeric" month="numeric" year="numeric"
+                                                                    hour="2-digit" minute="2-digit" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'boolean'}">
+                                                                <lightning:input type="checkbox" name="checkbox"
+                                                                    checked="{!field.fieldValue}" class="checkbox"
+                                                                    disabled="true" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'picklist'}">
+                                                                {!field.picklistLabel}
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'multipicklist'}">
+                                                                {!field.picklistLabel}
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'email' ||
+                                                                    field.fieldType == 'string' || field.fieldType == 'textarea'
+                                                                    || field.fieldType == 'address' || field.fieldType == 'phone'
+                                                                    || field.fieldType == 'encryptedstring' || field.fieldType == 'reference'}">
+                                                                <lightning:formattedText value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'currency'}">
+                                                                <lightning:formattedNumber style="currency"
+                                                                    value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if
+                                                                isTrue="{!field.fieldType == 'double' ||
+                                                                field.fieldType == 'long' || field.fieldType == 'integer'}">
+                                                                <lightning:formattedNumber style="decimal"
+                                                                    value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'percent'}">
+                                                                <lightning:formattedNumber style="percent"
+                                                                maximumFractionDigits="2" value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'url'}">
+                                                                <lightning:formattedUrl value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'richtext'}">
+                                                                <lightning:formattedRichText value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                          
+                                                            <aura:if
+                                                                isTrue="{!(fieldGroup.fieldPermission != 'Read only'
+                                                                    &amp;&amp; v.privateAccess)
+                                                                    || (fieldGroup.fieldPermission != 'Read only'
+                                                                        &amp;&amp; v.privateAccess)}">
+                                                              <div data-id="{!fieldGroup.uniqueName}">
+                                                                    <lightning:buttonIcon onclick="{!c.openModal}"
+                                                                        iconName="utility:edit" size="small" variant="bare"
+                                                                         class="ct-icon-color slds-current-color
+                                                                            slds-m-left_x-small slds-p-around_xx-small top--5W"
+                                                                        alternativeText="{!fieldGroup.fieldPermissionLabel}" />
+                                                                 </div>
+                                                            </aura:if>
+                                                       </div>
+                                                    </aura:if>
+                                                    <aura:set attribute="else">
+                                                        <div class="{!'slds-size_1-of-'+ field.columnSize}"></div>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </aura:iteration>
+                                        </aura:iteration>
+                                   
+                    </div>
+                  </aura:set>
+                                         </lightning:accordionSection>
+                                </lightning:accordion>
+                                
+                                
+                                <aura:set attribute="title">
+                                    <span style="{!'--section-color:'+ section.color +';'}">
+                                        <aura:if isTrue="{!section.icon != null &amp;&amp; section.customIcon == null}">
+                                            <lightning:icon iconName="{!'utility:'+ section.icon}"
+                                                class="slds-m-right_small ct-section-color slds-current-color slds-hide"
+                                                size="small" />
+                                        </aura:if>
+                                        <aura:if isTrue="{!section.customIcon != null}">
+                                            <lightning:icon src="{!section.customIcon}"
+                                                size="small"
+                                                class="slds-m-right_small ct-section-color slds-current-color slds-hide"/>
+                                        </aura:if>
+
+                                        <span class="ct-section-color slds-hide">{!section.title} </span> <!--  NN -->
+                                    </span>
+                                </aura:set>
+                                <div class="slds-card__body slds-card__body_inner slds-hide"> <!--  NN -->
+                                    <div class="slds-grid slds-wrap">
+                                        <aura:iteration items="{!section.fieldGroupsList}" var="fieldGroup">
+                                            <aura:iteration items="{!fieldGroup.fieldsList}" var="field">
+                                                <aura:if isTrue="{!fieldGroup.fieldFormat == 'Field'}">
+                                                    <aura:if
+                                                        isTrue="{!(!field.isPrivate &amp;&amp; !field.isManager) ||
+                                                            (field.isPrivate &amp;&amp; v.privateAccess) ||
+                                                            (field.isManager &amp;&amp; v.managerAccess)}">
+                                                        <div class="{! 'slds-size_1-of-1 slds-medium-size_1-of-2
+                                                            slds-large-size_1-of-'+ field.columnSize +'
+                                                            slds-p-around_xx-small slds-col'}"
+                                                            style="display:inline-flex;">
+                                                            <span class="slds-text-title_bold">{!field.fieldLabel}</span>
+                                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                                <lightning:helptext class="helpText"
+                                                                    content="{!field.fieldHelpText}" />
+                                                            </aura:if>&nbsp;:&nbsp;
+                                                            <aura:if isTrue="{!field.fieldType == 'date'}">
+                                                                <lightning:formattedDateTime value="{!field.fieldValue}"
+                                                                    year="numeric" month="numeric" day="numeric" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'datetime'}">
+                                                                <lightning:formattedDateTime value="{!field.fieldValue}"
+                                                                    day="numeric" month="numeric" year="numeric"
+                                                                    hour="2-digit" minute="2-digit" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'boolean'}">
+                                                                <lightning:input type="checkbox" name="checkbox"
+                                                                    checked="{!field.fieldValue}" class="checkbox"
+                                                                    disabled="true" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'picklist'}">
+                                                                {!field.picklistLabel}
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'multipicklist'}">
+                                                                {!field.picklistLabel}
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'email' ||
+                                                                    field.fieldType == 'string' || field.fieldType == 'textarea'
+                                                                    || field.fieldType == 'address' || field.fieldType == 'phone'
+                                                                    || field.fieldType == 'encryptedstring' || field.fieldType == 'reference'}">
+                                                                <lightning:formattedText value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'currency'}">
+                                                                <lightning:formattedNumber style="currency"
+                                                                    value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if
+                                                                isTrue="{!field.fieldType == 'double' ||
+                                                                field.fieldType == 'long' || field.fieldType == 'integer'}">
+                                                                <lightning:formattedNumber style="decimal"
+                                                                    value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'percent'}">
+                                                                <lightning:formattedNumber style="percent"
+                                                                maximumFractionDigits="2" value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'url'}">
+                                                                <lightning:formattedUrl value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!field.fieldType == 'richtext'}">
+                                                                <lightning:formattedRichText value="{!field.fieldValue}" />
+                                                            </aura:if>
+                                                          
+                                                            <aura:if
+                                                                isTrue="{!(fieldGroup.fieldPermission != 'Read only'
+                                                                    &amp;&amp; v.privateAccess)
+                                                                    || (fieldGroup.fieldPermission != 'Read only'
+                                                                        &amp;&amp; v.privateAccess)}">
+                                                              <div data-id="{!fieldGroup.uniqueName}">
+                                                                    <lightning:buttonIcon onclick="{!c.openModal}"
+                                                                        iconName="utility:edit" size="small" variant="bare"
+                                                                         class="ct-icon-color slds-current-color
+                                                                            slds-m-left_x-small slds-p-around_xx-small"
+                                                                        alternativeText="{!fieldGroup.fieldPermissionLabel}" />
+                                                                 </div>
+                                                            </aura:if>
+                                                       </div>
+                                                    </aura:if>
+                                                    <aura:set attribute="else">
+                                                        <div class="{!'slds-size_1-of-'+ field.columnSize}"></div>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </aura:iteration>
+                                        </aura:iteration>
+                                    </div>
+                                </div>
+                            </lightning:card>
+          </aura:set>                  
+          </aura:if>
+                            </aura:if>
+                    </aura:iteration>
+                </div>
+            </div>
+        </lightning:card>
+        <aura:if isTrue="{!v.tabsList.length > 0 &amp;&amp; v.tabsListDisplayed > 0}">
+            <lightning:card class="slds-card__body_inner">
+                <div class="slds-tabs_default slds-sub-tabs">
+                   <aura:if isTrue="{!$Browser.isPhone}"> 
+                    <ul role="tablist">
+                        <aura:iteration items="{!v.tabsList}" var="tab" indexVar="index">
+                            <aura:if isTrue="{!((!tab.isPrivate &amp;&amp; !tab.isManager) ||
+                                (tab.isPrivate &amp;&amp; v.privateAccess) || (tab.isManager 
+                                &amp;&amp; v.managerAccess)) &amp;&amp; tab.isDisplayed}">
+                                <li class="{!(index == 0 ? 'slds-active ' :  '') + 'slds-tabs_default__item slds-sub-tabs__item
+                                slds-grid slds-grid_vertical-align-center slds-border_right slds-border_left slds-border_top'}"
+                                    role="presentation" aura:id="tab-item">
+                                    <a aria-controls="{!'subtab-tabpanel-' + index + v.myContact.Id}" aria-selected="true"
+                                        class="slds-tabs_default__link slds-p-horizontal_xx-small" href="javascript:void(0);"
+                                        id="{!'subtab-tabitem-' + index + v.myContact.Id}" 
+                                        data-contentid="{!'subtab-tabpanel-' + index + v.myContact.Id}" role="tab" 
+                                        tabindex="0" title="{!tab.title}" onclick="{!c.handlerTabs}">
+                                        <span class="slds-indicator-container"></span>
+                                        <span class="slds-icon_container" title="Case">
+                                            <aura:if isTrue="{!tab.icon != null &amp;&amp; tab.customIcon == null}">
+                                                <lightning:icon iconName="{!'utility:'+ tab.icon}" class="slds-m-right_small" size="small" />
+                                            </aura:if>
+                                            <aura:if isTrue="{!tab.customIcon != null}">
+                                                <lightning:icon src="{!tab.customIcon}" size="small" class="slds-m-right_small ct-custom-icon" />
+                                            </aura:if>
+                                            <span class="slds-assistive-text">Case</span>
+                                        </span>
+                                        <span class="slds-truncate" title="{!tab.title}">{!tab.title}</span>
+                                    </a>
+                                </li>
+                                </aura:if>
+                        </aura:iteration>
+                    </ul>
+                       <aura:set attribute="else">
+                            <ul class="slds-tabs_default__nav" role="tablist">
+                        <aura:iteration items="{!v.tabsList}" var="tab" indexVar="index">
+                            <aura:if isTrue="{!((!tab.isPrivate &amp;&amp; !tab.isManager) ||
+                                (tab.isPrivate &amp;&amp; v.privateAccess) || (tab.isManager 
+                                &amp;&amp; v.managerAccess)) &amp;&amp; tab.isDisplayed}">
+                                <li class="{!(index == 0 ? 'slds-active ' :  '') + 'slds-tabs_default__item slds-sub-tabs__item
+                                slds-grid slds-grid_vertical-align-center slds-border_right slds-border_left slds-border_top'}"
+                                    role="presentation" aura:id="tab-item">
+                                    <a aria-controls="{!'subtab-tabpanel-' + index + v.myContact.Id}" aria-selected="true"
+                                        class="slds-tabs_default__link slds-p-horizontal_xx-small" href="javascript:void(0);"
+                                        id="{!'subtab-tabitem-' + index + v.myContact.Id}" 
+                                        data-contentid="{!'subtab-tabpanel-' + index + v.myContact.Id}" role="tab" 
+                                        tabindex="0" title="{!tab.title}" onclick="{!c.handlerTabs}">
+                                        <span class="slds-indicator-container"></span>
+                                        <span class="slds-icon_container" title="Case">
+                                            <aura:if isTrue="{!tab.icon != null &amp;&amp; tab.customIcon == null}">
+                                                <lightning:icon iconName="{!'utility:'+ tab.icon}" class="slds-m-right_small" size="small" />
+                                            </aura:if>
+                                            <aura:if isTrue="{!tab.customIcon != null}">
+                                                <lightning:icon src="{!tab.customIcon}" size="small" class="slds-m-right_small ct-custom-icon" />
+                                            </aura:if>
+                                            <span class="slds-assistive-text">Case</span>
+                                        </span>
+                                        <span class="slds-truncate" title="{!tab.title}">{!tab.title}</span>
+                                    </a>
+                                </li>
+                                </aura:if>
+                        </aura:iteration>
+                    </ul>
+                       </aura:set>
+                    </aura:if>
+                    <aura:iteration items="{!v.tabsList}" var="tab" indexVar="index">
+                        <aura:if isTrue="{!((!tab.isPrivate &amp;&amp; !tab.isManager) ||
+                            (tab.isPrivate &amp;&amp; v.privateAccess) || (tab.isManager 
+                            &amp;&amp; v.managerAccess)) &amp;&amp; tab.isDisplayed}">
+                            <div aria-labelledby="{!'subtab-tabitem-' + index + v.myContact.Id}"
+                                class="{!(index == 0 ? 'slds-show ' :  'slds-hide ') + 'slds-tabs_default__content'}"
+                                id="{!'subtab-tabpanel-' + index + v.myContact.Id}" role="tabpanel" aura:id="tab-item-content">
+                                <aura:iteration items="{!tab.relatedLists}" var="list">
+                                    <aura:if isTrue="{!((!list.isPrivate &amp;&amp; !list.isManager) ||
+                                        (list.isPrivate &amp;&amp; v.privateAccess) || 
+                                        (list.isManager &amp;&amp; v.managerAccess)) &amp;&amp; list.isDisplayed}">
+                                        <c:RelatedList
+                                            aura:id="relatedList"
+                                            title="{!list.title}"
+                                            icon="{!list.icon}"
+                                            parentId="{!v.token}"
+                                            objectApiName="{!list.objectApiName}"
+                                            referenceField="{!list.referenceField}"
+                                            fields="{!list.fields}"
+                                            fieldsToAdd="{!list.fieldsApiNameListStr}"
+                                            fieldsToEdit="{!list.fieldsApiNameListStr}"
+                                            addRecord="{!list.allowAdd &amp;&amp; v.privateAccess}"
+                                            editRecord="{!list.allowEdit &amp;&amp; v.privateAccess}"
+                                            deleteRecord="{!list.allowDelete &amp;&amp; v.privateAccess}"
+                                            ManagerAddRecord="{!list.allowAddManager &amp;&amp; v.managerAccess}"
+                                            ManagerEditRecord="{!list.allowEditManager &amp;&amp; v.managerAccess}"
+                                            ManagerDeleteRecord="{!list.allowDeleteManager &amp;&amp; v.managerAccess}"
+                                            allowFiles="{!list.allowFiles}"
+                                            showFiles="{!list.allowFiles}"
+                                            requiredFileOnField="{!list.attachmentRequiredField}"
+                                            attachmentRequired="{!list.attachmentRequired}"
+                                            filterList="{!list.filteringCriteria}"
+                                            sortClause="{!list.sortingClause}"
+                                            recordType="{!list.recordType}"/>
+                                    </aura:if>
+                                </aura:iteration>
+                                <aura:if isTrue="{!tab.relatedLists.length == 0}">
+                                    <div class="slds-col slds-size_1-of-1 slds-p-around_large slds-align_absolute-center">
+                                        <div class="slds-illustration slds-illustration_small " aria-hidden="true">
+                                            <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt="" />
+                                            <div class="slds-text-longform">
+                                                <p class="slds-text-body_regular">{!$Label.c.Empty_Tabs}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </aura:if>
+                    </aura:iteration>
+                </div>
+            </lightning:card>
+        </aura:if>
+
+        <!-- MODAL MODIFICATION -->
+        <aura:if isTrue="{!v.openModal}">
+            
+            <div class="edit-modal" style="height: 640px;">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                    aria-describedby="modal-content" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        <div class="slds-is-relative">
+                            <aura:if isTrue="{!v.modalLoading}">
+                                <lightning:spinner alternativeText="Loading" size="medium" />
+                            </aura:if>
+                            <header class="slds-modal__header">
+                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!v.modalTitle}
+                                </h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-vertical_large slds-p-horizontal_medium " id="modal-content">
+                                <aura:iteration items="{!v.fieldGroup.fieldsList}" var="field">
+                                    <aura:if isTrue="{!field.fieldType == 'reference'}">
+                                        <c:LookupField objectLabel="{!field.fieldLabel}"
+                                            refField="{!field.apiName}"
+                                            childObjectApiName="Contact"
+                                            nameField="{!field.apiName}"
+                                            filteredField="{!field.apiName}"
+                                            filteredFieldLabel="{!field.apiName}"
+                                            selectedObjectId="{!field.idValue}"
+                                            selectedObjectName="{!field.newValue}"
+                                            fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"
+                                            BypassLookupRemoveValue="{!v.BypassLookupRemoveValue}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'picklist'}">
+                                        <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                            <div class="slds-is-absolute">
+                                                <label class="slds-form-element__label slds-hidden">
+                                                    {!field.fieldLabel}
+                                                </label>
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </div>
+                                        </aura:if>
+                                        <lightning:select name="picklist" value="{!field.newValue}"
+                                            label="{!field.fieldLabel}">
+                                            <aura:iteration items="{!field.picklist}" var="options">
+                                                <option value="{!options.value}">{!options.label}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'boolean'}">
+                                        <lightning:input type="checkbox" name="checkbox" checked="{!field.newValue}"
+                                            label="{!field.fieldLabel}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'email'}">
+                                        <lightning:input type="email" name="email" value="{!field.newValue}"
+                                            label="{!field.fieldLabel}" onblur="{!c.handleBlur}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'date'}">
+                                        <lightning:input type="date" name="date" value="{!field.newValue}"
+                                            label="{!field.fieldLabel}" onblur="{!c.handleBlur}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'datetime'}">
+                                        <lightning:input type="datetime" name="datetime" value="{!field.newValue}"
+                                            label="{!field.fieldLabel}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'currency'}">
+                                        <lightning:input type="number" name="number" label="{!field.fieldLabel}"
+                                            value="{!field.newValue}" formatter="currency" step="0.01"
+                                            onblur="{!c.handleBlur}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if
+                                        isTrue="{!field.fieldType == 'double' || field.fieldType == 'integer' || field.fieldType == 'long'}">
+                                        <lightning:input type="number" name="number" value="{!field.newValue}"
+                                            label="{!field.fieldLabel}" onblur="{!c.handleBlur}" step="1" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if
+                                        isTrue="{!field.fieldType == 'string' || field.fieldType == 'encryptedstring'}">
+                                        <lightning:input value="{!field.newValue}" label="{!field.fieldLabel}"
+                                            onblur="{!c.handleBlur}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'phone'}">
+                                        <lightning:input type="tel" value="{!field.newValue}" name="phone"
+                                            label="{!field.fieldLabel}" onblur="{!c.handleBlur}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'address'}">
+                                        <lightning:inputAddress aura:id="address" addressLabel="Adresse" streetLabel="Rue"
+                                            cityLabel="Ville" countryLabel="Pays" provinceLabel="Province"
+                                            postalCodeLabel="Code postal" street="{!v.street}" city="{!v.city}"
+                                            country="{!v.country}" province="{!v.state}" postalCode="{!v.postalCode}"
+                                            fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}" />
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'textarea'}">
+                                        <lightning:textarea name="textarea" value="{!field.newValue}"
+                                            label="{!field.fieldLabel}" />
+                                            <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                                <div class="slds-is-absolute">
+                                                    <label class="slds-form-element__label slds-hidden">
+                                                        {!field.fieldLabel}
+                                                    </label>
+                                                    <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                                </div>
+                                            </aura:if>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'richtext'}">
+                                        <aura:if isTrue="{!field.fieldHelpText != ''}">
+                                            <div class="slds-is-absolute">
+                                                <label class="slds-form-element__label slds-hidden">
+                                                    {!field.fieldLabel}
+                                                </label>
+                                                <lightning:helptext class="slds-p-left_x-small" content="{!field.fieldHelpText}" />
+                                            </div>
+                                        </aura:if>
+                                        <lightning:inputRichText value="{!field.newValue}" label="{!field.fieldLabel}" labelVisible="true"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'percent'}">
+                                        <lightning:input type="number" name="percent" label="{!field.fieldLabel}"
+                                            value="{!field.newValue}" formatter="percent-fixed" step="0.01" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'url'}">
+                                        <lightning:input type="url" name="url" label="{!field.fieldLabel}"
+                                            value="{!field.newValue}" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.fieldType == 'multipicklist'}">
+                                        <lightning:dualListbox name="multipleOptions" label="{!field.fieldLabel}"
+                                            sourceLabel="{!$Label.c.Available}" selectedLabel="{!$Label.c.Selected}" options="{!field.picklist}"
+                                            value="{!field.selectedValues}" disableReordering="true" fieldLevelHelp="{!(field.fieldHelpText != '' ? field.fieldHelpText : '')}"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!field.allowAttachment}">
+                                        <aura:if isTrue="{!field.attachmentRequired}">
+                                            <span class="slds-text-color_error">{!$Label.c.Required_Files}</span>
+                                        </aura:if>
+                                        <lightning:fileUpload name="fileUploader" recordId="{!v.currentContactId}"
+                                            onuploadfinished="{!c.handleUploadFinished}" label="{!$Label.c.Files}"
+                                            multiple="true" />
+                                        <div class="slds-text-body_small slds-text-color_weak">{!v.filesName}</div>
+                                    </aura:if>
+                                </aura:iteration>
+                            </div>
+                            <footer class="slds-modal__footer">
+                                <button class="slds-button slds-button_neutral"
+                                    onclick="{!c.closeModal}">{!$Label.c.Action_cancel}</button>
+                                <aura:if isTrue="{!v.fieldGroup.fieldPermission == 'Free modification'}">
+                                    <button class="slds-button slds-button_brand" onclick="{!c.handleEdit}"
+                                        disabled="{!v.buttonDisabled}">{!$Label.c.Save}</button>
+                                    <aura:set attribute="else">
+                                        <button class="slds-button slds-button_brand" onclick="{!c.handleRequest}"
+                                            disabled="{!v.buttonDisabled}">{!$Label.c.Send_Request}</button>
+                                    </aura:set>
+                                </aura:if>
+                            </footer>
+                        </div>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open">
+                </div>
+            </div>
+        </aura:if>
+
+        <!-- MODAL EDIT PHOTO-->
+        <aura:if isTrue="{!v.isEditPhoto}">
+            <div class="edit-photo-modal" style="height: 640px;position: absolute;">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-photo" aria-modal="true" aria-describedby="modal-photo-content" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <h2 id="modal-photo" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.Update_Photo}</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-photo-content">
+                            <div class="slds-text-align_center">
+                                <div class="slds-align_absolute-center">
+                                    <lightning:fileCard fileId="{!v.photoFileId}" description="{!$Label.c.Current_Photo}" />
+                                </div>
+                                <div>
+                                    <lightning:fileUpload name="fileUploader" recordId="{!v.currentContactId}" onuploadfinished="{!c.handleUploadPhotoFinished}" label="{!$Label.c.Choose_New_Photo}"/>
+                                    <div class="slds-text-body_small slds-text-color_weak">{!v.message}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <button class="slds-button slds-button_brand" onclick="{!c.closeModalPhoto}">{!$Label.c.Finish}</button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open">
+                </div>
+            </div>
+        </aura:if>
+        <aura:set attribute="else">
+            
+            <c:Onboarding contact="{!v.myContact}"
+                sectionsList="{!v.sectionsList}"
+                tabsList="{!v.tabsList}"
+                privateAccess="{!v.privateAccess}"
+                managerAccess="{!v.managerAccess}"
+                privateSectionAccess="{!v.privateSectionAccess}"
+                ManagerSectionAccess="{!v.ManagerSectionAccess}"
+                iconsColor="{!v.iconsColor}"
+                accountFieldName ="{!v.accountFieldName}"
+                isLoading ="{!v.isLoading}"
+            />
+        </aura:set>
+    </aura:if>
+</aura:component>

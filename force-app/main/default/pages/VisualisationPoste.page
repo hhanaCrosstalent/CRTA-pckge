@@ -1,0 +1,79 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" standardController="GS_Fiche_de_poste__c" cache="false">
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <div class="small-12 small-centered column">
+            <h3 class="title ">
+                  <apex:outputText value="{!$Label.crta__position_title}">
+                        <apex:param value="{!GS_Fiche_de_poste__c.Name}"/>
+                  </apex:outputText>
+            </h3>
+
+            <div class="row">
+                  <div class="small-12 column">
+                        <apex:outputLabel value="{!$ObjectType.GS_Fiche_de_poste__c.fields.GS_Description__c.Label} :" styleClass="ct-label" />
+                        <apex:outputField value="{!GS_Fiche_de_poste__c.GS_Description__c}" />
+                  </div>
+            </div>
+      </div>
+
+      <div id="skills" class="small-12 small-centered column tab-block" data-fold="false">
+            <h4 class="title secondary-font header">
+                  <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('skills');">
+                        <i class="fa fa-wrench"></i>
+                        <span>{!$ObjectType.Skill__c.LabelPlural}</span>
+                  </a>
+            </h4>
+            <div class="card">
+                  <div data-foldable="true">
+                        <div class="row header-table secondary-color">
+                              <div class="small-6 column">
+                                    <span>{!$ObjectType.Skill__c.fields.Name.Label}</span>
+                              </div>
+                              <div class="small-6 column">
+                                    <span>{!$ObjectType.Skill__c.fields.Type__c.Label}</span>
+                              </div>
+                        </div>
+                        <apex:repeat value="{!GS_Fiche_de_poste__c.Postes_competence__r}" var="skill">
+                              <div class="row result-table highlight-primary">
+                                    <div class="small-6 column">
+                                          &nbsp;
+                                          <span class="ct-output"><apex:outputField value="{!skill.EI_Competence__r.Name}" /></span>
+                                    </div>
+                                    <div class="small-6 column">
+                                          &nbsp;
+                                          <span class="ct-output"><apex:outputField value="{!skill.EI_Competence__r.Type__c}" /></span>
+                                    </div>
+                              </div>
+                        </apex:repeat>
+                  </div>
+            </div>
+      </div>
+
+      <div id="activities" class="small-12 small-centered column tab-block" data-fold="false">
+            <h4 class="title secondary-font header">
+                  <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('activities');">
+                        <i class="fa fa-tasks"></i>
+                        <span>{!$ObjectType.GS_Fiche_de_poste_Activite__c.LabelPlural}</span>
+                  </a>
+            </h4>
+            <div class="card">
+                  <div data-foldable="true">
+                        <div class="row header-table secondary-color">
+                              <div class="small-12 column">
+                                      <span>{!$ObjectType.GS_Fiche_de_poste_Activite__c.fields.GS_Libelle__c.Label}</span>
+                              </div>
+                        </div>
+                        <apex:repeat value="{!GS_Fiche_de_poste__c.Fiche_de_poste_Activites__r}" var="activity">
+                              <div class="row result-table highlight-primary">
+                                    <div class="small-12 column">
+                                            &nbsp;
+                                            <span class="ct-output"><apex:outputField value="{!activity.GS_Libelle__c}" /></span>
+                                    </div>
+                              </div>
+                        </apex:repeat>
+                  </div>
+            </div>
+      </div>
+</apex:define>
+</apex:composition>
+</apex:page>

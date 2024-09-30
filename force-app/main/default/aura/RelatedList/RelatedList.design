@@ -1,0 +1,20 @@
+<design:component>
+    <design:attribute name="title" label="{!$Label.crta.Label}"/>
+    <design:attribute name="icon" label="{!$Label.crta.Icon}"/>
+    <design:attribute name="objectApiName" label="{!$Label.crta.Object_Api_Name}"/>
+    <design:attribute name="referenceField" label="{!$Label.crta.Field_Reference}"/>
+    <design:attribute name="fields" label="{!$Label.crta.Array_Columns}" description="{!$Label.crta.Array_Columns_Description}"/>
+    <design:attribute name="filterList" Label="{!$Label.crta.List_Filter}" description="{!$Label.crta.List_Filter_Description}"/>
+    <design:attribute name="sortClause" Label="{!$Label.crta.Sort_to_Apply}" description="{!$Label.crta.Sort_to_Apply_Description}"/>
+    <design:attribute name="additionalFields" label="{!$Label.crta.Additional_Fields}" description="{!$Label.crta.Additional_Fields_Description}"/>
+    <design:attribute name="showFiles" label="{!$Label.crta.Display_Files}"/>
+    <design:attribute name="allowFiles" label="{!$Label.crta.Allow_to_Add_Files}"/>
+    <design:attribute name="addRecord" label="{!$Label.crta.Allow_to_Add}"/>
+    <design:attribute name="fieldsToAdd" label="{!$Label.crta.Field_to_Insert}" description="{!$Label.crta.Field_to_Insert_Description}"/>
+    <design:attribute name="editRecord" label="{!$Label.crta.Allow_to_Edit}"/>
+    <design:attribute name="fieldsToEdit" label="{!$Label.crta.Field_to_Edit}" description="{!$Label.crta.Field_to_Edit_Description}"/>
+    <design:attribute name="deleteRecord" label="{!$Label.crta.Allow_to_Delete}"/>
+    <design:attribute name="filterField" label="{!$Label.crta.Field_Filter}" description="{!$Label.crta.Field_Filter_Description}"/>
+    <design:attribute name="editFilterValues" label="{!$Label.crta.Filter_Edit_Values}" description="{!$Label.crta.Filter_Edit_Values_Description}"/>
+    <design:attribute name="deleteFilterValues" label="{!$Label.crta.Filter_Delete_Values}" description="{!$Label.crta.Filter_Delete_Values_Description}"/>
+</design:component>

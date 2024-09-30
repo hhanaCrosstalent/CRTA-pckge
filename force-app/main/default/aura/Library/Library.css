@@ -1,0 +1,22 @@
+.THIS .slds-tree_container{
+    max-width: none;
+    width: fit-content;
+}
+.THIS .slds-tree .slds-button {
+    margin-top: 0;
+}
+
+.THIS #tag_search .slds-badge:hover {
+    cursor: pointer;
+}
+
+.THIS .tag-active {
+    background-color: var(--active-tag-color);
+    color: #FFF;
+}
+
+.THIS .helpText {
+    position: relative;
+    top: -56px;
+    left: 82px;
+}

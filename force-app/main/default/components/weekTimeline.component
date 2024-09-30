@@ -1,0 +1,32 @@
+<apex:component layout="block">
+      <apex:attribute name="week" description="Wanted week" type="Feuille_Temps_Hebdo__c" required="true"/>
+
+      <li id="{!week.id}" class="timeline-block {!IF(week.valeur_statut__c != null && week.valeur_statut__c < 90, 'pending', 'finished')}" data-type="week">
+            <div class="tlcontent">
+                  <div class="tltype week">
+                        <i title="{!$ObjectType.Feuille_Temps_Hebdo__c.Label}" class="fa fa-calendar"></i> 
+                        <a href="{!$Setup.crta__sirh__c.crta__Page_Semaine__c}?id={!week.id}">
+                              <apex:outputText value="{!$Label.crta__timeline_week_title}">
+                                <apex:param value="{!week.Numero_de_semaine__c}"/>
+                              </apex:outputText>
+                        </a>
+                        <time class="tltime" datetime="{!week.Date_debut_semaine__c}">
+                              <span>
+                                    <i class="fa {!IF(week.valeur_statut__c != null && week.valeur_statut__c < 90, 'fa-clock-o', 'fa-check-circle-o')}"></i>
+                                    <apex:outputField value="{!week.Date_debut_semaine__c}" />
+                              </span>
+                        </time>
+                  </div>
+                  <div class="tllabel">
+                        <div class="row tldetails">
+                              <apex:outputPanel styleClass="small-12 medium-6 column">
+                                  <span class="ct-label">{!$ObjectType.Feuille_Temps_Hebdo__c.fields.Regime_de_travail__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!week.Regime_de_travail__c}" /></span> 
+                              </apex:outputPanel>
+                              <apex:outputPanel styleClass="small-12 medium-6 column">
+                                  <span class="ct-label">{!$ObjectType.Feuille_Temps_Hebdo__c.fields.Statut__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!week.Statut__c}" /></span>
+                              </apex:outputPanel>
+                        </div>
+                  </div>
+            </div>
+      </li>
+</apex:component>

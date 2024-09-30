@@ -1,0 +1,12 @@
+<design:component>
+    <design:attribute name="mapKey" label="Google Map Key" 
+                      description="Key provided by Google for API access to its map service"/>
+    <design:attribute name="address" label="Start adress" 
+                      description="Location at the center of the initial search, e.g. Paris, FR"/>
+    <design:attribute name="distance" label="Start radius" 
+                      description="Radius of initial search, e.g. 50" />
+    <design:attribute name="columnsContact" label="Fields of contacts" 
+                      description="API field names of Contact object separated by comma"/>
+    <design:attribute name="columnscrta__Offre_d_emploi__c" label="Fields of job postings" 
+                      description="API field names of crta__Offre_d_emploi__c object separated by comma"/>
+</design:component>

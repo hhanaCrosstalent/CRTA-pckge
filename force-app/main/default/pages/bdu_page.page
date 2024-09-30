@@ -1,0 +1,201 @@
+<apex:page sidebar="false" showHeader="false" controller="BduController">
+<apex:composition template="BDU_template">
+<apex:define name="body">
+      <div class="show-for-print">
+          <img src="{!filigrane}" width="100%" height="100%" style="position: fixed;background-repeat:repeat;left: 0cm; top:0cm; z-index:-1"/>
+          <h3><apex:outputText value="{!$Setup.override__c.CT_printText__c}"/></h3><br />
+          <h3>Année sélectionnée : {!selectedPeriod}</h3><br />
+          <h3>Imprimé par {!$User.FirstName} {!$User.LastName} le {!todayDate}</h3>
+      </div>
+
+      <apex:form >
+        <span class="Cocon annee hide-for-print joyride-bdu-filters">
+          <apex:outputLabel rendered="{!IF(AND(availablePeriods.size > 0, total > 0), true, false)}" value="{!$Label.crta__bdu_year} : " />
+          <apex:selectList rendered="{!IF(AND(availablePeriods.size > 0, total > 0), true, false)}" id="year-select" value="{!selectedPeriod}" size="1" title="Dates">
+              <apex:selectOptions value="{!availablePeriods}"></apex:selectOptions>
+          </apex:selectList>
+
+          <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU1__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU1__c.Label} : " />
+          <apex:inputField rendered="{!$Setup.showOptions__c.showBU1__c}" value="{!mockValeur.CT_BU1__c}" />
+          <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU2__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU2__c.Label} : " />
+          <apex:inputField rendered="{!$Setup.showOptions__c.showBU2__c}" value="{!mockValeur.CT_BU2__c}" />
+          <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU3__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU3__c.Label} : " />
+          <apex:inputField rendered="{!$Setup.showOptions__c.showBU3__c}" value="{!mockValeur.CT_BU3__c}" />
+          <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU4__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU4__c.Label} : " />
+          <apex:inputField rendered="{!$Setup.showOptions__c.showBU4__c}" value="{!mockValeur.CT_BU4__c}" />
+          <apex:outputLabel rendered="{!$Setup.showOptions__c.showBU5__c}" value="{!$ObjectType.BDU_Valeur__c.fields.CT_BU5__c.Label} : " />
+          <apex:inputField rendered="{!$Setup.showOptions__c.showBU5__c}" value="{!mockValeur.CT_BU5__c}" />
+
+          <apex:commandButton rendered="{!IF(availablePeriods.size > 0, true, false)}" action="{!changeYear}" value=" Valider"/>
+
+          <apex:outputLink styleClass="right" target="_blank" rendered="{!$Setup.showOptions__c.showPrint__c}"  value="#" onclick="event.preventDefault(); window.print();">
+              <apex:image url="{!URLFOR($Resource.btn_imprimer)}" styleClass="left" width="115" />
+          </apex:outputLink>
+        </span>
+        <div class="clear"></div>
+
+        <apex:outputText rendered="{!IF(indicateurs.size = 0, true, false)}" value="{!$Setup.override__c.CT_emptyPage__c}" />
+
+        <apex:repeat value="{!indicateurs}" var="indicateur">
+            <apex:variable value="{!IF(displayValue[indicateur.id], indicateursToValeurs[indicateur.id], null)}" var="valeur" />
+
+            <c:bduIndicateur rendered="{!IF($Setup.showOptions__c.showEmptyIndicateur__c || valeur != null, true, false)}" indicateur="{!indicateur}" valeur="{!valeur}" displayIndic="{!displayValue[indicateur.id]}" displayAttachment="{!displayAttachment[indicateur.id]}" attachment="{!indicateursToAttachments[indicateur.id]}" />
+        </apex:repeat>
+
+        <apex:outputPanel layout="block" styleClass="pagination hide-for-print joyride-bdu-pagination" rendered="{!IF(total > nbIndic, true, false)}">
+            <apex:outputLink rendered="{!IF(page-10 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=1, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">&#9664; Première page</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-9 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-9, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-9}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-8 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-8, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-8}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-7 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-7, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-7}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-6 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-6, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-6}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-5 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-5, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-5}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-4 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-4, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-4}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-3 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-3, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-3}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-2 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-2, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-2}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(page-1 > 0, true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page-1, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page-1}</apex:outputLink>
+            <span class="current-page">{!page}</span>
+            <apex:outputLink rendered="{!IF(total > (page*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+1, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+1}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+1)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+2, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+2}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+2)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+3, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+3}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+3)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+4, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+4}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+4)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+5, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+5}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+5)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+6, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+6}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+6)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+7, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+7}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+7)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+8, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+8}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+8)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+9, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+9}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+9)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+10, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+10}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+10)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+11, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+11}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+11)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+12, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+12}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+12)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+13, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+13}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+13)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=page+14, year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">{!page+14}</apex:outputLink>
+            <apex:outputLink rendered="{!IF(total > ((page+15)*$Setup.override__c.CT_nbIndic__c), true, false)}" value="{!URLFOR($Page.bdu_page, null, [id=slug, page=CEILING(total/$Setup.override__c.CT_nbIndic__c), year=selectedPeriod, ch=indicateurs[0].CT_domaine__c])}">Dernière page &#9654;</apex:outputLink>
+        </apex:outputPanel>
+      </apex:form>
+
+      <script type="text/javascript">
+          function getHistory(period, id) {
+              var moValeurAnnee = '{!JSENCODE(mockValeur.CT_Annee__c)}';
+              var moValeurBU1 = '{!JSENCODE(mockValeur.CT_BU1__c)}';
+              var moValeurBU2 = '{!JSENCODE(mockValeur.CT_BU2__c)}';
+              var moValeurBU3 = '{!JSENCODE(mockValeur.CT_BU3__c)}';
+              var moValeurBU4 = '{!JSENCODE(mockValeur.CT_BU4__c)}';
+              var moValeurBU5 = '{!JSENCODE(mockValeur.CT_BU5__c)}';
+            Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.BduController.getHistory}', period, id, moValeurAnnee, moValeurBU1, moValeurBU2, moValeurBU3, moValeurBU4, moValeurBU5, function(result, event) {
+                if (event.status) {
+                  jQuery('#history-'+id).children('.content').html('');
+                  var d = new Date();
+                  var n = d.getTime();
+                  jQuery(result).each(function(index, el) {
+                    if (period == 'annees') {
+                            var title = (el[NSU+'CT_isConfidential__c'] == true && (el[NSU+'CT_confidentialityDate__c'] == null || el[NSU+'CT_confidentialityDate__c'] >= n)) ? 'Confidentiel - '+el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' - ' + el[NSU+'CT_Annee__c'] : el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' - ' + el[NSU+'CT_Annee__c'];
+                    } else if(period == 'semestres') {
+                            var title = (el[NSU+'CT_isConfidential__c'] == true && (el[NSU+'CT_confidentialityDate__c'] == null || el[NSU+'CT_confidentialityDate__c'] >= n)) ? 'Confidentiel - '+el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' -  Semestre ' + el[NSU+'CT_Semestre__c'] : el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' -  Semestre ' + el[NSU+'CT_Semestre__c'];
+                    } else if(period == 'trimestres') {
+                            var title = (el[NSU+'CT_isConfidential__c'] == true && (el[NSU+'CT_confidentialityDate__c'] == null || el[NSU+'CT_confidentialityDate__c'] >= n)) ? 'Confidentiel - '+el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' -  Trimestre ' + el[NSU+'CT_Trimestre__c'] : el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' -  Trimestre ' + el[NSU+'CT_Trimestre__c'];
+                    } else if(period == 'bimestres') {
+                            var title = (el[NSU+'CT_isConfidential__c'] == true && (el[NSU+'CT_confidentialityDate__c'] == null || el[NSU+'CT_confidentialityDate__c'] >= n)) ? 'Confidentiel - '+el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' -  Bimestre ' + el[NSU+'CT_Bimestre__c'] : el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' -  Bimestre ' + el[NSU+'CT_Bimestre__c'];
+                    } else if(period == 'mois') {
+                            var title = (el[NSU+'CT_isConfidential__c'] == true && (el[NSU+'CT_confidentialityDate__c'] == null || el[NSU+'CT_confidentialityDate__c'] >= n)) ? 'Confidentiel - '+el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' -  Mois ' + el[NSU+'CT_Mois__c'] : el[NSU+'CT_BDU_Indicateur__r'][NSU+'CT_Libelle__c']+' -  Mois ' + el[NSU+'CT_Bimestre__c'];
+                    }
+                    var backClass = (el[NSU+'CT_isConfidential__c'] == true && (el[NSU+'CT_confidentialityDate__c'] == null || el[NSU+'CT_confidentialityDate__c'] >= n)) ? 'red' : 'secondary-color';
+                    var div = '<div clas="indicateur">';
+                    var header = div+'<h4 class="'+backClass+' title header">'+title+'</h4>';
+                    var valeur = header+'<div class="valeur">'+decodeHtml(el[NSU+'CT_Valeur__c'])+'</div>';
+                    jQuery('#history-'+id).children('.content').append(valeur);
+
+                    if (el[NSU+'CT_BDU_Indicateur__r'][NSU+'Type_de_graphique__c']) {
+                      var chart = valeur+'<div id="history-'+el.Id+'"></div>';
+                      var startScript = chart+'<script type="text/javascript">';
+                      var chartScript = startScript+ 'drawHistoryChart'+el.Id+'();function drawHistoryChart'+el.Id+'() {var data = google.visualization.arrayToDataTable(['+el[NSU+'CT_Val__c']+']);var options = {title: \'\',is3D: true};var chart = new google.visualization.'+el[NSU+'CT_BDU_Indicateur__r'][NSU+'Type_de_graphique__c']+'(document.getElementById(\'history-'+el.Id+'\'));chart.draw(data, options);}<';
+                      var endScript = chartScript+'/script></div>';
+                      jQuery('#history-'+id).children('.content').append(endScript);
+                    }
+                  });
+                  if (result.length == 0) {
+                    jQuery('#history-'+id).children('.content').html('<div class="no-result">Pas d\'historique pour cet indicateur et période</div>');
+                  }
+                  jQuery('#history-'+id).modal();
+                } else {
+                }
+            }, {escape: false});
+          }
+
+          function decodeHtml(html) {
+            var txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+          }
+
+          function startIntro(){
+            var intro = introJs();
+            intro.setOptions({
+              nextLabel: "{!$Label.crta__si_joyride_button_next}",
+              prevLabel: "{!$Label.crta__si_joyride_button_previous}",
+              doneLabel: "{!$Label.crta__si_joyride_button_end}",
+              skipLabel: "{!$Label.crta__si_joyride_button_skip}",
+              exitOnEsc: true,
+              exitOnOverlayClick: true,
+              showStepNumbers: false,
+              keyboardNavigation: true,
+              disableInteraction: true,
+              steps: [
+                {
+                  intro: "{!$Label.crta__bdu_joyride_indic_step}"
+                },
+                {
+                  element: jQuery('.joyride-bdu-filters')[0],
+                  intro: "{!$Label.crta__bdu_joyride_filters_step}",
+                  position: 'bottom'
+                },
+                {
+                  element: jQuery('.joyride-indicateur')[0],
+                  intro: "{!$Label.crta__bdu_joyride_indicateur_step}",
+                  position: 'left'
+                },
+                {
+                  element: jQuery('.joyride-indic-title')[0],
+                  intro: "{!$Label.crta__bdu_joyride_indic_title_step}",
+                  position: 'bottom'
+                },
+                {
+                  element: jQuery('.joyride-indic-value')[0],
+                  intro: "{!$Label.crta__bdu_joyride_indic_value_step}",
+                  position: 'left'
+                },
+                {
+                  element: jQuery('.joyride-indic-description')[0],
+                  intro: "{!$Label.crta__bdu_joyride_indic_description_step}",
+                  position: 'left'
+                },
+                {
+                  element: jQuery('.joyride-indic-comment')[0],
+                  intro: "{!$Label.crta__bdu_joyride_indic_comment_step}",
+                  position: 'top'
+                },
+                {
+                  element: jQuery('.joyride-bdu-pagination')[0],
+                  intro: "{!$Label.crta__bdu_joyride_pagination_step}",
+                  position: 'top'
+                }
+              ]
+            });
+            intro.start().setOption('doneLabel', '{!$Label.crta__si_joyride_button_next_page}').oncomplete(function() {
+              window.location.href = '{!$Page.bdu_rapport}?multipage=true';
+            }).onexit(function() {
+                Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.BduController.finishJoyride}',
+                    function(result, event) {
+                        if(result == null || result == 'null') {
+                            console.log(event);
+                        } else if(result != 'success') {
+                            console.log(result);
+                        }
+                    },
+                    {escape: true}
+                );
+            });
+          }
+
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

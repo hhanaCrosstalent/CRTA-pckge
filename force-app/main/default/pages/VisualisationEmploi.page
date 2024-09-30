@@ -1,0 +1,423 @@
+<apex:page sidebar="false" showHeader="false" cache="false" docType="html-5.0" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" controller="VisualisationEmploiController">
+<apex:composition template="sirhTemplate">
+<apex:define name="body">
+      <apex:form id="form">
+      <div id="emploi">
+            <div class="left-block small-12 medium-12 large-6 column">
+                  <!-- Filtres -->
+                  <div id="filters" class="small-12 small-centered column info-block" data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('filters');">
+                                    <i class="fa fa-filter"></i>
+                                    <span>{!$Label.Filters}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div class="row infos" data-foldable="true">
+                                    <div class="small-12 large-4 column info">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Offre_d_emploi__c.fields.Filiere__c.Label} :" for="filiere"/>
+                                          <apex:selectList id="filiere" value="{!selectedFiliere}" size="1" title="filieres" html-data-field="Filiere__c">
+                                          <apex:selectOptions value="{!filieres}"></apex:selectOptions>
+                                          </apex:selectList>
+                                    </div>
+                                    <div class="small-12 medium-6 large-4 column info">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Offre_d_emploi__c.fields.CT_Industry_of_activities__c.Label} :" for="industry"/>
+                                          <apex:selectList id="industry" value="{!selectedIndustry}" size="1" title="industries" html-data-field="CT_Industry_of_activities__c">
+                                                <apex:selectOptions value="{!industries}"></apex:selectOptions>
+                                          </apex:selectList>
+                                    </div>
+                                    <div class="small-12 medium-6 large-4 column info">
+                                          <apex:outputLabel styleClass="ct-label" value="{!$ObjectType.Offre_d_emploi__c.fields.CT_City__c.Label} :" for="city"/>
+                                          <apex:selectList id="city" value="{!selectedCity}" size="1" title="cities" html-data-field="CT_City__c">
+                                                <apex:selectOptions value="{!cities}"></apex:selectOptions>
+                                          </apex:selectList>
+                                    </div>
+                                    <div class="button-center">
+                                          <button onclick="event.preventDefault(); loadOffers(0);" class="green button outline"><i class="fa fa-search"></i> {!$Label.Search}</button>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+
+                  <!-- Liste des offres -->
+                  <div id="list" class="small-12 small-centered column info-block" data-fold="false">
+                        <h4 class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('list');">
+                                    <i class="fa fa-search"></i>
+                                    <span>{!$ObjectType.Offre_d_emploi__c.LabelPlural}</span>
+                              </a>
+                        </h4>
+                        <div class="card no-border">
+                              <div class="ct-table" data-foldable="true">
+                                    <table data-position="0">
+                                          <thead class="secondary-color header-table">
+                                                <tr>
+                                                      <th>{!$ObjectType.Offre_d_emploi__c.fields.Filiere__c.Label}</th>
+                                                      <th>{!$ObjectType.Offre_d_emploi__c.fields.Name.Label}</th>
+                                                      <th>{!$ObjectType.Offre_d_emploi__c.fields.CT_Date_debut_Contrat__c.Label}</th>
+                                                      <th>{!$ObjectType.Offre_d_emploi__c.fields.CT_City__c.Label}</th>
+                                                </tr>
+                                          </thead>
+                                          <tbody></tbody>
+                                          <tfoot class="pagination">
+                                                <tr>
+                                                      <td colspan="4">
+                                                            <a href="#" data-direction="previous"><i class="fa fa-arrow-left"></i></a>
+                                                            <span></span>
+                                                            <a href="#" data-direction="next"><i class="fa fa-arrow-right"></i></a>
+                                                      </td>
+                                                </tr> 
+                                          </tfoot>
+                                    </table>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <div class="right-block small-12 medium-12 large-6 column">
+                  <apex:variable value="{!IF(hasOffer, offerMap['offer'][0], null)}" var="offre" />
+                  <!-- Offre -->
+                  <div id="offre" class="small-12 small-centered column info-block" data-fold="false">
+                        <h4 id="offerName" class="title secondary-font header">
+                              <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('offre');">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span>{!IF(offre != null, offre.Name, $ObjectType.Offre_d_emploi__c.Label)}</span>
+                              </a>
+                        </h4>
+                        <div class="card">
+                              <div class="row infos" data-foldable="true">
+                                    <div id="offerFiliere" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Offre_d_emploi__c.fields.Filiere__c.Label} : <br />
+                                                <span class="ct-output">&nbsp;<apex:outputField rendered="{!offre != null}" value="{!offre.Filiere__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="offerIndustry" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Offre_d_emploi__c.fields.CT_Industry_of_activities__c.Label} : <br />
+                                                <span class="ct-output">&nbsp;<apex:outputField rendered="{!offre != null}" value="{!offre.CT_Industry_of_activities__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="offerDate" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Offre_d_emploi__c.fields.CT_Date_debut_Contrat__c.Label} : <br />
+                                                <span class="ct-output">&nbsp;<apex:outputField rendered="{!offre != null}" value="{!offre.CT_Date_debut_Contrat__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="offerCity" class="small-6 column">
+                                          <label class="ct-label">{!$ObjectType.Offre_d_emploi__c.fields.CT_City__c.Label} : <br />
+                                                <span class="ct-output">&nbsp;<apex:outputField rendered="{!offre != null}" value="{!offre.CT_City__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="offerDescription" class="small-12 column">
+                                          <label class="ct-label">{!$ObjectType.Offre_d_emploi__c.fields.CT_Description__c.Label} : 
+                                                <span class="ct-output"><apex:outputField rendered="{!offre != null}" value="{!offre.CT_Description__c}" /></span>
+                                          </label>
+                                    </div>
+                                    <hr class="separator" />
+                                    <div id="positionName" class="small-12 medium-3 column">
+                                          <label class="ct-label">{!$ObjectType.Offre_d_emploi__c.fields.Fiche_de_poste__c.Label} : <br />
+                                                <span class="ct-output">&nbsp;<apex:outputField rendered="{!offre != null}" value="{!offre.Fiche_de_poste__r.Name}" /></span>
+                                          </label>
+                                    </div>
+                                    <div id="positionDescription" class="small-12 medium-9 column">
+                                          <label class="ct-label">{!$ObjectType.GS_Fiche_de_poste__c.fields.GS_Description__c.Label} :
+                                                <span class="ct-output">&nbsp;<apex:outputField rendered="{!offre != null}" value="{!offre.Fiche_de_poste__r.GS_Description__c}" /></span>
+                                          </label>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+
+                  <!-- Pré-requis -->
+                  <apex:variable rendered="{!hasSkills}" value="{!offerMap['skills']}" var="skills" />
+                  <apex:variable rendered="{!hasPermits}" value="{!offerMap['permits']}" var="permits" />
+                  <apex:variable rendered="{!hasTrainings}" value="{!offerMap['trainings']}" var="trainings" />
+                  <apex:variable rendered="{!hasExperiences}" value="{!offerMap['experiences']}" var="experiences" />
+
+                  <div id="prerequis" class="small-12 small-centered column info-block" data-fold="false">
+                        <ul class="small-block-grid-1 medium-block-grid-2">
+                              <li id="skillList" data-fold="false">
+                                    <h4 class="title secondary-font header">
+                                          <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('skillList');">
+                                                <i class="fa fa-cogs"></i>
+                                                <span>{!$ObjectType.Skill__c.LabelPlural}</span>
+                                          </a>
+                                    </h4>
+                                    <div class="card">
+                                          <ol data-foldable="true">
+                                                <apex:repeat value="{!skills}" var="skill">
+                                                      <li title="{!skill.EI_Competence__r.EI_Description_de_la_competence__c}">{!skill.EI_Competence__r.Name}</li>
+                                                </apex:repeat>
+                                                <apex:outputText rendered="{!!hasSkills}" value="{!$Label.crta__offer_empty_list_skills}" />
+                                          </ol>
+                                    </div>
+                              </li>
+                              <li id="permitList" data-fold="false">
+                                    <h4 class="title secondary-font header">
+                                          <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('permitList');">
+                                                <i class="fa fa-legal"></i>
+                                                <span>{!$ObjectType.Habilitation__c.LabelPlural}</span>
+                                          </a>
+                                    </h4>
+                                    <div class="card">
+                                          <ol data-foldable="true">
+                                                <apex:repeat value="{!permits}" var="permit">
+                                                      <li title="{!permit.Habilitation__r.Description__c}">{!permit.Habilitation__r.Name}</li>
+                                                </apex:repeat>
+                                                <apex:outputText rendered="{!!hasPermits}" value="{!$Label.crta__offer_empty_list_permits}" />
+                                          </ol>
+                                    </div>
+                              </li>
+
+                              <li id="trainingList" data-fold="false">
+                                    <h4 class="title secondary-font header">
+                                          <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('trainingList');">
+                                                <i class="fa fa-graduation-cap"></i>
+                                                <span>{!$ObjectType.Formation__c.LabelPlural}</span>
+                                          </a>
+                                    </h4>
+                                    <div class="card">
+                                          <ol data-foldable="true">
+                                                <apex:repeat value="{!trainings}" var="training">
+                                                      <li>{!training.Catalogue_de_formation__r.FO_Nom_de_la_formation__c}</li>
+                                                </apex:repeat>
+                                                <apex:outputText rendered="{!!hasTrainings}" value="{!$Label.crta__offer_empty_list_trainings}" />
+                                          </ol>
+                                    </div>
+                              </li>
+                              <li id="experienceList" data-fold="false">
+                                    <h4 class="title secondary-font header">
+                                          <a href="#" class="folder secondary-font" onclick="event.preventDefault(); fold('experienceList');">
+                                                <i class="fa fa-briefcase"></i>
+                                                <span>{!$ObjectType.Experience_d_offre__c.LabelPlural}</span>
+                                          </a>
+                                    </h4>
+                                    <div class="card">
+                                          <ol data-foldable="true">
+                                                <apex:repeat value="{!experiences}" var="experience">
+                                                      <li>{!experience.Fiche_de_poste__r.Name} {!IF(experience.Duree_minimale__c != null && experience.Duree_minimale__c > 0, '('+TEXT(experience.Duree_minimale__c)+' an(s))', '')}</li>
+                                                </apex:repeat>
+                                                <apex:outputText rendered="{!!hasExperiences}" value="{!$Label.crta__offer_empty_list_experiences}" />
+                                          </ol>
+                                    </div>
+                              </li>
+                        </ul>
+                  </div>
+
+                  <div class="button-center">
+                        <a href="#" onclick="event.preventDefault(); apply('{!offre.Id}', '{!offre.Name}')" class="flat green button {!IF(!hasPositions, 'show', 'hide')}"><i class="fa fa-send-o"></i> {!$Label.Apply}</a>
+                  </div>
+            </div>
+      </div>
+      </apex:form>
+
+      <script type="text/javascript">
+            function loadOffers(offset) {
+                  jQuery('#filters button.green').html('<i class="fa fa-spin fa-spinner"></i>');
+
+                  var fields = []
+                  var values = []
+                  var operations = []
+                  values.push(document.getElementById('{!$Component.form.filiere}').value);
+                  fields.push(document.getElementById('{!$Component.form.filiere}').getAttribute('data-field'));
+                  values.push(document.getElementById('{!$Component.form.industry}').value);
+                  fields.push(document.getElementById('{!$Component.form.industry}').getAttribute('data-field'));
+                  values.push(document.getElementById('{!$Component.form.city}').value);
+                  fields.push(document.getElementById('{!$Component.form.city}').getAttribute('data-field'));
+                  values = cleanSoapArray(values);
+
+                  sforce.connection.sessionId = '{!$Api.Session_ID}';
+                  var xOffNum = '<apex:outputText value="{!JSENCODE(TEXT($Setup.Recrutement__c.offerNumber__c))}"/>';
+                  if(xOffNum == '') {
+                      jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>Please create Recrutement settings.</span></div>');
+                      jQuery(document).foundation('alert', 'reflow');
+                      return;
+                  }
+                  var offNum = parseInt(xOffNum);
+                  var result = sforce.apex.execute(NSD+'JobOfferRepository', 'getAllFilteredWithOffsetForFields', {
+                        filterFields: fields,
+                        filterOperations: operations,
+                        filterValues: values,
+                        offsetNumber: offset,
+                        limitNumber: offNum+1,
+                        fields: [NSU+'Filiere__c', NSU+'CT_Date_debut_Contrat__c', NSU+'CT_City__c']
+                  }, {
+                        onSuccess: function (result) {
+                              jQuery('#list table tbody').html('');
+                              var offNum = parseInt('<apex:outputText value="{!JSENCODE(TEXT($Setup.Recrutement__c.offerNumber__c))}"/>');
+                              jQuery.each(result, function(index, val) {
+                                  if(index == offNum) return false;
+                                  var line = '<tr class="highlight-primary" onclick="event.preventDefault(); getOffer(\''+val.Id+'\')">';
+                                  line += (typeof val[NSU+'Filiere__c'] == 'undefined') ? '<td></td>' : '<td>'+val[NSU+'Filiere__c']+'</td>';
+                                  line += '<td>'+val.Name+'</td>';
+                                  line += '<td>'+moment(val[NSU+'CT_Date_debut_Contrat__c']).format('L')+'</td>';
+                                  line += (typeof val[NSU+'CT_City__c'] == 'undefined') ? '<td>&nbsp;</td>' : '<td>'+val[NSU+'CT_City__c']+'</td>';
+                                  line += '</tr>';
+                                  jQuery('#list table tbody').append(line);
+
+                              });
+                              jQuery('#list table').attr('data-position', offset);
+
+                              if(result.length < offNum+1) {
+                                    jQuery('#list table tfoot a[data-direction="next"]').hide();
+                              } else { 
+                                    jQuery('#list table tfoot a[data-direction="next"]').show();
+                              }
+
+                              jQuery('#filters button.green').html('<i class="fa fa-search"></i> {!$Label.search}');
+                              if(jQuery('#list table').attr('data-position') == '0') {
+                                  jQuery('#list table tfoot a[data-direction="previous"]').hide();
+                              } else { 
+                                  jQuery('#list table tfoot a[data-direction="previous"]').show();
+                              }
+                        },
+                        onFailure: function (error) {
+                              console.log(error);
+                              jQuery('#filters button.green').html('<i class="fa fa-search"></i> {!$Label.search}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+error+'</strong><span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                              if(jQuery('#list table').attr('data-position') == '0') {
+                                  jQuery('#list table tfoot a[data-direction="previous"]').hide();
+                              } else { 
+                                  jQuery('#list table tfoot a[data-direction="previous"]').show();
+                              }
+                        }
+                  });
+            }
+
+            function getOffer(id) {
+                  Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationEmploiController.getOffer}', id, '{!JSENCODE(contactId)}', function(result, event) {
+                        if(event.status) {
+                              cleanOffer();
+                              var offer = result.offer[0];
+                              jQuery('#offerName span').html(offer.Name);
+                              jQuery('#offerFiliere span').html(offer[NSU+'Filiere__c']);
+                              jQuery('#offerIndustry span').html(offer[NSU+'CT_Industry_of_activities__c']);
+                              jQuery('#offerDate span').html(moment(offer[NSU+'CT_Date_debut_Contrat__c']).format('L'));
+                              jQuery('#offerCity span').html(offer[NSU+'CT_City__c']);
+                              jQuery('#offerDescription span').html('<br />'+decodeHTML(offer[NSU+'CT_Description__c']));
+                              if(offer[NSU+'Fiche_de_poste__c']) {
+                                    jQuery('#positionName span').html(offer[NSU+'Fiche_de_poste__r'].Name);
+                                    jQuery('#positionDescription span').html('<br />'+decodeHTML(offer[NSU+'Fiche_de_poste__r'][NSU+'GS_Description__c']));
+                              }
+                              if(!result.positions || result.positions.length == 0) {
+                                    jQuery('#prerequis ~.button-center .green.button').html('<i class="fa fa-send-o"></i> {!$Label.Button_apply}');
+                                    jQuery('#prerequis ~.button-center .green.button').attr('onclick', 'event.preventDefault(); apply(\''+offer.Id+'\', \''+offer.Name+'\')');
+                                    jQuery('#prerequis ~.button-center .green.button').show();
+                              }
+
+                              if(result.skills  && result.skills.length >0) {
+                                    for (var index = result.skills.length - 1; index >= 0; index--) {
+                                          var skill = result.skills[index];
+                                          var title = (NSU+'EI_Description_de_la_competence__c' in skill[NSU+'EI_Competence__r']) ? skill[NSU+'EI_Competence__r'][NSU+'EI_Description_de_la_competence__c'] : '';
+                                          jQuery('#skillList ol').append('<li title="'+title+'">'+skill[NSU+'EI_Competence__r'].Name+'</li>');
+                                    }
+                              } else {
+                                    jQuery('#skillList ol').append('{!$Label.crta__offer_empty_list_skills}');
+                              }
+                              if(result.permits && result.permits.length >0) {
+                                    for (var index = result.permits.length - 1; index >= 0; index--) {
+                                          var permit = result.permits[index];
+                                          var title = ('Description__c' in permit[NSU+'Habilitation__r']) ? permit[NSU+'Habilitation__r'][NSU+'Description__c'] : '';
+                                          jQuery('#permitList ol').append('<li title="'+title+'">'+permit[NSU+'Habilitation__r'].Name+'</li>');
+                                    }
+                              } else {
+                                    jQuery('#permitList ol').append('{!$Label.crta__offer_empty_list_permits}');
+                              }
+                              if(result.trainings  && result.trainings.length >0) {
+                                    for (var index = result.trainings.length - 1; index >= 0; index--) {
+                                          var training = result.trainings[index];
+                                          jQuery('#trainingList ol').append('<li>'+training[NSU+'Catalogue_de_formation__r'][NSU+'FO_Nom_de_la_formation__c']+'</li>');
+                                    }
+                              } else {
+                                    jQuery('#trainingList ol').append('{!$Label.crta__offer_empty_list_trainings}');
+                              }
+                              if(result.experiences  && result.experiences.length >0) {
+                                    for (var index = result.experiences.length - 1; index >= 0; index--) {
+                                          var experience = result.experiences[index];
+                                          var duration = ('Duree_minimale__c' in experience && experience[NSU+'Duree_minimale__c'] > 0) ? '('+experience[NSU+'Duree_minimale__c']+' an(s))' : '';
+                                          jQuery('#experienceList ol').append('<li>'+experience[NSU+'Fiche_de_poste__r'].Name+duration+'</li>');
+                                    }
+                              } else {
+                                    jQuery('#experienceList ol').append('{!$Label.crta__offer_empty_list_experiences}');
+                              }
+                              history.pushState(null, offer.Name, '<apex:outputText value="{!JSENCODE($Setup.sirh__c.Page_Emploi__c)}"/>?id='+offer.Id);
+                        } else {
+                              console.log(event);
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+event.message+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  }, {escape: true});
+            }
+
+            function apply(id, offerName) {
+                  jQuery('#offre .green.button').html('<i class="fa fa-spin fa-spinner"></i>');
+                  Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.VisualisationEmploiController.apply}', id, offerName, '{!JSENCODE(contactId)}', function(result, event) {
+                        if(result == 'success') {
+                              if(<apex:outputText value="{!JSENCODE(IF($Setup.sirh__c.useBrowserNotifications__c, "true", "false"))}"/>) {
+                                    body = '{!$Label.SI_Notif_application_creation}';
+                                    Push.create('{!$Organization.Name}', {
+                                          body: body.replace('{0}', offerName),
+                                          icon: {
+                                                x16: '{!$Resource.recrutement}',
+                                                x32: '{!$Resource.recrutement}'
+                                          }
+                                    });
+                                    jQuery('#prerequis ~.button-center .green.button').html('<i class="fa fa-thumbs-o-up"></i> {!$Label.Button_applied}');
+                                    jQuery('#prerequis ~.button-center .green.button').hide();
+                              } else {
+                                    window.location.reload();
+                              }
+                        } else if(result == null || result == 'null') {
+                              console.log(event);
+                              jQuery('#prerequis ~.button-center .green.button').html('<i class="fa fa-send-o"></i> {!$Label.Button_apply}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>{!$Label.SIRH_error_unknown} <strong>'+event.message+'</strong></span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        } else {
+                              console.log(result);
+                              jQuery('#prerequis ~.button-center .green.button').html('<i class="fa fa-send-o"></i> {!$Label.Button_apply}');
+                              jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>'+result+'</span><a href="#" class="close">&otimes;</a></div>');
+                              jQuery(document).foundation('alert', 'reflow');
+                        }
+                  }, {escape: true});
+            }
+
+            function cleanOffer() {
+                  jQuery('#offerName span').html('');
+                  jQuery('#offerFiliere span').html('');
+                  jQuery('#offerIndustry span').html('');
+                  jQuery('#offerDate span').html('');
+                  jQuery('#offerCity span').html('');
+                  jQuery('#offerDescription span').html('');
+                  jQuery('#positionName span').html('');
+                  jQuery('#positionDescription span').html('');
+                  jQuery('#offre button').hide();
+                  jQuery('#skillList ol').html('');
+                  jQuery('#permitList ol').html('');
+                  jQuery('#trainingList ol').html('');
+                  jQuery('#experienceList ol').html('');
+                  jQuery('#prerequis ~.button-center .green.button').hide();
+            }
+
+            // dummy to get rid of a silly error message 
+            function startIntro() {}
+
+            jQuery(document).ready(function() {
+                  loadOffers(0);
+                  jQuery('#list table').on('click', 'tfoot a', function(event) {
+                        event.preventDefault();
+                        var offset = parseInt(jQuery('#list table').attr('data-position'));
+                        var direction = jQuery(this).attr('data-direction');
+                        var offerNumber = parseInt('<apex:outputText value="{!JSENCODE(TEXT($Setup.Recrutement__c.offerNumber__c))}"/>');
+                          if(offerNumber == '') {
+                            jQuery('#alert-messages').append('<div class="alert-box alert small-12 small-centered column" data-alert="true"><span>Please create Recrutement settings.</span></div>');
+                            jQuery(document).foundation('alert', 'reflow');
+                            return;
+                          }
+                        offset = (direction == 'previous') ? offset - offerNumber : offset + offerNumber;
+                        offset = (offset < 0) ? 0 : offset;
+                        loadOffers(offset);
+                  });
+            });
+      </script>
+</apex:define>
+</apex:composition>
+</apex:page>

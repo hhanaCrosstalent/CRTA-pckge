@@ -1,0 +1,14 @@
+.THIS .padding-2 {
+    padding: 2%;
+}
+.THIS .w-7 {
+   /* width: 7%;*/
+        width: 85px;
+}
+.THIS .w-15 {
+    width: 14%;
+}
+.THIS .menu-style {
+     /*margin-top: -7px; */
+    background: var(--background);
+}

@@ -1,0 +1,35 @@
+.THIS .welcome-doc-gen{
+    background-size: cover;
+    display: flex;
+    overflow: auto;
+    background-position: bottom center;
+    background-repeat: no-repeat;
+    align-items: center;
+    position: relative;
+    padding: 1rem 2rem 7.75rem;
+}
+
+.THIS .welcome-doc-gen:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: block;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.THIS .welcome-doc-gen .slds-welcome-mat__info-content {
+    position: relative;
+    z-index: 1;
+    color: #FFF;
+}
+
+.THIS .slds-modal__header {
+    color: #FFF;
+}
+
+.THIS:focus {
+    outline: 0;
+}

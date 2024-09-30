@@ -1,0 +1,6 @@
+<design:component>
+    <design:attribute name="iconsColor" label="{!$Label.crta.Icons_Color}" />
+    <design:attribute name="accountFieldName" label="{!$Label.crta.Account_Field_API_Name}" />
+    <design:attribute name="showFiles" label="Deprecated" />
+    <design:attribute name="BypassLookupRemoveValue" label="{!$Label.crta.BypassLookupRemoveValue}" />
+</design:component>

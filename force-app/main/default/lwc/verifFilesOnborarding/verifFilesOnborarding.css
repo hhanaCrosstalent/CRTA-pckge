@@ -1,0 +1,19 @@
+.myLegend {
+    display: block;
+    padding-left: 5px;
+    padding-right: 2px;
+    border: none;
+    
+}
+
+p {
+    /*
+    width: 20px; /* à modifier selon vos besoins */
+    /*overflow: hidden; /* les dépassements seront masqués */
+    
+    inline-size: 50px;writing-mode: horizontal-tb;
+  }
+  .custom-truncate {
+    white-space: normal; /* Permet au texte de se retourner à la ligne */
+    word-wrap: break-word; /* S'assure que les mots trop longs sont coupés pour s'ajuster à la ligne */
+}

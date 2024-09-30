@@ -1,0 +1,24 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 19/03/2020 (CreatedDate)
+-->
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes"
+                controller="HideLightningHeaderController" 
+                access="global" >
+    <aura:attribute name="contactId" type="String" default="null" access="public"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:if isTrue="{!v.contactId == null}">
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+            <span class="slds-assistive-text">error</span>
+            <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small">
+                <lightning:icon iconName="utility:error" alternativeText="Error" variant="inverse" size="small"/>
+            </span>
+            <h2 class="slds-text-color_inverse">
+                {!$Label.c.Error_Contact}
+            </h2>
+        </div>
+    </aura:if>
+</aura:component>

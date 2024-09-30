@@ -1,0 +1,42 @@
+<apex:component layout="block">
+  <apex:attribute name="registration" description="Wanted training" type="Participation_session_formation__c" required="true" />
+
+  <li id="{!registration.Id}" class="timeline-block {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c < 30, 'pending', '')} {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c >= 30 && registration.Valeur_statut__c < 50, 'current', '')} {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c >= 50, 'confirmed', '')}" data-type="training">
+    <div class="tlcontent">
+      <div class="tltype training">
+        <i title="{!$ObjectType.Participation_session_formation__c.Label}" class="fa fa-graduation-cap"></i> 
+        <a href="{!$Setup.crta__sirh__c.crta__Page_Formation__c}?id={!registration.Action_de_formation__c}">
+          <apex:outputText value="{!$Label.crta__timeline_training_title}">
+            <apex:param value="{!registration.Nom_de_la_formation__c}"/>
+            <apex:param value="{!registration.Nom_de_l_organisme_de_formation__c}"/>
+          </apex:outputText>
+        </a>
+        <time class="tltime" datetime="{!registration.FO_Date_et_heure_de_debut__c}">
+          <span>
+            <i title="{!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c < 30, $Label.pending_training, '')} {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c >= 30 && registration.Valeur_statut__c < 50, $Label.current_training, '')} {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c >= 50, $Label.Finished_training, '')}" class="fa {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c < 30, 'fa-clock-o', '')} {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c >= 30 && registration.Valeur_statut__c < 50, 'fa-edit', '')} {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c >= 50 && registration.Valeur_statut__c < 80, 'fa-check-circle-o', '')} {!IF(registration.Valeur_statut__c != null && registration.Valeur_statut__c >= 80, 'fa-times-circle-o', '')}"></i>
+            <apex:outputField value="{!registration.FO_Date_et_heure_de_debut__c}" />
+          </span>
+        </time>
+      </div>
+      <div class="tllabel">
+        <div class="row tldetails">
+          <apex:outputPanel styleClass="small-12 medium-6 column">
+            <span class="ct-label">{!$ObjectType.Participation_session_formation__c.fields.Type_de_formation__c.Label}</span>&nbsp;: <span class="ct-output">{!registration.Type_de_formation__c}</span> 
+          </apex:outputPanel>
+          <apex:outputPanel styleClass="small-12 medium-6 column">
+            <span class="ct-label">{!$ObjectType.Participation_session_formation__c.fields.Statut__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputText value="{!registration.Statut__c}" /></span>
+          </apex:outputPanel>
+          <apex:outputPanel rendered="{!registration.Nom_du_formateur__c != null}" styleClass="small-12 medium-6 column">
+            <span class="ct-label">{!$ObjectType.Participation_session_formation__c.fields.Nom_du_formateur__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!registration.Nom_du_formateur__c}" /></span>
+          </apex:outputPanel>
+          <apex:outputPanel rendered="{!registration.Nom_de_la_salle__c != null}" styleClass="small-12 medium-6 column">
+            <span class="ct-label">{!$ObjectType.Salle_de_formation__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!registration.Nom_de_la_salle__c}" /></span>
+          </apex:outputPanel>
+          <apex:outputPanel rendered="{!registration.Nom_du_lieu__c != null && registration.Nom_de_la_salle__c == null}" styleClass="small-12 medium-6 column">
+            <span class="ct-label">{!$ObjectType.Participation_session_formation__c.fields.Nom_du_lieu__c.Label}</span>&nbsp;: <span class="ct-output"><apex:outputField value="{!registration.Nom_du_lieu__c}" /></span>
+          </apex:outputPanel>
+        </div>
+      </div>
+    </div>
+  </li>
+</apex:component>

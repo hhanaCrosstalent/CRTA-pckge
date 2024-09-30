@@ -1,0 +1,4 @@
+<design:component>
+	<design:attribute name="showAccounts" label="Show Accounts?" 
+                      description="The name of the account of a contact can be displayed behind the name of the contact."/>
+</design:component>

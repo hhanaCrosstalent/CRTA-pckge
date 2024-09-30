@@ -1,0 +1,60 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 04/03/2019 (CreatedDate)
+-->
+<aura:component implements="lightning:homeTemplate" 
+    description="Un en-tête pleine largeur au-dessus de trois zones d'égales largeur suivi de deux zones d'égales largeur."
+    access="global">
+	<aura:attribute name="bannerElement" type="Aura.Component[]" access="global"/>
+	<aura:attribute name="firstElement" type="Aura.Component[]" access="global"/>
+    <aura:attribute name="secondElement" type="Aura.Component[]" access="global"/>
+    <aura:attribute name="thirdElement" type="Aura.Component[]" access="global"/>
+	<aura:attribute name="firstColumn" type="Aura.Component[]" access="global"/>
+    <aura:attribute name="secondColumn" type="Aura.Component[]" access="global"/>
+    
+	<div>
+        <div class="slds-m-vertical_large">
+            <lightning:layout>
+                <lightning:layoutItem flexibility="grow">
+                    <div>{!v.bannerElement}</div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>
+        <div class="slds-m-vertical_large">
+	        <lightning:layout horizontalAlign="spread">
+	            <lightning:layoutItem padding="slds-col" 
+	                                  flexibility="grow" 
+	                                  size="{! $Browser.isDesktop ? '4' : '12' }"
+	                                  class="slds-p-horizontal_medium">
+	                <div>{!v.firstElement}</div>
+	            </lightning:layoutItem>
+	            <lightning:layoutItem padding="slds-col" 
+	                                  flexibility="grow" 
+	                                  size="{! $Browser.isDesktop ? '4' : '12' }" 
+	                                  class="slds-p-horizontal_medium">
+	                <div>{!v.secondElement}</div>
+	            </lightning:layoutItem>
+	            <lightning:layoutItem padding="slds-col" 
+	                                  flexibility="grow" 
+	                                  size="{! $Browser.isDesktop ? '4' : '12' }"
+	                                  class="slds-p-horizontal_medium">
+	                <div>{!v.thirdElement}</div>
+	            </lightning:layoutItem>
+	        </lightning:layout>
+        </div>
+        <div class="slds-m-vertical_large">
+             <lightning:layout horizontalAlign="spread">
+                <lightning:layoutItem flexibility="grow" 
+                                      size="{! $Browser.isDesktop ? '6' : '12' }"
+                                      class="slds-p-right_medium">
+                    <div>{!v.firstColumn}</div>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="no-grow" 
+                                      size="{! $Browser.isDesktop ? '6' : '12' }">
+                    <div>{!v.secondColumn}</div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>
+    </div>
+</aura:component>

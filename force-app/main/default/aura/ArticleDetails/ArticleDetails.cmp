@@ -1,0 +1,58 @@
+<!--
+* @Author Crosstalent
+* @UpdateList :
+* Ophélie ABOA -> 13/02/2019 (CreatedDate)
+-->
+<aura:component implements="flexipage:availableForAllPageTypes,lightning:isUrlAddressable" access="global" controller="ArticleDetailsController">
+    <aura:attribute name="articleId" type="String" access="public"/>
+    <aura:attribute name="hideArticleName" type="Boolean" default="false" access="public"/>
+	<aura:attribute name="article" type="Object" access="private"/>
+	<aura:attribute name="articleImg" type="String" access="private"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.doInit}" />
+    
+    <article class="slds-card slds-p-around_medium slds-size_1-of-1 slds-large-size_1-of-2 slds-medium-size_1-of-2 slds-align_absolute-center">
+        <div class="slds-grid slds-wrap">
+             <aura:if isTrue="{!!v.hideArticleName}">
+            <div class="slds-col slds-size_1-of-1 slds-text-heading_large slds-text-align_center">
+                {!v.article.Name}
+            </div>
+            </aura:if>
+            <div class="slds-col slds-size_1-of-1 slds-p-vertical_small slds-text-align_center">
+                <span>
+                    <span style="text-transform: capitalize; ">{!$Label.c.by}</span>&nbsp;<lightning:avatar variant="circle" 
+                                  src="{!v.article.crta__Couleur_du_titre__c}"
+                                  alternativeText="{!v.article.Owner.Name}" 
+                                  class="slds-m-horizontal_x-small"/>
+                    {!v.article.Owner.Name},
+                    <lightning:formattedDateTime value="{!v.article.crta__Date_de_publication__c}" 
+                        year="numeric" 
+                        month="long" 
+                        day="numeric" 
+                        weekday="long"
+                        class="MyDate"/>
+                </span>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-p-vertical_small slds-text-align_center">
+                <aura:if isTrue="{!v.article.crta__Link__c != null}">
+                    <div class="slds-text-align_center">
+                        <iframe width="600" height="380" src="{!v.article.crta__Link__c}" frameborder="0" allow="encrypted-media"/>
+                    </div>
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{!v.articleImg != ''}">
+                            <img src="{!v.articleImg}" />
+                            <aura:set attribute="else">
+                                <img src="{!$Resource.articleImageDefault}" />
+                            </aura:set>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+            </div>
+            <div class="slds-col slds-size_1-of-1 ">
+                <aura:unescapedHtml value="{!v.article.crta__Texte__c}" />
+            </div>
+        </div>
+    </article>
+    
+</aura:component>

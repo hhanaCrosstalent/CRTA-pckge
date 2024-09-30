@@ -1,0 +1,12 @@
+/* @author: Felix van Hove */
+.THIS iframe {
+    width: 900px;
+    height: 650px;
+    border: 0;
+}
+.THIS .bottom-align {
+    margin-top: auto;
+}
+.THIS .table-width {
+    width: 900px;
+}
